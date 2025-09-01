@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
+import { CampaignManager } from "@/components/dashboard/CampaignManager";
+import { AgentBuilder } from "@/components/dashboard/AgentBuilder";
+import { Analytics } from "@/components/dashboard/Analytics";
+import { KnowledgeBase } from "@/components/dashboard/KnowledgeBase";
+import { UserManagement } from "@/components/dashboard/UserManagement";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -10,17 +15,17 @@ const Index = () => {
       case 'dashboard':
         return <DashboardOverview />;
       case 'campaigns':
-        return <div className="p-6"><h2 className="text-2xl font-bold text-foreground">Campaigns</h2><p className="text-muted-foreground">Campaign management coming soon...</p></div>;
+        return <CampaignManager />;
       case 'agents':
-        return <div className="p-6"><h2 className="text-2xl font-bold text-foreground">AI Agents</h2><p className="text-muted-foreground">Agent configuration coming soon...</p></div>;
+        return <AgentBuilder />;
       case 'analytics':
-        return <div className="p-6"><h2 className="text-2xl font-bold text-foreground">Analytics</h2><p className="text-muted-foreground">Advanced analytics coming soon...</p></div>;
+        return <Analytics />;
       case 'knowledge':
-        return <div className="p-6"><h2 className="text-2xl font-bold text-foreground">Knowledge Base</h2><p className="text-muted-foreground">Knowledge management coming soon...</p></div>;
+        return <KnowledgeBase />;
       case 'workspace':
-        return <div className="p-6"><h2 className="text-2xl font-bold text-foreground">Workspace</h2><p className="text-muted-foreground">Workspace settings coming soon...</p></div>;
+        return <UserManagement />;
       case 'settings':
-        return <div className="p-6"><h2 className="text-2xl font-bold text-foreground">Settings</h2><p className="text-muted-foreground">Platform settings coming soon...</p></div>;
+        return <UserManagement />;
       default:
         return <DashboardOverview />;
     }
