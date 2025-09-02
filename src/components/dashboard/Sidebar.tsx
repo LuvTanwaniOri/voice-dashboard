@@ -3,7 +3,6 @@ import {
   BarChart3, 
   Bot, 
   Database, 
-  Settings, 
   Users, 
   Zap,
   Activity,
@@ -30,50 +29,55 @@ const navigation = [
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
-    <div className="w-64 bg-card border-r border-border h-full flex flex-col">
+    <div className="w-64 bg-surface border-r border-border/50 h-full flex flex-col shadow-md">
       {/* Logo */}
-      <div className="p-6 border-b border-border">
-        <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-            <Zap className="w-5 h-5 text-primary-foreground" />
+      <div className="p-6 border-b border-border/50">
+        <div className="flex items-center space-x-3">
+          <div className="w-10 h-10 bg-gradient-primary rounded-xl flex items-center justify-center shadow-glow/30">
+            <Zap className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">VoiceBot</h1>
-            <p className="text-xs text-muted-foreground">AI Platform</p>
+            <h1 className="text-xl font-bold text-text-primary tracking-tight">VoiceBot</h1>
+            <p className="text-xs text-text-muted font-medium">AI Platform</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            return (
-              <li key={item.id}>
-                <button
-                  onClick={() => onTabChange(item.id)}
-                  className={cn(
-                    "w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors duration-200",
-                    activeTab === item.id
-                      ? "bg-primary text-primary-foreground shadow-glow"
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                  )}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.name}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
+      <nav className="flex-1 p-4 space-y-1">
+        {navigation.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          
+          return (
+            <button
+              key={item.id}
+              onClick={() => onTabChange(item.id)}
+              className={cn(
+                "w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-left font-medium transition-all duration-base group",
+                isActive
+                  ? "bg-accent-blue text-white shadow-glow/40 scale-[1.02]"
+                  : "text-text-secondary hover:text-text-primary hover:bg-surface-2 hover:scale-[1.01]"
+              )}
+            >
+              <Icon className={cn(
+                "w-5 h-5 transition-colors duration-base",
+                isActive ? "text-white" : "text-text-muted group-hover:text-accent-blue"
+              )} />
+              <span className="font-medium tracking-wide">{item.name}</span>
+              {isActive && (
+                <div className="ml-auto w-2 h-2 bg-white/30 rounded-full animate-listening-pulse" />
+              )}
+            </button>
+          );
+        })}
       </nav>
 
       {/* Status */}
-      <div className="p-4 border-t border-border">
-        <div className="flex items-center space-x-2 text-sm">
-          <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-          <span className="text-muted-foreground">System Operational</span>
+      <div className="p-4 border-t border-border/50">
+        <div className="flex items-center space-x-3 p-3 rounded-lg bg-success/10 border border-success/20">
+          <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
+          <span className="text-sm font-medium text-success">System Operational</span>
         </div>
       </div>
     </div>

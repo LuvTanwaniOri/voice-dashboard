@@ -9,6 +9,7 @@ interface MetricCardProps {
   icon: ReactNode;
   trend?: 'up' | 'down' | 'neutral';
   className?: string;
+  variant?: 'default' | 'glass' | 'accent';
 }
 
 export function MetricCard({ 
@@ -17,6 +18,7 @@ export function MetricCard({
   change, 
   icon, 
   trend = 'neutral',
+  variant = 'default',
   className 
 }: MetricCardProps) {
   const getTrendColor = () => {
@@ -24,28 +26,68 @@ export function MetricCard({
       case 'up':
         return 'text-success';
       case 'down':
-        return 'text-destructive';
+        return 'text-danger';
       default:
         return 'text-muted-foreground';
     }
   };
 
+  const getTrendIcon = () => {
+    if (change === undefined) return null;
+    
+    const Icon = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '→';
+    return <span className="ml-1 text-xs">{Icon}</span>;
+  };
+
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'glass':
+        return 'glass-panel border-border/50';
+      case 'accent':
+        return 'bg-gradient-primary border-accent-blue/20 shadow-glow/20';
+      default:
+        return 'metric-card-enhanced';
+    }
+  };
+
   return (
-    <Card className={cn("bg-gradient-card border-border/50 shadow-card", className)}>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center justify-between">
-          {title}
-          <div className="text-primary">{icon}</div>
+    <Card className={cn(
+      "transition-all duration-base hover:scale-[1.02] hover:shadow-lg",
+      getVariantClasses(),
+      className
+    )}>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-medium text-text-secondary flex items-center justify-between">
+          <span>{title}</span>
+          <div className={cn(
+            "p-2 rounded-lg transition-colors duration-base",
+            variant === 'accent' ? 'bg-white/10' : 'bg-accent-blue/10 text-accent-blue'
+          )}>
+            {icon}
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-foreground">{value}</div>
-        {change !== undefined && (
-          <p className={cn("text-xs flex items-center mt-1", getTrendColor())}>
-            {change > 0 ? '+' : ''}{change}%
-            <span className="ml-1 text-muted-foreground">vs last period</span>
-          </p>
-        )}
+        <div className="space-y-2">
+          <div className={cn(
+            "text-3xl font-bold tracking-tight",
+            variant === 'accent' ? 'text-white' : 'text-text-primary'
+          )}>
+            {value}
+          </div>
+          {change !== undefined && (
+            <div className={cn(
+              "text-sm flex items-center",
+              getTrendColor()
+            )}>
+              <span className="font-medium">
+                {change > 0 ? '+' : ''}{change}%
+              </span>
+              {getTrendIcon()}
+              <span className="ml-2 text-text-muted">vs last period</span>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
