@@ -68,11 +68,12 @@ export default {
 					inverse: 'hsl(var(--text-inverse))'
 				},
 				
-				// Accent system with variants
-				'accent-blue': {
-					DEFAULT: 'hsl(var(--accent-blue))',
-					hover: 'hsl(var(--accent-blue-hover))',
-					subtle: 'hsl(var(--accent-blue-subtle))'
+				// Single Accent System
+				'accent-primary': {
+					DEFAULT: 'hsl(var(--accent-primary))',
+					hover: 'hsl(var(--accent-primary-hover))',
+					light: 'hsl(var(--accent-primary-light))',
+					muted: 'hsl(var(--accent-primary-muted))'
 				},
 				
 				// Legacy compatibility
