@@ -218,7 +218,20 @@ Design Philosophy: Hand-holding with operational precision
   }
   
   .voice-state-chip {
-    @apply transition-smooth;
+    transition: var(--transition-smooth);
+  }
+  
+  /* === UTILITY CLASSES === */
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-fast {
+    transition: var(--transition-fast);
+  }
+  
+  .transition-deliberate {
+    transition: var(--transition-deliberate);
   }
   
   .metric-card-enhanced {
