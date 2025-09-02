@@ -21,8 +21,7 @@ const navigation = [
   { id: 'agents', name: 'AI Agents', icon: Bot },
   { id: 'analytics', name: 'Analytics', icon: Activity },
   { id: 'knowledge', name: 'Knowledge Base', icon: Database },
-  { id: 'workspace', name: 'Workspace', icon: Users },
-  { id: 'settings', name: 'Settings', icon: Settings },
+  { id: 'workspace', name: 'Workspace Settings', icon: Users },
 ];
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {

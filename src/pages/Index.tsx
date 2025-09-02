@@ -24,8 +24,6 @@ const Index = () => {
         return <KnowledgeBase />;
       case 'workspace':
         return <UserManagement />;
-      case 'settings':
-        return <UserManagement />;
       default:
         return <DashboardOverview />;
     }
