@@ -111,12 +111,12 @@ export function AgentBuilder() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="agent-name">Agent Name</Label>
+                  <Label htmlFor="agent-name">Agent Display Name</Label>
                   <Input 
                     id="agent-name" 
                     value={agentName} 
                     onChange={(e) => setAgentName(e.target.value)}
-                    placeholder="Enter agent display name"
+                    placeholder="e.g., Aarav"
                   />
                 </div>
                 <div className="space-y-2">
@@ -134,15 +134,78 @@ export function AgentBuilder() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="geography">Geographic Region</Label>
-                  <Select defaultValue="us">
+                  <Label htmlFor="geography">Compliance Geography</Label>
+                  <Select defaultValue="US">
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="us">United States</SelectItem>
-                      <SelectItem value="in">India</SelectItem>
+                      <SelectItem value="US">United States (TCPA)</SelectItem>
+                      <SelectItem value="IN">India (TRAI)</SelectItem>
                       <SelectItem value="global">Global</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-card border-border/50 shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="w-5 h-5 text-primary" />
+                  <span>Etiquette & Formality</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Honorific Style</Label>
+                  <Select defaultValue="india">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="india">India (Shri/Smt)</SelectItem>
+                      <SelectItem value="western">Western (Mr/Ms)</SelectItem>
+                      <SelectItem value="none">None</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Formality Level</Label>
+                  <Select defaultValue="formal">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="formal">Formal</SelectItem>
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="casual">Casual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Address Fallback</Label>
+                  <Select defaultValue="name_gee">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="name_gee">Name + "gee"</SelectItem>
+                      <SelectItem value="sir_madam">Sir/Madam</SelectItem>
+                      <SelectItem value="first_name">First Name Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Pronoun Check Policy</Label>
+                  <Select defaultValue="on-ambiguous">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="on-ambiguous">On Ambiguous</SelectItem>
+                      <SelectItem value="always">Always Ask</SelectItem>
+                      <SelectItem value="never">Never Ask</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -271,6 +334,18 @@ export function AgentBuilder() {
                         </SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-2">
+                      <Label>Min Switch Words</Label>
+                      <Input defaultValue="4" type="number" min="1" max="10" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Hysteresis (seconds)</Label>
+                      <Input defaultValue="25" type="number" min="5" max="60" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Max Switches Per Call</Label>
+                      <Input defaultValue="2" type="number" min="1" max="5" />
+                    </div>
                     <div className="flex items-center justify-between">
                       <Label htmlFor="announce-switch">Announce Language Switch</Label>
                       <Switch id="announce-switch" defaultChecked />
@@ -303,6 +378,19 @@ export function AgentBuilder() {
                 <CardTitle>Language Model (LLM)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Provider Policy</Label>
+                  <Select defaultValue="quality-first">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="quality-first">Quality First</SelectItem>
+                      <SelectItem value="cost-first">Cost First</SelectItem>
+                      <SelectItem value="latency-first">Latency First</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Select defaultValue="gpt-4-turbo">
                   <SelectTrigger>
                     <SelectValue />
@@ -316,7 +404,8 @@ export function AgentBuilder() {
                 </Select>
                 <div className="text-sm text-muted-foreground">
                   <div>Cost: $0.03/1K tokens</div>
-                  <div>Latency: ~450ms P95</div>
+                  <div>First Token: ~380ms P95</div>
+                  <div>Target: ≤400ms</div>
                 </div>
               </CardContent>
             </Card>
@@ -326,20 +415,45 @@ export function AgentBuilder() {
                 <CardTitle>Text-to-Speech (TTS)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Select defaultValue="eleven-labs">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="eleven-labs">ElevenLabs</SelectItem>
-                    <SelectItem value="azure-neural">Azure Neural</SelectItem>
-                    <SelectItem value="aws-polly">AWS Polly</SelectItem>
-                    <SelectItem value="google-cloud">Google Cloud</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label>Voice Mapping</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-2 bg-accent/30 rounded">
+                        <span className="text-sm">en-US</span>
+                        <Select defaultValue="11L:ArianaEN">
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="11L:ArianaEN">11L: Ariana EN</SelectItem>
+                            <SelectItem value="Azure:SarahUS">Azure: Sarah US</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center justify-between p-2 bg-accent/30 rounded">
+                        <span className="text-sm">hi-IN</span>
+                        <Select defaultValue="Azure:ArianaHI">
+                          <SelectTrigger className="w-32">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Azure:ArianaHI">Azure: Ariana HI</SelectItem>
+                            <SelectItem value="11L:PriyaIN">11L: Priya IN</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Crossfade (ms)</Label>
+                    <Input defaultValue="180" type="number" min="100" max="500" />
+                  </div>
+                </div>
                 <div className="text-sm text-muted-foreground">
                   <div>Cost: $0.30/1K chars</div>
-                  <div>Latency: ~280ms P95</div>
+                  <div>First Chunk: ~185ms P95</div>
+                  <div>Target: ≤200ms</div>
                 </div>
               </CardContent>
             </Card>
@@ -349,6 +463,19 @@ export function AgentBuilder() {
                 <CardTitle>Speech-to-Text (STT)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Provider Policy</Label>
+                  <Select defaultValue="quality-first">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="quality-first">Quality First</SelectItem>
+                      <SelectItem value="cost-first">Cost First</SelectItem>
+                      <SelectItem value="latency-first">Latency First</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Select defaultValue="deepgram">
                   <SelectTrigger>
                     <SelectValue />
@@ -362,7 +489,9 @@ export function AgentBuilder() {
                 </Select>
                 <div className="text-sm text-muted-foreground">
                   <div>Cost: $0.0043/min</div>
-                  <div>WER: 8.7% (US EN)</div>
+                  <div>WER: 8.7% (US EN), 11.2% (Hindi)</div>
+                  <div>First Partial: ~235ms P95</div>
+                  <div>Target: ≤250ms</div>
                 </div>
               </CardContent>
             </Card>

@@ -6,7 +6,9 @@ import {
   Settings, 
   Users, 
   Zap,
-  Activity
+  Activity,
+  Volume2,
+  Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -17,10 +19,12 @@ interface SidebarProps {
 
 const navigation = [
   { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
-  { id: 'campaigns', name: 'Campaigns', icon: Phone },
+  { id: 'campaigns', name: 'Campaigns', icon: Target },
   { id: 'agents', name: 'AI Agents', icon: Bot },
   { id: 'analytics', name: 'Analytics', icon: Activity },
   { id: 'knowledge', name: 'Knowledge Base', icon: Database },
+  { id: 'operations', name: 'Operations', icon: Zap },
+  { id: 'voice', name: 'Voice & Lexicon', icon: Volume2 },
   { id: 'workspace', name: 'Workspace Settings', icon: Users },
 ];
 

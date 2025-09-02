@@ -6,6 +6,8 @@ import { AgentBuilder } from "@/components/dashboard/AgentBuilder";
 import { Analytics } from "@/components/dashboard/Analytics";
 import { KnowledgeBase } from "@/components/dashboard/KnowledgeBase";
 import { UserManagement } from "@/components/dashboard/UserManagement";
+import { OperationsWallboard } from "@/components/dashboard/OperationsWallboard";
+import { VoiceLexicon } from "@/components/dashboard/VoiceLexicon";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -22,6 +24,10 @@ const Index = () => {
         return <Analytics />;
       case 'knowledge':
         return <KnowledgeBase />;
+      case 'operations':
+        return <OperationsWallboard />;
+      case 'voice':
+        return <VoiceLexicon />;
       case 'workspace':
         return <UserManagement />;
       default:
