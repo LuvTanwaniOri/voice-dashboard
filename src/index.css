@@ -6,9 +6,8 @@
 
 /* 
 ============================================================================
-APPLE-LIKE CONVERSATIONAL UX v2.0
-"Clarity > Cleverness" - Warm, polite, quietly confident
-Design Philosophy: Hand-holding with operational precision
+OPERATOR SLATE DESIGN SYSTEM v1.0
+Modern voice-bot platform with "Operational Calm" aesthetic
 ============================================================================
 */
 
@@ -53,8 +52,9 @@ Design Philosophy: Hand-holding with operational precision
     --card-foreground: var(--text-primary);
     --popover: var(--surface);
     --popover-foreground: var(--text-primary);
-    --primary: var(--accent-primary);
+    --primary: var(--accent-blue);
     --primary-foreground: var(--text-inverse);
+    --primary-glow: var(--accent-blue-hover);
     --secondary: var(--surface-2);
     --secondary-foreground: var(--text-primary);
     --muted: var(--surface-2);
@@ -64,35 +64,38 @@ Design Philosophy: Hand-holding with operational precision
     --destructive: var(--danger);
     --destructive-foreground: var(--text-inverse);
     --input: var(--surface-2);
-    --ring: var(--accent-primary);
+    --ring: var(--accent-blue);
     
-    /* === APPLE-STYLE SHADOWS & ELEVATION === */
-    --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.08);    /* Apple card shadow */
-    --shadow-medium: 0 12px 32px rgba(0, 0, 0, 0.12); /* Elevated elements */
-    --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.16); /* Modals/drawers */
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06); /* Subtle card */
-    --shadow-glow: 0 0 24px hsl(var(--accent-primary) / 0.2);
-    --shadow-focus: 0 0 0 2px hsl(var(--accent-primary) / 0.3);
+    /* === GRADIENTS === */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--accent-blue)), hsl(var(--accent-blue-hover)));
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-subtle)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--surface)), hsl(var(--surface-2)));
+    --gradient-glass: linear-gradient(145deg, 
+      hsl(var(--surface) / 0.8), 
+      hsl(var(--surface-2) / 0.9)
+    );
     
-    /* === GLASS & TRANSLUCENCY === */
-    --glass-bg: hsl(var(--bg) / 0.95);
-    --glass-border: hsl(var(--border) / 0.5);
-    --blur-subtle: 8px;
-    --blur-medium: 12px;
+    /* === SHADOWS & ELEVATION === */
+    --shadow-sm: 0 1px 2px hsl(204 23% 4% / 0.12);
+    --shadow-md: 0 4px 14px hsl(204 23% 4% / 0.16);
+    --shadow-lg: 0 12px 30px hsl(204 23% 4% / 0.22);
+    --shadow-glow: 0 0 40px hsl(var(--accent-blue) / 0.3);
+    --shadow-card: 0 8px 32px hsl(204 23% 4% / 0.3);
+    --shadow-focus: 0 0 0 2px hsl(var(--accent-blue) / 0.3);
     
-    /* === DELIBERATE MOTION (Apple-like) === */
-    --duration-fast: 90ms;      /* Tooltips, quick feedback */
-    --duration-base: 180ms;     /* Hover states, buttons */
-    --duration-slow: 240ms;     /* Page transitions, drawers */
-    --duration-deliberate: 600ms; /* Long processes, wizards */
+    /* === MOTION & TIMING === */
+    --duration-fast: 90ms;
+    --duration-base: 180ms;
+    --duration-slow: 320ms;
+    --duration-deliberate: 600ms;
     
-    --easing-apple: cubic-bezier(0.33, 1, 0.68, 1); /* Apple's signature easing */
     --easing-in: cubic-bezier(0.32, 0, 0.67, 0);
     --easing-out: cubic-bezier(0.33, 1, 0.68, 1);
+    --easing-in-out: cubic-bezier(0.65, 0, 0.35, 1);
     
-    --transition-smooth: all var(--duration-base) var(--easing-apple);
+    --transition-smooth: all var(--duration-base) var(--easing-in-out);
     --transition-fast: all var(--duration-fast) var(--easing-out);
-    --transition-deliberate: all var(--duration-slow) var(--easing-apple);
+    --transition-bounce: all 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55);
     
     /* === SPACING & LAYOUT === */
     --space-xs: 0.25rem;  /* 4px */
@@ -114,27 +117,22 @@ Design Philosophy: Hand-holding with operational precision
     --radius-2xl: 1.5rem;  /* 24px */
     --radius: var(--radius-md);
     
-    /* === APPLE TYPOGRAPHY SCALE === */
-    --font-system: -apple-system, system-ui, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
-    --font-devanagari: "Noto Sans Devanagari", Hind, Mukta, system-ui;
-    --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+    /* === TYPOGRAPHY === */
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Inconsolata', monospace;
     
-    /* Apple-inspired type scale */
-    --text-hero: 56px;     /* Page heroes */
-    --text-page-title: 32px; /* Page titles */
-    --text-section: 24px;  /* Section headers */
-    --text-card-title: 20px; /* Card titles */
-    --text-body: 16px;     /* Body text (minimum) */
-    --text-meta: 14px;     /* Meta information */
+    --text-xs: 0.75rem;    /* 12px */
+    --text-sm: 0.8125rem;  /* 13px */
+    --text-md: 0.875rem;   /* 14px */
+    --text-lg: 1rem;       /* 16px */
+    --text-xl: 1.125rem;   /* 18px */
+    --text-2xl: 1.375rem;  /* 22px */
+    --text-3xl: 1.75rem;   /* 28px */
+    --text-4xl: 2.125rem;  /* 34px */
     
-    /* Line heights for readability */
-    --line-tight: 1.1;     /* Headlines */
-    --line-normal: 1.45;   /* Body text */
-    --line-relaxed: 1.6;   /* Long-form content */
-    
-    /* Touch targets */
-    --touch-target: 44px;  /* Minimum touch target */
-    --touch-target-lg: 56px; /* Comfortable touch target */
+    --line-tight: 1.2;
+    --line-normal: 1.45;
+    --line-relaxed: 1.6;
 
     /* === SIDEBAR === */
     --sidebar-background: var(--surface);
@@ -147,44 +145,43 @@ Design Philosophy: Hand-holding with operational precision
     --sidebar-ring: var(--accent-blue);
   }
 
-  /* === OPTIONAL DARK MODE === */
-  .dark {
-    /* Dark surfaces with Apple aesthetic */
-    --bg: 217 33% 6%;              /* #0B1215 - Dark background */
-    --surface: 217 28% 8%;         /* #0F181D - Dark surface */
-    --surface-2: 217 23% 11%;      /* #132129 - Secondary surface */
-    --border: 217 18% 15%;         /* #23323B - Dark borders */
+  /* === OPERATOR GLASS (Light Alternative) === */
+  .light {
+    /* Core surfaces */
+    --bg: 210 25% 97%;             /* #F7FAFC - Light background */
+    --surface: 0 0% 100%;          /* #FFFFFF - White surface */
+    --surface-2: 210 17% 95%;      /* #F2F5F7 - Light surface */
+    --border: 210 14% 83%;         /* #D8E0E6 - Light borders */
     
-    /* Dark typography */
-    --text-primary: 213 38% 92%;   /* #E6F1F5 - Light text */
-    --text-secondary: 213 22% 72%; /* #A5B8C2 - Secondary light */
-    --text-muted: 213 16% 55%;     /* #6B7F8A - Muted light */
-    --text-inverse: 217 33% 6%;    /* #0B1215 - Dark text */
+    /* Typography */
+    --text-primary: 210 44% 9%;    /* #0D1B24 - Dark text */
+    --text-secondary: 210 22% 35%; /* #405465 - Secondary text */
+    --text-muted: 210 20% 51%;     /* #6E8191 - Muted text */
+    --text-inverse: 0 0% 100%;     /* #FFFFFF - White text */
     
-    /* Adjust shadows for dark */
-    --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.24);
-    --shadow-medium: 0 12px 32px rgba(0, 0, 0, 0.32);
-    --shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.40);
-    --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.3);
+    /* Electric Blue Accent (same in light) */
+    --accent-blue: 210 100% 64%;   /* #4DA3FF */
+    --accent-blue-hover: 210 100% 58%; /* Slightly darker hover */
+    --accent-blue-subtle: 210 100% 95%;
     
-    /* Glass adjustments */
-    --glass-bg: hsl(var(--bg) / 0.95);
-    --glass-border: hsl(var(--border) / 0.5);
+    /* Updated gradients for light theme */
+    --gradient-card: linear-gradient(145deg, hsl(var(--surface)), hsl(var(--surface-2)));
+    --shadow-card: 0 4px 20px hsl(210 14% 83% / 0.15);
   }
 
-  /* === ACCESSIBILITY - HIGH CONTRAST === */
+  /* === HIGH CONTRAST VARIANT === */
   .high-contrast {
     --text-primary: 0 0% 100%;
     --text-secondary: 0 0% 90%;
-    --border: 0 0% 60%;
-    --accent-primary: 211 100% 75%;
+    --border: 0 0% 50%;
+    --accent-blue: 210 100% 75%;
   }
 }
 
 /* === VOICE-SPECIFIC ANIMATIONS === */
 @layer components {
   .listening-pulse {
-    @apply animate-gentle-pulse;
+    @apply animate-pulse;
   }
   
   .thinking-shimmer {
@@ -202,7 +199,7 @@ Design Philosophy: Hand-holding with operational precision
     background: linear-gradient(
       90deg,
       transparent,
-      hsl(var(--accent-primary) / 0.3),
+      hsl(var(--accent-blue) / 0.3),
       transparent
     );
     animation: shimmer var(--duration-slow) infinite;
@@ -211,31 +208,18 @@ Design Philosophy: Hand-holding with operational precision
   .speaking-waveform {
     background: linear-gradient(
       90deg,
-      hsl(var(--accent-primary)),
-      hsl(var(--accent-primary-hover))
+      hsl(var(--accent-blue)),
+      hsl(var(--accent-blue-hover))
     );
     animation: waveform var(--duration-base) infinite ease-in-out;
   }
   
   .voice-state-chip {
-    transition: var(--transition-smooth);
-  }
-  
-  /* === UTILITY CLASSES === */
-  .transition-smooth {
-    transition: var(--transition-smooth);
-  }
-  
-  .transition-fast {
-    transition: var(--transition-fast);
-  }
-  
-  .transition-deliberate {
-    transition: var(--transition-deliberate);
+    @apply transition-all duration-300 ease-in-out;
   }
   
   .metric-card-enhanced {
-    background: hsl(var(--surface));
+    background: var(--gradient-card);
     border: 1px solid hsl(var(--border));
     box-shadow: var(--shadow-card);
     transition: var(--transition-smooth);
@@ -243,39 +227,14 @@ Design Philosophy: Hand-holding with operational precision
   
   .metric-card-enhanced:hover {
     transform: translateY(-2px);
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-lg);
   }
   
   .glass-panel {
-    background: hsl(var(--glass-bg));
-    backdrop-filter: blur(var(--blur-medium));
-    border: 1px solid hsl(var(--glass-border));
+    background: var(--gradient-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
   }
-}
-
-/* === APPLE-STYLE ANIMATIONS === */
-@keyframes gentle-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.9; transform: scale(1.02); }
-}
-
-@keyframes subtle-slide-up {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes listening-pulse {
-  0%, 100% { 
-    box-shadow: 0 0 0 0 hsl(var(--accent-primary) / 0.4);
-  }
-  50% { 
-    box-shadow: 0 0 0 8px hsl(var(--accent-primary) / 0);
-  }
-}
-
-@keyframes thinking-shimmer {
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
 }
 
 @keyframes shimmer {
@@ -288,27 +247,26 @@ Design Philosophy: Hand-holding with operational precision
   50% { transform: scaleY(1.3); }
 }
 
-.animate-gentle-pulse { 
-  animation: gentle-pulse 2s ease-in-out infinite; 
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.animate-subtle-slide-up { 
-  animation: subtle-slide-up var(--duration-slow) var(--easing-apple) forwards; 
-}
-
-.animate-listening-pulse { 
-  animation: listening-pulse 1.5s ease-in-out infinite; 
-}
-
-.animate-thinking-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    hsl(var(--accent-primary) / 0.1),
-    transparent
-  );
-  background-size: 200px 100%;
-  animation: thinking-shimmer 1.5s infinite linear;
+@keyframes scale-in {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* === BASE STYLES === */
@@ -318,11 +276,9 @@ Design Philosophy: Hand-holding with operational precision
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-system);
+    @apply bg-background text-foreground font-sans;
+    font-family: var(--font-sans);
     line-height: var(--line-normal);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
   
   h1, h2, h3, h4, h5, h6 {
@@ -332,72 +288,5 @@ Design Philosophy: Hand-holding with operational precision
   
   code, pre {
     font-family: var(--font-mono);
-  }
-
-  /* Apple Typography Classes */
-  .text-hero { 
-    font-size: var(--text-hero); 
-    line-height: var(--line-tight); 
-    font-weight: 700; 
-    letter-spacing: -0.02em; 
-  }
-  
-  .text-page-title { 
-    font-size: var(--text-page-title); 
-    line-height: var(--line-tight); 
-    font-weight: 700; 
-    letter-spacing: -0.01em; 
-  }
-  
-  .text-section { 
-    font-size: var(--text-section); 
-    line-height: 1.25; 
-    font-weight: 600; 
-  }
-  
-  .text-card-title { 
-    font-size: var(--text-card-title); 
-    line-height: 1.3; 
-    font-weight: 600; 
-  }
-  
-  .text-body { 
-    font-size: var(--text-body); 
-    line-height: var(--line-normal); 
-  }
-  
-  .text-meta { 
-    font-size: var(--text-meta); 
-    line-height: 1.4; 
-  }
-
-  /* Interactive elements */
-  .interactive {
-    transition: var(--transition-smooth);
-  }
-
-  .interactive:hover {
-    transform: translateY(-1px);
-  }
-
-  /* Focus system */
-  .focus-ring {
-    outline: none;
-  }
-
-  .focus-ring:focus-visible {
-    outline: 2px solid hsl(var(--accent-primary));
-    outline-offset: 2px;
-  }
-
-  /* Touch targets */
-  .touch-target {
-    min-width: var(--touch-target);
-    min-height: var(--touch-target);
-  }
-
-  .touch-target-lg {
-    min-width: var(--touch-target-lg);
-    min-height: var(--touch-target-lg);
   }
 }
