@@ -163,46 +163,57 @@ export function DashboardOverview() {
         </Card>
 
         {/* Quality & Performance */}
-        <Card className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-300">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-3">
-              <div className="p-2 bg-accent-blue/10 rounded-lg">
+        <Card className="bg-gradient-to-br from-background via-surface to-surface-2/30 border border-border/30 shadow-elegant hover:shadow-glow transition-all duration-500 backdrop-blur-sm">
+          <CardHeader className="pb-6 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-accent-blue/5 via-transparent to-success/5 opacity-50"></div>
+            <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-4 relative z-10">
+              <div className="p-3 bg-gradient-to-br from-accent-blue/20 to-accent-blue/10 rounded-xl shadow-sm border border-accent-blue/20">
                 <BarChart3 className="w-5 h-5 text-accent-blue" />
               </div>
               <span>Quality Metrics</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
+          <CardContent className="space-y-8 relative">
+            <div className="grid grid-cols-2 gap-8">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-text-secondary">ASR WER (US)</span>
-                  <span className="font-semibold text-success">8.7%</span>
+                  <span className="text-sm font-medium text-text-secondary">ASR WER (US)</span>
+                  <div className="px-3 py-1 bg-success/10 rounded-full border border-success/20">
+                    <span className="font-semibold text-success text-sm">8.7%</span>
+                  </div>
                 </div>
-                <Progress value={91.3} className="h-2 bg-surface-2" />
+                <div className="relative">
+                  <Progress value={91.3} className="h-3 bg-surface-2/60 rounded-full shadow-inner" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-success/20 to-success/40 rounded-full opacity-30"></div>
+                </div>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-text-secondary">Barge-in Recovery</span>
-                  <span className="font-semibold text-success">96.8%</span>
+                  <span className="text-sm font-medium text-text-secondary">Barge-in Recovery</span>
+                  <div className="px-3 py-1 bg-success/10 rounded-full border border-success/20">
+                    <span className="font-semibold text-success text-sm">96.8%</span>
+                  </div>
                 </div>
-                <Progress value={96.8} className="h-2 bg-surface-2" />
+                <div className="relative">
+                  <Progress value={96.8} className="h-3 bg-surface-2/60 rounded-full shadow-inner" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-accent-blue/20 to-accent-blue/40 rounded-full opacity-30"></div>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 pt-2">
-              <div className="text-center p-3 bg-surface-2/50 rounded-lg">
-                <div className="text-lg font-semibold text-text-primary">84.1%</div>
-                <div className="text-xs text-text-muted">Handoff Precision</div>
+            <div className="grid grid-cols-3 gap-4 pt-4">
+              <div className="text-center p-4 bg-gradient-to-br from-surface-2/80 to-surface-2/40 rounded-xl border border-border/20 hover:border-warning/30 transition-all duration-300 group">
+                <div className="text-2xl font-bold text-warning mb-1 group-hover:scale-105 transition-transform">84.1%</div>
+                <div className="text-xs text-text-muted font-medium">Handoff Precision</div>
               </div>
-              <div className="text-center p-3 bg-surface-2/50 rounded-lg">
-                <div className="text-lg font-semibold text-text-primary">96.8%</div>
-                <div className="text-xs text-text-muted">Barge-in Recovery</div>
+              <div className="text-center p-4 bg-gradient-to-br from-surface-2/80 to-surface-2/40 rounded-xl border border-border/20 hover:border-success/30 transition-all duration-300 group">
+                <div className="text-2xl font-bold text-success mb-1 group-hover:scale-105 transition-transform">96.8%</div>
+                <div className="text-xs text-text-muted font-medium">Barge-in Recovery</div>
               </div>
-              <div className="text-center p-3 bg-surface-2/50 rounded-lg">
-                <div className="text-lg font-semibold text-text-primary">8.7%</div>
-                <div className="text-xs text-text-muted">ASR WER</div>
+              <div className="text-center p-4 bg-gradient-to-br from-surface-2/80 to-surface-2/40 rounded-xl border border-border/20 hover:border-success/30 transition-all duration-300 group">
+                <div className="text-2xl font-bold text-success mb-1 group-hover:scale-105 transition-transform">8.7%</div>
+                <div className="text-xs text-text-muted font-medium">ASR WER</div>
               </div>
             </div>
           </CardContent>
