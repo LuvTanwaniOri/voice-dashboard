@@ -37,10 +37,14 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="flex-1 p-6 overflow-auto">
-        {renderContent()}
+    <div className="min-h-screen bg-background">
+      <div className="fixed left-0 top-0 h-full z-30">
+        <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
+      <main className="ml-64 min-h-screen overflow-auto">
+        <div className="p-6">
+          {renderContent()}
+        </div>
       </main>
       <OnboardingDrawer />
     </div>

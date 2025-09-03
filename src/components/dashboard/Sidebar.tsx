@@ -30,7 +30,7 @@ const navigation = [
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
-    <div className="w-64 bg-surface border-r border-border/50 h-full flex flex-col shadow-md">
+    <div className="w-64 bg-surface border-r border-border/50 h-screen flex flex-col shadow-md">
       {/* Logo */}
       <div className="p-6 border-b border-border/50">
         <div className="flex items-center space-x-3">
