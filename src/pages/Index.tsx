@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
+import { OnboardingDrawer } from "@/components/dashboard/OnboardingDrawer";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { CampaignManager } from "@/components/dashboard/CampaignManager";
 import { AgentBuilder } from "@/components/dashboard/AgentBuilder";
@@ -41,6 +42,7 @@ const Index = () => {
       <main className="flex-1 p-6 overflow-auto">
         {renderContent()}
       </main>
+      <OnboardingDrawer />
     </div>
   );
 };

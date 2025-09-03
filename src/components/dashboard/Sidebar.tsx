@@ -10,6 +10,7 @@ import {
   Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { OnboardingProgress } from "./OnboardingProgress";
 
 interface SidebarProps {
   activeTab: string;
@@ -41,6 +42,11 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             <p className="text-xs text-text-muted font-medium">AI Platform</p>
           </div>
         </div>
+      </div>
+
+      {/* Onboarding Progress */}
+      <div className="p-4">
+        <OnboardingProgress />
       </div>
 
       {/* Navigation */}
