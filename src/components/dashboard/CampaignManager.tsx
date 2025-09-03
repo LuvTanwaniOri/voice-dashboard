@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
+import { CampaignCreationWizard } from "./CampaignCreationWizard";
 import { 
   Play, 
   Pause, 
@@ -30,6 +31,7 @@ import {
 
 export function CampaignManager() {
   const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
+  const [showCreateWizard, setShowCreateWizard] = useState<boolean>(false);
 
   const campaigns = [
     {
@@ -94,14 +96,31 @@ export function CampaignManager() {
     }
   };
 
+  const handleCreateCampaign = (campaignData: any) => {
+    console.log('Creating campaign:', campaignData);
+    // TODO: Implement campaign creation logic
+    setShowCreateWizard(false);
+  };
+
   return (
-    <div className="space-y-6">
+    <>
+      {showCreateWizard && (
+        <CampaignCreationWizard
+          onClose={() => setShowCreateWizard(false)}
+          onSave={handleCreateCampaign}
+        />
+      )}
+      
+      <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Campaign Manager</h1>
           <p className="text-muted-foreground">Create and monitor your voice bot campaigns</p>
         </div>
-        <Button className="flex items-center space-x-2">
+        <Button 
+          className="flex items-center space-x-2"
+          onClick={() => setShowCreateWizard(true)}
+        >
           <Plus className="w-4 h-4" />
           <span>New Campaign</span>
         </Button>
@@ -428,6 +447,7 @@ export function CampaignManager() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }
