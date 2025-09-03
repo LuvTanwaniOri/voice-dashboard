@@ -314,103 +314,109 @@ export function DashboardOverview() {
 
       {/* Conversion Funnel */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Lead Qualification Funnel */}
         <Card className="bg-gradient-to-br from-background via-surface to-surface-2/20 border border-border/30 shadow-elegant hover:shadow-glow transition-all duration-500 backdrop-blur-sm overflow-hidden">
           <CardHeader className="pb-6 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-accent-blue/3 via-chart-1/3 to-success/3 opacity-60"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-chart-1/3 via-accent-blue/3 to-success/3 opacity-60"></div>
             <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-4 relative z-10">
-              <div className="p-3 bg-gradient-to-br from-accent-blue/20 to-chart-1/20 rounded-xl shadow-sm border border-accent-blue/20">
-                <BarChart3 className="w-5 h-5 text-accent-blue" />
+              <div className="p-3 bg-gradient-to-br from-chart-1/20 to-accent-blue/20 rounded-xl shadow-sm border border-chart-1/20">
+                <BarChart3 className="w-5 h-5 text-chart-1" />
               </div>
               <div>
-                <span>Lead Qualification Funnel</span>
-                <div className="text-sm font-normal text-text-muted mt-1">Last 30 days • 3,247 total attempts</div>
+                <span>Lead Qualification Pipeline</span>
+                <div className="text-sm font-normal text-text-muted mt-1">Real-time conversion tracking • Last 30 days</div>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="relative">
             <div className="mb-6 grid grid-cols-3 gap-4 p-4 bg-surface-2/30 rounded-xl border border-border/20">
               <div className="text-center">
-                <div className="text-lg font-bold text-chart-1">64.3%</div>
-                <div className="text-xs text-text-muted">Connection Rate</div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-bold text-success">8.8%</div>
+                <div className="text-lg font-bold text-chart-1">8.8%</div>
                 <div className="text-xs text-text-muted">Final Conversion</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-bold text-accent-blue">$187</div>
+                <div className="text-lg font-bold text-accent-blue">$142</div>
                 <div className="text-xs text-text-muted">Cost per Meeting</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-success">+15.2%</div>
+                <div className="text-xs text-text-muted">vs Last Month</div>
               </div>
             </div>
             
-            <ChartContainer config={{}} className="h-[320px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={funnelData} layout="horizontal" margin={{ top: 5, right: 40, left: 120, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="funnelBarGradient" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
-                      <stop offset="25%" stopColor="hsl(var(--chart-2))" stopOpacity={0.85}/>
-                      <stop offset="50%" stopColor="hsl(var(--chart-3))" stopOpacity={0.9}/>
-                      <stop offset="75%" stopColor="hsl(var(--accent-blue))" stopOpacity={0.95}/>
-                      <stop offset="100%" stopColor="hsl(var(--success))" stopOpacity={1}/>
-                    </linearGradient>
-                  </defs>
-                  <XAxis 
-                    type="number" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }}
-                    tickFormatter={(value) => `${(value/1000).toFixed(1)}k`}
-                  />
-                  <YAxis 
-                    type="category" 
-                    dataKey="name" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 11, fill: 'hsl(var(--text-secondary))' }}
-                    width={110}
-                  />
-                  <ChartTooltip 
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        const data = payload[0].payload;
-                        return (
-                          <div className="bg-background/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-elegant animate-scale-in">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.fill }}></div>
-                              <p className="font-semibold text-text-primary text-sm">{label}</p>
-                            </div>
-                            <div className="space-y-1">
-                              <p className="text-lg font-bold text-text-primary">
-                                {data.value.toLocaleString()} contacts
-                              </p>
-                              <p className="text-sm text-text-secondary">
-                                {data.rate}% conversion rate
-                              </p>
-                              <p className="text-xs text-text-muted italic">
-                                {data.description}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Bar 
-                    dataKey="value" 
-                    radius={[0, 8, 8, 0]} 
-                    fill="url(#funnelBarGradient)"
-                    className="drop-shadow-sm"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            {/* Funnel Visualization */}
+            <div className="space-y-3 mb-6">
+              {funnelData.map((stage, index) => {
+                const width = (stage.value / funnelData[0].value) * 100;
+                const isLast = index === funnelData.length - 1;
+                
+                return (
+                  <div key={stage.name} className="group">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-text-secondary">{stage.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-text-primary">{stage.value.toLocaleString()}</span>
+                        <span className="text-xs text-text-muted">({stage.rate}%)</span>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <div className="h-4 bg-surface-2/60 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            isLast ? 'bg-gradient-to-r from-success to-success/80' :
+                            index <= 1 ? 'bg-gradient-to-r from-chart-1 to-chart-1/80' :
+                            index <= 3 ? 'bg-gradient-to-r from-accent-blue to-accent-blue/80' :
+                            'bg-gradient-to-r from-chart-3 to-chart-3/80'
+                          }`}
+                          style={{ width: `${width}%` }}
+                        />
+                      </div>
+                      {index < funnelData.length - 1 && (
+                        <div className="absolute -bottom-2 right-0 text-xs text-text-muted">
+                          -{(((funnelData[index].value - funnelData[index + 1].value) / funnelData[index].value) * 100).toFixed(1)}%
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
             
-            <div className="mt-4 p-4 bg-gradient-to-r from-success/5 to-accent-blue/5 rounded-xl border border-success/20">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-text-secondary">Most effective stage:</span>
-                <span className="font-semibold text-success">Connected Calls → Conversation (88.3%)</span>
+            {/* Actionable Insights */}
+            <div className="space-y-3">
+              <div className="p-4 bg-gradient-to-r from-warning/5 to-warning/10 rounded-xl border border-warning/20">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-4 h-4 text-warning mt-0.5" />
+                  <div>
+                    <div className="text-sm font-semibold text-warning mb-1">Improvement Opportunity</div>
+                    <div className="text-xs text-text-secondary">
+                      32.0% drop from Information Gathered to Lead Qualified. Consider refining qualification criteria.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-4 bg-gradient-to-r from-success/5 to-success/10 rounded-xl border border-success/20">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-4 h-4 text-success mt-0.5" />
+                  <div>
+                    <div className="text-sm font-semibold text-success mb-1">Strong Performance</div>
+                    <div className="text-xs text-text-secondary">
+                      88.3% conversation rate is excellent. Focus on scaling connection volume.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-gradient-to-br from-surface-2/60 to-surface-2/30 rounded-lg border border-border/20">
+                  <div className="text-xs text-text-muted mb-1">Peak Hours</div>
+                  <div className="text-sm font-bold text-text-primary">2-4 PM EST</div>
+                </div>
+                <div className="p-3 bg-gradient-to-br from-surface-2/60 to-surface-2/30 rounded-lg border border-border/20">
+                  <div className="text-xs text-text-muted mb-1">Best Day</div>
+                  <div className="text-sm font-bold text-text-primary">Tuesday</div>
+                </div>
               </div>
             </div>
           </CardContent>
