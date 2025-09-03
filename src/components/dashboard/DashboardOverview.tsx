@@ -49,12 +49,13 @@ export function DashboardOverview() {
   ];
 
   const funnelData = [
-    { name: 'Attempts', value: 2847, rate: 100, fill: 'hsl(var(--chart-1))' },
-    { name: 'Connects', value: 1823, rate: 64.0, fill: 'hsl(var(--chart-2))' },
-    { name: 'Talk Start', value: 1542, rate: 84.6, fill: 'hsl(var(--chart-3))' },
-    { name: 'Info Captured', value: 847, rate: 54.9, fill: 'hsl(var(--chart-4))' },
-    { name: 'Qualified', value: 342, rate: 40.4, fill: 'hsl(var(--chart-5))' },
-    { name: 'Meetings', value: 187, rate: 54.7, fill: 'hsl(var(--success))' }
+    { name: 'Total Attempts', value: 3247, rate: 100, fill: 'hsl(var(--chart-1))', description: 'All outbound calls initiated' },
+    { name: 'Connected Calls', value: 2087, rate: 64.3, fill: 'hsl(var(--chart-2))', description: 'Successfully connected to prospect' },
+    { name: 'Conversation Started', value: 1842, rate: 88.3, fill: 'hsl(var(--chart-3))', description: 'Prospect engaged in conversation' },
+    { name: 'Information Gathered', value: 1234, rate: 67.0, fill: 'hsl(var(--chart-4))', description: 'Key prospect data collected' },
+    { name: 'Lead Qualified', value: 687, rate: 55.7, fill: 'hsl(var(--accent-blue))', description: 'Meets qualification criteria' },
+    { name: 'Meeting Scheduled', value: 342, rate: 49.8, fill: 'hsl(var(--success))', description: 'Appointments successfully booked' },
+    { name: 'Show Rate', value: 287, rate: 83.9, fill: 'hsl(var(--warning))', description: 'Prospects attended meetings' }
   ];
 
   const qualityData = [
@@ -310,48 +311,103 @@ export function DashboardOverview() {
 
       {/* Conversion Funnel */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card className="bg-gradient-card border-border/50 shadow-card">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-3">
-              <div className="p-2 bg-accent-blue/10 rounded-lg">
+        <Card className="bg-gradient-to-br from-background via-surface to-surface-2/20 border border-border/30 shadow-elegant hover:shadow-glow transition-all duration-500 backdrop-blur-sm overflow-hidden">
+          <CardHeader className="pb-6 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-accent-blue/3 via-chart-1/3 to-success/3 opacity-60"></div>
+            <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-4 relative z-10">
+              <div className="p-3 bg-gradient-to-br from-accent-blue/20 to-chart-1/20 rounded-xl shadow-sm border border-accent-blue/20">
                 <BarChart3 className="w-5 h-5 text-accent-blue" />
               </div>
-              <span>Lead Qualification Funnel</span>
+              <div>
+                <span>Lead Qualification Funnel</span>
+                <div className="text-sm font-normal text-text-muted mt-1">Last 30 days • 3,247 total attempts</div>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={{}} className="h-[280px] w-full">
+          <CardContent className="relative">
+            <div className="mb-6 grid grid-cols-3 gap-4 p-4 bg-surface-2/30 rounded-xl border border-border/20">
+              <div className="text-center">
+                <div className="text-lg font-bold text-chart-1">64.3%</div>
+                <div className="text-xs text-text-muted">Connection Rate</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-success">8.8%</div>
+                <div className="text-xs text-text-muted">Final Conversion</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-accent-blue">$187</div>
+                <div className="text-xs text-text-muted">Cost per Meeting</div>
+              </div>
+            </div>
+            
+            <ChartContainer config={{}} className="h-[320px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={funnelData} layout="horizontal" margin={{ top: 5, right: 30, left: 60, bottom: 5 }}>
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }} />
+                <BarChart data={funnelData} layout="horizontal" margin={{ top: 5, right: 40, left: 120, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
+                      <stop offset="50%" stopColor="hsl(var(--accent-blue))" stopOpacity={0.9}/>
+                      <stop offset="100%" stopColor="hsl(var(--success))" stopOpacity={1}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis 
+                    type="number" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }}
+                    tickFormatter={(value) => `${(value/1000).toFixed(1)}k`}
+                  />
                   <YAxis 
                     type="category" 
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }}
-                    width={80}
+                    tick={{ fontSize: 11, fill: 'hsl(var(--text-secondary))' }}
+                    width={110}
                   />
                   <ChartTooltip 
                     content={({ active, payload, label }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
-                            <p className="font-semibold text-text-primary">{label}</p>
-                            <p className="text-sm text-text-secondary">
-                              {data.value.toLocaleString()} contacts ({data.rate}%)
-                            </p>
+                          <div className="bg-background/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-elegant animate-scale-in">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.fill }}></div>
+                              <p className="font-semibold text-text-primary text-sm">{label}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-lg font-bold text-text-primary">
+                                {data.value.toLocaleString()} contacts
+                              </p>
+                              <p className="text-sm text-text-secondary">
+                                {data.rate}% conversion rate
+                              </p>
+                              <p className="text-xs text-text-muted italic">
+                                {data.description}
+                              </p>
+                            </div>
                           </div>
                         );
                       }
                       return null;
                     }}
                   />
-                  <Bar dataKey="value" radius={[0, 4, 4, 0]} />
+                  <Bar 
+                    dataKey="value" 
+                    radius={[0, 6, 6, 0]} 
+                    fill="url(#barGradient)"
+                    className="drop-shadow-sm"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
+            
+            <div className="mt-4 p-4 bg-gradient-to-r from-success/5 to-accent-blue/5 rounded-xl border border-success/20">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-text-secondary">Most effective stage:</span>
+                <span className="font-semibold text-success">Connected Calls → Conversation (88.3%)</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
