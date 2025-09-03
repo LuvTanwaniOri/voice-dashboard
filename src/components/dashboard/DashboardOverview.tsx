@@ -2,6 +2,7 @@ import { MetricCard } from "./MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { 
   Phone, 
   Clock, 
@@ -19,8 +20,55 @@ import {
   DollarSign,
   Zap
 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  FunnelChart,
+  Funnel,
+  LabelList
+} from "recharts";
 
 export function DashboardOverview() {
+  // Chart data
+  const performanceTrendData = [
+    { name: 'Mon', qo: 8.2, latency: 1.45, minutes: 2340 },
+    { name: 'Tue', qo: 9.1, latency: 1.38, minutes: 2567 },
+    { name: 'Wed', qo: 10.8, latency: 1.42, minutes: 2789 },
+    { name: 'Thu', qo: 11.3, latency: 1.35, minutes: 2654 },
+    { name: 'Fri', qo: 11.8, latency: 1.34, minutes: 2847 },
+    { name: 'Sat', qo: 12.1, latency: 1.34, minutes: 2847 },
+    { name: 'Sun', qo: 12.1, latency: 1.34, minutes: 2847 }
+  ];
+
+  const funnelData = [
+    { name: 'Attempts', value: 2847, rate: 100, fill: 'hsl(var(--chart-1))' },
+    { name: 'Connects', value: 1823, rate: 64.0, fill: 'hsl(var(--chart-2))' },
+    { name: 'Talk Start', value: 1542, rate: 84.6, fill: 'hsl(var(--chart-3))' },
+    { name: 'Info Captured', value: 847, rate: 54.9, fill: 'hsl(var(--chart-4))' },
+    { name: 'Qualified', value: 342, rate: 40.4, fill: 'hsl(var(--chart-5))' },
+    { name: 'Meetings', value: 187, rate: 54.7, fill: 'hsl(var(--success))' }
+  ];
+
+  const qualityData = [
+    { name: 'ASR WER', value: 8.7, target: 10, fill: 'hsl(var(--success))' },
+    { name: 'Barge-in Recovery', value: 96.8, target: 95, fill: 'hsl(var(--accent-blue))' },
+    { name: 'Handoff Precision', value: 84.1, target: 85, fill: 'hsl(var(--warning))' }
+  ];
+
+  const chartConfig = {
+    qo: { label: "QO/100 CM", color: "hsl(var(--chart-1))" },
+    latency: { label: "Latency (s)", color: "hsl(var(--chart-2))" },
+    minutes: { label: "Minutes", color: "hsl(var(--chart-3))" },
+  };
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header */}
@@ -161,6 +209,49 @@ export function DashboardOverview() {
         </Card>
       </div>
 
+      {/* Performance Trends Chart */}
+      <Card className="bg-gradient-card border-border/50 shadow-card">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-3">
+            <div className="p-2 bg-accent-blue/10 rounded-lg">
+              <TrendingUp className="w-5 h-5 text-accent-blue" />
+            </div>
+            <span>Performance Trends</span>
+            <span className="text-sm font-normal text-text-muted">(Last 7 Days)</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ChartContainer config={chartConfig} className="h-[200px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={performanceTrendData}>
+                <defs>
+                  <linearGradient id="qoGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }}
+                />
+                <YAxis hide />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  type="monotone"
+                  dataKey="qo"
+                  stroke="hsl(var(--chart-1))"
+                  fillOpacity={1}
+                  fill="url(#qoGradient)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </ChartContainer>
+        </CardContent>
+      </Card>
+
       {/* Secondary Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         <div className="p-6 bg-gradient-card border border-border/50 rounded-xl shadow-card">
@@ -207,35 +298,96 @@ export function DashboardOverview() {
       </div>
 
       {/* Conversion Funnel */}
-      <Card className="bg-gradient-card border-border/50 shadow-card">
-        <CardHeader className="pb-6">
-          <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-3">
-            <div className="p-2 bg-accent-blue/10 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-accent-blue" />
-            </div>
-            <span>Lead Qualification Funnel</span>
-            <span className="text-sm font-normal text-text-muted">(Last 7 Days)</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            {[
-              { value: '2,847', label: 'Attempts', rate: '100%', color: 'text-text-primary' },
-              { value: '1,823', label: 'Connects', rate: '64.0%', color: 'text-success' },
-              { value: '1,542', label: 'Talk Start', rate: '84.6%', color: 'text-success' },
-              { value: '847', label: 'Info Captured', rate: '54.9%', color: 'text-warning' },
-              { value: '342', label: 'Qualified', rate: '40.4%', color: 'text-accent-blue' },
-              { value: '187', label: 'Meetings', rate: '54.7%', color: 'text-success' }
-            ].map((item, index) => (
-              <div key={index} className="text-center p-4 bg-surface-2/30 rounded-xl border border-border/30 hover:bg-surface-2/50 transition-colors">
-                <div className="text-2xl font-bold text-text-primary mb-1">{item.value}</div>
-                <div className="text-sm text-text-secondary mb-2">{item.label}</div>
-                <div className={`text-xs font-medium ${item.color}`}>{item.rate}</div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card className="bg-gradient-card border-border/50 shadow-card">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-3">
+              <div className="p-2 bg-accent-blue/10 rounded-lg">
+                <BarChart3 className="w-5 h-5 text-accent-blue" />
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              <span>Lead Qualification Funnel</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={{}} className="h-[280px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={funnelData} layout="horizontal" margin={{ top: 5, right: 30, left: 60, bottom: 5 }}>
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }} />
+                  <YAxis 
+                    type="category" 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }}
+                    width={80}
+                  />
+                  <ChartTooltip 
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+                            <p className="font-semibold text-text-primary">{label}</p>
+                            <p className="text-sm text-text-secondary">
+                              {data.value.toLocaleString()} contacts ({data.rate}%)
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        {/* Quality Metrics Chart */}
+        <Card className="bg-gradient-card border-border/50 shadow-card">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-3">
+              <div className="p-2 bg-accent-blue/10 rounded-lg">
+                <Target className="w-5 h-5 text-accent-blue" />
+              </div>
+              <span>Quality Performance</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={{}} className="h-[280px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={qualityData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 11, fill: 'hsl(var(--text-secondary))' }}
+                  />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }} />
+                  <ChartTooltip 
+                    content={({ active, payload, label }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+                            <p className="font-semibold text-text-primary">{label}</p>
+                            <p className="text-sm text-text-secondary">
+                              Current: {data.value}% | Target: {data.target}%
+                            </p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Recent Activity - Simplified */}
       <Card className="bg-gradient-card border-border/50 shadow-card">
