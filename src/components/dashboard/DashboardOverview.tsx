@@ -344,9 +344,11 @@ export function DashboardOverview() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={funnelData} layout="horizontal" margin={{ top: 5, right: 40, left: 120, bottom: 5 }}>
                   <defs>
-                    <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                    <linearGradient id="funnelBarGradient" x1="0" y1="0" x2="1" y2="0">
                       <stop offset="0%" stopColor="hsl(var(--chart-1))" stopOpacity={0.8}/>
-                      <stop offset="50%" stopColor="hsl(var(--accent-blue))" stopOpacity={0.9}/>
+                      <stop offset="25%" stopColor="hsl(var(--chart-2))" stopOpacity={0.85}/>
+                      <stop offset="50%" stopColor="hsl(var(--chart-3))" stopOpacity={0.9}/>
+                      <stop offset="75%" stopColor="hsl(var(--accent-blue))" stopOpacity={0.95}/>
                       <stop offset="100%" stopColor="hsl(var(--success))" stopOpacity={1}/>
                     </linearGradient>
                   </defs>
@@ -394,8 +396,8 @@ export function DashboardOverview() {
                   />
                   <Bar 
                     dataKey="value" 
-                    radius={[0, 6, 6, 0]} 
-                    fill="url(#barGradient)"
+                    radius={[0, 8, 8, 0]} 
+                    fill="url(#funnelBarGradient)"
                     className="drop-shadow-sm"
                   />
                 </BarChart>
