@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,17 +8,14 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { 
   Check, 
-  ChevronRight, 
-  ArrowLeft, 
-  ArrowRight,
+  ChevronDown,
   Settings,
   Users,
   Calendar,
   Gauge,
-  Clock,
-  Phone,
   Plus,
   X
 } from "lucide-react";
@@ -62,7 +59,7 @@ interface WizardProps {
 }
 
 export function CampaignCreationWizard({ onClose, onSave }: WizardProps) {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [openSection, setOpenSection] = useState<string>("overview");
   const [campaignData, setCampaignData] = useState<CampaignData>({
     overview: {
       name: '',
@@ -148,21 +145,25 @@ export function CampaignCreationWizard({ onClose, onSave }: WizardProps) {
     }));
   };
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+  // Auto-progress to next section when current is completed
+  useEffect(() => {
+    const currentIndex = steps.findIndex(step => step.id === openSection);
+    if (currentIndex !== -1 && isStepComplete(currentIndex)) {
+      const nextIndex = currentIndex + 1;
+      if (nextIndex < steps.length) {
+        const nextStepId = steps[nextIndex].id;
+        if (!isStepComplete(nextIndex)) {
+          setTimeout(() => setOpenSection(nextStepId), 500);
+        }
+      }
     }
-  };
+  }, [campaignData, openSection]);
 
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleSave = () => {
+  const handlePublish = () => {
     onSave(campaignData);
   };
+
+  const allSectionsComplete = steps.every((_, index) => isStepComplete(index));
 
   const renderOverviewStep = () => (
     <div className="space-y-6">
@@ -515,7 +516,7 @@ export function CampaignCreationWizard({ onClose, onSave }: WizardProps) {
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden">
-        <CardHeader className="bg-gradient-subtle border-b">
+        <CardHeader className="border-b">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl">Create New Campaign</CardTitle>
@@ -536,78 +537,70 @@ export function CampaignCreationWizard({ onClose, onSave }: WizardProps) {
             </div>
             <Progress value={progress} className="h-2" />
           </div>
+        </CardHeader>
 
-          {/* Step navigation */}
-          <div className="grid grid-cols-4 gap-2 mt-4">
+        <CardContent className="p-6 overflow-y-auto max-h-[60vh]">
+          <Accordion 
+            type="single" 
+            value={openSection} 
+            onValueChange={setOpenSection}
+            className="space-y-4"
+          >
             {steps.map((step, index) => {
               const Icon = step.icon;
               const isComplete = isStepComplete(index);
-              const isCurrent = index === currentStep;
               
               return (
-                <Button
-                  key={step.id}
-                  variant={isCurrent ? "default" : "ghost"}
-                  size="sm"
-                  className={`flex items-center space-x-2 p-3 h-auto ${
-                    isComplete ? 'bg-success/20 text-success hover:bg-success/30' : ''
-                  }`}
-                  onClick={() => setCurrentStep(index)}
+                <AccordionItem 
+                  key={step.id} 
+                  value={step.id}
+                  className="border rounded-lg"
                 >
-                  {isComplete ? (
-                    <Check className="w-4 h-4" />
-                  ) : (
-                    <Icon className="w-4 h-4" />
-                  )}
-                  <div className="text-left">
-                    <div className="font-medium text-xs">{step.title}</div>
-                  </div>
-                </Button>
+                  <AccordionTrigger className="px-6 py-4 hover:no-underline">
+                    <div className="flex items-center space-x-4 text-left">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        isComplete 
+                          ? 'bg-success text-success-foreground' 
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {isComplete ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          <Icon className="w-4 h-4" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-base">{step.title}</h3>
+                        <p className="text-sm text-muted-foreground">{step.description}</p>
+                      </div>
+                      {isComplete && (
+                        <Badge variant="secondary" className="bg-success/20 text-success">
+                          Complete
+                        </Badge>
+                      )}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-6 pb-6">
+                    {step.id === 'overview' && renderOverviewStep()}
+                    {step.id === 'audience' && renderAudienceStep()}
+                    {step.id === 'schedule' && renderScheduleStep()}
+                    {step.id === 'pacing' && renderPacingStep()}
+                  </AccordionContent>
+                </AccordionItem>
               );
             })}
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-6 overflow-y-auto max-h-96">
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold text-foreground">{steps[currentStep].title}</h3>
-            <p className="text-sm text-muted-foreground">{steps[currentStep].description}</p>
-          </div>
-
-          {currentStep === 0 && renderOverviewStep()}
-          {currentStep === 1 && renderAudienceStep()}
-          {currentStep === 2 && renderScheduleStep()}
-          {currentStep === 3 && renderPacingStep()}
+          </Accordion>
         </CardContent>
 
-        <div className="border-t p-4 flex justify-between">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentStep === 0}
+        <div className="border-t p-6">
+          <Button 
+            onClick={handlePublish}
+            disabled={!allSectionsComplete}
+            className="w-full"
+            size="lg"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Previous
+            {allSectionsComplete ? 'Publish Campaign' : `Complete ${4 - completedSteps} more section${4 - completedSteps === 1 ? '' : 's'} to publish`}
           </Button>
-
-          <div className="flex space-x-2">
-            {currentStep === steps.length - 1 ? (
-              <Button 
-                onClick={handleSave}
-                disabled={!isStepComplete(currentStep)}
-              >
-                Create Campaign
-              </Button>
-            ) : (
-              <Button
-                onClick={handleNext}
-                disabled={currentStep === steps.length - 1}
-              >
-                Next
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            )}
-          </div>
         </div>
       </Card>
     </div>
