@@ -59,9 +59,12 @@ export function DashboardOverview() {
   ];
 
   const qualityData = [
-    { name: 'ASR WER', value: 8.7, target: 10, fill: 'hsl(var(--success))' },
-    { name: 'Barge-in Recovery', value: 96.8, target: 95, fill: 'hsl(var(--accent-blue))' },
-    { name: 'Handoff Precision', value: 84.1, target: 85, fill: 'hsl(var(--warning))' }
+    { name: 'ASR Accuracy', value: 91.3, target: 90, fill: 'hsl(var(--success))', status: 'excellent', trend: '+2.1%' },
+    { name: 'Response Latency', value: 87.4, target: 85, fill: 'hsl(var(--accent-blue))', status: 'good', trend: '+1.8%' },
+    { name: 'Barge-in Recovery', value: 96.8, target: 95, fill: 'hsl(var(--chart-2))', status: 'excellent', trend: '+0.3%' },
+    { name: 'Natural Conversation', value: 84.1, target: 80, fill: 'hsl(var(--chart-3))', status: 'good', trend: '+3.2%' },
+    { name: 'Context Retention', value: 92.7, target: 85, fill: 'hsl(var(--chart-4))', status: 'excellent', trend: '+1.5%' },
+    { name: 'Error Handling', value: 88.9, target: 85, fill: 'hsl(var(--warning))', status: 'good', trend: '+2.7%' }
   ];
 
   const chartConfig = {
@@ -414,46 +417,112 @@ export function DashboardOverview() {
         </Card>
 
         {/* Quality Metrics Chart */}
-        <Card className="bg-gradient-card border-border/50 shadow-card">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-3">
-              <div className="p-2 bg-accent-blue/10 rounded-lg">
-                <Target className="w-5 h-5 text-accent-blue" />
+        <Card className="bg-gradient-to-br from-background via-surface to-surface-2/20 border border-border/30 shadow-elegant hover:shadow-glow transition-all duration-500 backdrop-blur-sm overflow-hidden">
+          <CardHeader className="pb-6 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-success/3 via-chart-3/3 to-accent-blue/3 opacity-60"></div>
+            <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-4 relative z-10">
+              <div className="p-3 bg-gradient-to-br from-success/20 to-accent-blue/20 rounded-xl shadow-sm border border-success/20">
+                <Target className="w-5 h-5 text-success" />
               </div>
-              <span>Quality Performance</span>
+              <div>
+                <span>Quality Performance</span>
+                <div className="text-sm font-normal text-text-muted mt-1">AI model metrics • Real-time monitoring</div>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <ChartContainer config={{}} className="h-[280px] w-full">
+          <CardContent className="relative">
+            <div className="mb-6 grid grid-cols-3 gap-4 p-4 bg-surface-2/30 rounded-xl border border-border/20">
+              <div className="text-center">
+                <div className="text-lg font-bold text-success">90.2%</div>
+                <div className="text-xs text-text-muted">Avg Quality Score</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-chart-3">6/6</div>
+                <div className="text-xs text-text-muted">Metrics Above Target</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-accent-blue">1.24s</div>
+                <div className="text-xs text-text-muted">Avg Response Time</div>
+              </div>
+            </div>
+            
+            <ChartContainer config={{}} className="h-[320px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={qualityData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="qualityGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--success))" stopOpacity={0.9}/>
+                      <stop offset="50%" stopColor="hsl(var(--chart-3))" stopOpacity={0.8}/>
+                      <stop offset="100%" stopColor="hsl(var(--accent-blue))" stopOpacity={0.7}/>
+                    </linearGradient>
+                  </defs>
                   <XAxis 
                     dataKey="name" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fontSize: 11, fill: 'hsl(var(--text-secondary))' }}
+                    tick={{ fontSize: 10, fill: 'hsl(var(--text-secondary))' }}
                   />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }} />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 12, fill: 'hsl(var(--text-secondary))' }}
+                    domain={[0, 100]}
+                  />
                   <ChartTooltip 
                     content={({ active, payload, label }) => {
                       if (active && payload && payload.length) {
                         const data = payload[0].payload;
                         return (
-                          <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
-                            <p className="font-semibold text-text-primary">{label}</p>
-                            <p className="text-sm text-text-secondary">
-                              Current: {data.value}% | Target: {data.target}%
-                            </p>
+                          <div className="bg-background/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-elegant animate-scale-in">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: data.fill }}></div>
+                              <p className="font-semibold text-text-primary text-sm">{label}</p>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-lg font-bold text-text-primary">
+                                {data.value}%
+                              </p>
+                              <p className="text-sm text-text-secondary">
+                                Target: {data.target}% • Status: <span className={`font-semibold ${data.status === 'excellent' ? 'text-success' : 'text-accent-blue'}`}>{data.status}</span>
+                              </p>
+                              <p className="text-xs text-text-muted">
+                                Trend: <span className="text-success font-medium">{data.trend}</span> vs last week
+                              </p>
+                            </div>
                           </div>
                         );
                       }
                       return null;
                     }}
                   />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]} />
+                  <Bar 
+                    dataKey="value" 
+                    radius={[6, 6, 0, 0]} 
+                    fill="url(#qualityGradient)"
+                    className="drop-shadow-sm"
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </ChartContainer>
+            
+            <div className="mt-4 space-y-3">
+              <div className="p-4 bg-gradient-to-r from-success/5 to-chart-3/5 rounded-xl border border-success/20">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-text-secondary">Top performer:</span>
+                  <span className="font-semibold text-success">Barge-in Recovery (96.8%)</span>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3 bg-gradient-to-br from-surface-2/60 to-surface-2/30 rounded-lg border border-border/20">
+                  <div className="text-xs text-text-muted mb-1">Model Health</div>
+                  <div className="text-lg font-bold text-success">Optimal</div>
+                </div>
+                <div className="p-3 bg-gradient-to-br from-surface-2/60 to-surface-2/30 rounded-lg border border-border/20">
+                  <div className="text-xs text-text-muted mb-1">Last Updated</div>
+                  <div className="text-lg font-bold text-text-primary">2m ago</div>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
