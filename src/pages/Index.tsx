@@ -12,10 +12,26 @@ import { VoiceLexicon } from "@/components/dashboard/VoiceLexicon";
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
 
+  const handleNavigate = (section: string) => {
+    switch (section) {
+      case 'agent':
+        setActiveTab('agents');
+        break;
+      case 'knowledge':
+        setActiveTab('knowledge');
+        break;
+      case 'campaign':
+        setActiveTab('campaigns');
+        break;
+      default:
+        setActiveTab(section);
+    }
+  };
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview />;
+        return <DashboardOverview onNavigate={handleNavigate} />;
       case 'campaigns':
         return <CampaignManager />;
       case 'agents':
@@ -31,7 +47,7 @@ const Index = () => {
       case 'workspace':
         return <UserManagement />;
       default:
-        return <DashboardOverview />;
+        return <DashboardOverview onNavigate={handleNavigate} />;
     }
   };
 
