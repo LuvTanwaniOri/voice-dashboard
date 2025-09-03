@@ -1,7 +1,6 @@
-import { useState } from "react";
-import { WorkflowGuide } from "./WorkflowGuide";
 import { MetricCard } from "./MetricCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -12,69 +11,43 @@ import {
   Users,
   CheckCircle,
   AlertTriangle,
+  Zap,
   Activity,
   Headphones,
   BarChart3,
   PhoneCall,
   MessageSquare,
   Calendar,
-  AlertCircle,
-  Bot,
-  FileText
+  AlertCircle
 } from "lucide-react";
 
-interface DashboardOverviewProps {
-  onNavigate: (section: string) => void;
-}
-
-export function DashboardOverview({ onNavigate }: DashboardOverviewProps) {
-  // Check if user needs onboarding (in a real app, this would come from user state)
-  const [hasAgents] = useState(false);
-  const [hasCampaigns] = useState(false);
-  
-  const needsOnboarding = !hasAgents && !hasCampaigns;
-
-  // Show onboarding workflow if user needs setup
-  if (needsOnboarding) {
-    return <WorkflowGuide onNavigate={onNavigate} />;
-  }
-
+export function DashboardOverview() {
   return (
     <div className="space-y-6">
-      {/* Header with Quick Actions */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Monitor your voice bot performance and campaigns</p>
-        </div>
-        <div className="flex space-x-3">
-          <Card className="bg-gradient-card border-border/50 p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
-                <Bot className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <div className="text-sm font-medium text-foreground">2 Agents</div>
-                <div className="text-xs text-muted-foreground">Active</div>
-              </div>
-            </div>
-          </Card>
-          <Card className="bg-gradient-card border-border/50 p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-success/20 rounded-lg flex items-center justify-center">
-                <FileText className="w-5 h-5 text-success" />
-              </div>
-              <div>
-                <div className="text-sm font-medium text-foreground">4 Knowledge Packs</div>
-                <div className="text-xs text-muted-foreground">Ready</div>
-              </div>
-            </div>
-          </Card>
-        </div>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-muted-foreground">Monitor your voice bot performance and campaigns</p>
       </div>
 
-      {/* Key Metrics - Simplified */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Key Metrics - PRD KPIs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+        <MetricCard
+          title="QO/100 CM"
+          value="12.1"
+          change={8.7}
+          trend="up"
+          icon={<Target className="w-4 h-4" />}
+          className="lg:col-span-1"
+        />
+        <MetricCard
+          title="P95 Turn Latency"
+          value="1.34s"
+          change={-12.3}
+          trend="up"
+          icon={<Clock className="w-4 h-4" />}
+          className="lg:col-span-1"
+        />
         <MetricCard
           title="Connected Minutes"
           value="2,847"
@@ -84,62 +57,71 @@ export function DashboardOverview({ onNavigate }: DashboardOverviewProps) {
           className="lg:col-span-1"
         />
         <MetricCard
-          title="Qualified Leads"
-          value="342"
-          change={8.7}
-          trend="up"
-          icon={<Target className="w-4 h-4" />}
-          className="lg:col-span-1"
-        />
-        <MetricCard
-          title="Success Rate"
-          value="19.5%"
-          change={6.3}
-          trend="up"
-          icon={<TrendingUp className="w-4 h-4" />}
-          className="lg:col-span-1"
-        />
-        <MetricCard
-          title="Cost Per Lead"
-          value="$3.42"
+          title="ASR WER (US)"
+          value="8.7%"
           change={-5.2}
           trend="up"
-          icon={<BarChart3 className="w-4 h-4" />}
+          icon={<Headphones className="w-4 h-4" />}
+          className="lg:col-span-1"
+        />
+        <MetricCard
+          title="Barge-in Recovery"
+          value="96.8%"
+          change={2.1}
+          trend="up"
+          icon={<MessageSquare className="w-4 h-4" />}
+          className="lg:col-span-1"
+        />
+        <MetricCard
+          title="Handoff Precision"
+          value="84.1%"
+          change={6.3}
+          trend="up"
+          icon={<Users className="w-4 h-4" />}
           className="lg:col-span-1"
         />
       </div>
 
-      {/* Live Campaign Activity - Simplified */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Performance Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="bg-gradient-card border-border/50 shadow-card">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-foreground flex items-center space-x-2">
               <Activity className="w-5 h-5 text-primary" />
-              <span>Active Campaign</span>
+              <span>Live Campaign Status</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-success/10 border border-success/20 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-success/10 border border-success/20 rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <CheckCircle className="w-5 h-5 text-success" />
+                  <CheckCircle className="w-4 h-4 text-success" />
                   <div>
-                    <span className="font-medium text-foreground block">Lead Qualification Campaign</span>
-                    <span className="text-sm text-muted-foreground">147 of 200 contacts completed</span>
+                    <span className="text-sm font-medium text-foreground block">Lead Qualification</span>
+                    <span className="text-xs text-muted-foreground">147/200 contacts</span>
                   </div>
                 </div>
-                <Badge className="bg-success/20 text-success">Live</Badge>
+                <Badge variant="secondary" className="bg-success/20 text-success">Active</Badge>
               </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 bg-accent/20 rounded-lg">
-                  <div className="text-2xl font-bold text-foreground">5</div>
-                  <div className="text-sm text-muted-foreground">Active Calls</div>
+              <div className="flex items-center justify-between p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <AlertTriangle className="w-4 h-4 text-warning" />
+                  <div>
+                    <span className="text-sm font-medium text-foreground block">Collections</span>
+                    <span className="text-xs text-muted-foreground">Capacity preparing</span>
+                  </div>
                 </div>
-                <div className="text-center p-3 bg-accent/20 rounded-lg">
-                  <div className="text-2xl font-bold text-foreground">47</div>
-                  <div className="text-sm text-muted-foreground">Calls/Hour</div>
+                <Badge variant="secondary" className="bg-warning/20 text-warning">Preparing</Badge>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <Calendar className="w-4 h-4 text-primary" />
+                  <div>
+                    <span className="text-sm font-medium text-foreground block">CSAT Survey</span>
+                    <span className="text-xs text-muted-foreground">Starts 2:00 PM EST</span>
+                  </div>
                 </div>
+                <Badge variant="secondary" className="bg-primary/20 text-primary">Scheduled</Badge>
               </div>
             </div>
           </CardContent>
@@ -149,43 +131,122 @@ export function DashboardOverview({ onNavigate }: DashboardOverviewProps) {
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-foreground flex items-center space-x-2">
               <BarChart3 className="w-5 h-5 text-primary" />
-              <span>Performance Today</span>
+              <span>Quality Metrics</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Connect Rate</span>
-                  <span className="text-sm font-medium text-foreground">64.0%</span>
+                  <span className="text-sm text-muted-foreground">ASR WER (US EN)</span>
+                  <span className="text-sm font-medium text-success">8.7%</span>
                 </div>
-                <Progress value={64} className="h-2" />
+                <Progress value={91.3} className="h-2" />
               </div>
-              
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Qualification Rate</span>
-                  <span className="text-sm font-medium text-success">19.5%</span>
+                  <span className="text-sm text-muted-foreground">ASR WER (Hindi)</span>
+                  <span className="text-sm font-medium text-success">11.2%</span>
                 </div>
-                <Progress value={19.5} className="h-2" />
+                <Progress value={88.8} className="h-2" />
               </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Barge-in Recovery</span>
+                  <span className="text-sm font-medium text-success">96.8%</span>
+                </div>
+                <Progress value={96.8} className="h-2" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Handoff Precision</span>
+                  <span className="text-sm font-medium text-success">84.1%</span>
+                </div>
+                <Progress value={84.1} className="h-2" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-              <div className="pt-4 border-t border-border">
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <div className="text-lg font-bold text-success">156</div>
-                    <div className="text-xs text-muted-foreground">Qualified Today</div>
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-primary">$3.42</div>
-                    <div className="text-xs text-muted-foreground">Avg Cost/Lead</div>
-                  </div>
-                </div>
+        <Card className="bg-gradient-card border-border/50 shadow-card">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-foreground flex items-center space-x-2">
+              <PhoneCall className="w-5 h-5 text-primary" />
+              <span>Cost & Usage</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Credits Remaining</span>
+                <span className="text-sm font-medium text-foreground">$2,847.50</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Avg $/QO</span>
+                <span className="text-sm font-medium text-success">$3.42</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">LLM Tokens (24h)</span>
+                <span className="text-sm font-medium text-foreground">247K</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">TTS Minutes (24h)</span>
+                <span className="text-sm font-medium text-foreground">42.3</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">STT Minutes (24h)</span>
+                <span className="text-sm font-medium text-foreground">89.7</span>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Conversation Funnel */}
+      <Card className="bg-gradient-card border-border/50 shadow-card">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold text-foreground flex items-center space-x-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            <span>Lead Qualification Funnel (Last 7 Days)</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-6 gap-4">
+              <div className="text-center p-4 bg-accent/30 rounded-lg">
+                <div className="text-2xl font-bold text-foreground">2,847</div>
+                <div className="text-sm text-muted-foreground">Attempts</div>
+                <div className="text-xs text-success">100%</div>
+              </div>
+              <div className="text-center p-4 bg-accent/30 rounded-lg">
+                <div className="text-2xl font-bold text-foreground">1,823</div>
+                <div className="text-sm text-muted-foreground">Connects</div>
+                <div className="text-xs text-success">64.0%</div>
+              </div>
+              <div className="text-center p-4 bg-accent/30 rounded-lg">
+                <div className="text-2xl font-bold text-foreground">1,542</div>
+                <div className="text-sm text-muted-foreground">Talk Start</div>
+                <div className="text-xs text-success">84.6%</div>
+              </div>
+              <div className="text-center p-4 bg-accent/30 rounded-lg">
+                <div className="text-2xl font-bold text-foreground">847</div>
+                <div className="text-sm text-muted-foreground">Info Captured</div>
+                <div className="text-xs text-success">54.9%</div>
+              </div>
+              <div className="text-center p-4 bg-accent/30 rounded-lg">
+                <div className="text-2xl font-bold text-foreground">342</div>
+                <div className="text-sm text-muted-foreground">Qualified</div>
+                <div className="text-xs text-success">40.4%</div>
+              </div>
+              <div className="text-center p-4 bg-accent/30 rounded-lg">
+                <div className="text-2xl font-bold text-foreground">187</div>
+                <div className="text-sm text-muted-foreground">Meetings</div>
+                <div className="text-xs text-success">54.7%</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Recent Activity */}
       <Card className="bg-gradient-card border-border/50 shadow-card">
