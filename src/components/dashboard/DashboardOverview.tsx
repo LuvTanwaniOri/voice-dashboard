@@ -49,13 +49,13 @@ export function DashboardOverview() {
   ];
 
   const funnelData = [
-    { name: 'Total Attempts', value: 3247, rate: 100, fill: 'hsl(var(--chart-1))', description: 'All outbound calls initiated' },
-    { name: 'Connected Calls', value: 2087, rate: 64.3, fill: 'hsl(var(--chart-2))', description: 'Successfully connected to prospect' },
-    { name: 'Conversation Started', value: 1842, rate: 88.3, fill: 'hsl(var(--chart-3))', description: 'Prospect engaged in conversation' },
-    { name: 'Information Gathered', value: 1234, rate: 67.0, fill: 'hsl(var(--chart-4))', description: 'Key prospect data collected' },
-    { name: 'Lead Qualified', value: 687, rate: 55.7, fill: 'hsl(var(--accent-blue))', description: 'Meets qualification criteria' },
-    { name: 'Meeting Scheduled', value: 342, rate: 49.8, fill: 'hsl(var(--success))', description: 'Appointments successfully booked' },
-    { name: 'Show Rate', value: 287, rate: 83.9, fill: 'hsl(var(--warning))', description: 'Prospects attended meetings' }
+    { name: 'Total Attempts', value: 3247, rate: 100, fill: '#3b82f6', description: 'All outbound calls initiated' },
+    { name: 'Connected Calls', value: 2087, rate: 64.3, fill: '#8b5cf6', description: 'Successfully connected to prospect' },
+    { name: 'Conversation Started', value: 1842, rate: 88.3, fill: '#06b6d4', description: 'Prospect engaged in conversation' },
+    { name: 'Information Gathered', value: 1234, rate: 67.0, fill: '#10b981', description: 'Key prospect data collected' },
+    { name: 'Lead Qualified', value: 687, rate: 55.7, fill: '#f59e0b', description: 'Meets qualification criteria' },
+    { name: 'Meeting Scheduled', value: 342, rate: 49.8, fill: '#ef4444', description: 'Appointments successfully booked' },
+    { name: 'Show Rate', value: 287, rate: 83.9, fill: '#8b5cf6', description: 'Prospects attended meetings' }
   ];
 
   const qualityData = [
