@@ -23,10 +23,17 @@ import {
   Play,
   Plus,
   Trash2,
-  Edit
+  Edit,
+  ArrowLeft
 } from "lucide-react";
 
-export function AgentBuilder() {
+interface AgentBuilderProps {
+  agentId?: string | null;
+  onBack?: () => void;
+  isCreating?: boolean;
+}
+
+export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps) {
   const [agentName, setAgentName] = useState("Sarah - Lead Qualifier");
   const [selectedVoice, setSelectedVoice] = useState("neural-sarah-us");
   const [selectedLanguages, setSelectedLanguages] = useState(["en-US", "hi-IN"]);
@@ -56,9 +63,23 @@ export function AgentBuilder() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">AI Agent Builder</h1>
-          <p className="text-muted-foreground">Configure your voice AI agent's personality and capabilities</p>
+        <div className="flex items-center space-x-4">
+          {onBack && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={onBack}
+              className="text-text-muted hover:text-text-primary hover:bg-surface-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          )}
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              {isCreating ? "Create AI Agent" : agentId ? "Edit AI Agent" : "AI Agent Builder"}
+            </h1>
+            <p className="text-muted-foreground">Configure your voice AI agent's personality and capabilities</p>
+          </div>
         </div>
         <div className="flex space-x-3">
           <Button variant="outline" className="flex items-center space-x-2">
@@ -67,7 +88,7 @@ export function AgentBuilder() {
           </Button>
           <Button className="flex items-center space-x-2">
             <Save className="w-4 h-4" />
-            <span>Save Agent</span>
+            <span>{isCreating ? "Create Agent" : "Save Changes"}</span>
           </Button>
         </div>
       </div>

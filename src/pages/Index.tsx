@@ -4,6 +4,7 @@ import { OnboardingDrawer } from "@/components/dashboard/OnboardingDrawer";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { CampaignManager } from "@/components/dashboard/CampaignManager";
 import { AgentBuilder } from "@/components/dashboard/AgentBuilder";
+import { AgentList } from "@/components/dashboard/AgentList";
 import { Analytics } from "@/components/dashboard/Analytics";
 import { KnowledgeBase } from "@/components/dashboard/KnowledgeBase";
 import { UserManagement } from "@/components/dashboard/UserManagement";
@@ -12,6 +13,23 @@ import { VoiceLexicon } from "@/components/dashboard/VoiceLexicon";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  const [isCreatingAgent, setIsCreatingAgent] = useState(false);
+
+  const handleAgentSelect = (agentId: string) => {
+    setSelectedAgentId(agentId);
+    setIsCreatingAgent(false);
+  };
+
+  const handleCreateAgent = () => {
+    setSelectedAgentId(null);
+    setIsCreatingAgent(true);
+  };
+
+  const handleBackToAgentList = () => {
+    setSelectedAgentId(null);
+    setIsCreatingAgent(false);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -20,7 +38,21 @@ const Index = () => {
       case 'campaigns':
         return <CampaignManager />;
       case 'agents':
-        return <AgentBuilder />;
+        if (selectedAgentId || isCreatingAgent) {
+          return (
+            <AgentBuilder 
+              agentId={selectedAgentId} 
+              onBack={handleBackToAgentList}
+              isCreating={isCreatingAgent}
+            />
+          );
+        }
+        return (
+          <AgentList 
+            onSelectAgent={handleAgentSelect}
+            onCreateAgent={handleCreateAgent}
+          />
+        );
       case 'analytics':
         return <Analytics />;
       case 'knowledge':
