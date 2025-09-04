@@ -71,8 +71,8 @@ export function MetricCard({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2 flex-1">
             <div className={cn(
               "text-3xl font-bold tracking-tight",
               variant === 'accent' ? 'text-white' : 'text-text-primary'
@@ -93,19 +93,34 @@ export function MetricCard({
             )}
           </div>
           {trendData && trendData.length > 0 && (
-            <div className="w-20 h-12">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trendData}>
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke={trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))'} 
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+            <div className="flex flex-col items-end space-y-1 ml-4">
+              <div className="text-xs text-text-muted font-medium">Last 7 days</div>
+              <div className="w-24 h-12 relative">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={trendData}>
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke={trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))'} 
+                      strokeWidth={2}
+                      dot={{ fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))', strokeWidth: 0, r: 1.5 }}
+                      activeDot={{ r: 3, fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  trend === 'up' ? 'bg-success' : trend === 'down' ? 'bg-destructive' : 'bg-accent-blue'
+                )}></div>
+                <span className={cn(
+                  "text-xs font-medium",
+                  trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-accent-blue'
+                )}>
+                  {trend === 'up' ? 'Trending up' : trend === 'down' ? 'Trending down' : 'Stable'}
+                </span>
+              </div>
             </div>
           )}
         </div>
