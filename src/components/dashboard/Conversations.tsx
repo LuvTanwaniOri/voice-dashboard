@@ -72,7 +72,7 @@ interface CallSession {
 // Mock data
 const mockSessions: CallSession[] = [
   {
-    id: "70045-1",
+    id: "sess_9k3m7p2x8q1z",
     phoneNumber: "+1 (555) 123-4567",
     date: "Sep 4, 2025",
     time: "8:15:37 AM 49T",
@@ -125,7 +125,7 @@ const mockSessions: CallSession[] = [
     }
   },
   {
-    id: "70045-2",
+    id: "sess_4h8n2w5f9j6r",
     phoneNumber: "+1 (555) 987-6543",
     date: "Sep 4, 2025",
     time: "8:19:46 AM 45T",
@@ -250,7 +250,7 @@ export function Conversations() {
                   
                   <div className="mb-2">
                     <span className="text-xs font-mono text-text-muted bg-surface-2 px-2 py-1 rounded">
-                      ID: {session.id}
+                      Session Id: {session.id}
                     </span>
                   </div>
                   
