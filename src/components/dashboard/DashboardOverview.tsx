@@ -91,6 +91,10 @@ export function DashboardOverview() {
           icon={<Target className="w-6 h-6" />}
           variant="glass"
           className="bg-gradient-glass backdrop-blur-xl border-border/30 shadow-lg hover:shadow-glow transition-all duration-300"
+          trendData={[
+            { value: 8.2 }, { value: 9.1 }, { value: 10.8 }, 
+            { value: 11.3 }, { value: 11.8 }, { value: 12.1 }, { value: 12.1 }
+          ]}
         />
         <MetricCard
           title="P95 Turn Latency"
@@ -100,6 +104,10 @@ export function DashboardOverview() {
           icon={<Clock className="w-6 h-6" />}
           variant="glass"
           className="bg-gradient-glass backdrop-blur-xl border-border/30 shadow-lg hover:shadow-glow transition-all duration-300"
+          trendData={[
+            { value: 1.45 }, { value: 1.38 }, { value: 1.42 }, 
+            { value: 1.35 }, { value: 1.34 }, { value: 1.34 }, { value: 1.34 }
+          ]}
         />
         <MetricCard
           title="Connected Minutes"
@@ -109,6 +117,10 @@ export function DashboardOverview() {
           icon={<Phone className="w-6 h-6" />}
           variant="glass"
           className="bg-gradient-glass backdrop-blur-xl border-border/30 shadow-lg hover:shadow-glow transition-all duration-300"
+          trendData={[
+            { value: 2340 }, { value: 2567 }, { value: 2789 }, 
+            { value: 2654 }, { value: 2847 }, { value: 2847 }, { value: 2847 }
+          ]}
         />
       </div>
 

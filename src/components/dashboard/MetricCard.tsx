@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 interface MetricCardProps {
   title: string;
@@ -10,6 +11,7 @@ interface MetricCardProps {
   trend?: 'up' | 'down' | 'neutral';
   className?: string;
   variant?: 'default' | 'glass' | 'accent';
+  trendData?: Array<{ value: number }>;
 }
 
 export function MetricCard({ 
@@ -19,7 +21,8 @@ export function MetricCard({
   icon, 
   trend = 'neutral',
   variant = 'default',
-  className 
+  className,
+  trendData
 }: MetricCardProps) {
   const getTrendColor = () => {
     switch (trend) {
@@ -68,23 +71,41 @@ export function MetricCard({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          <div className={cn(
-            "text-3xl font-bold tracking-tight",
-            variant === 'accent' ? 'text-white' : 'text-text-primary'
-          )}>
-            {value}
-          </div>
-          {change !== undefined && (
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
             <div className={cn(
-              "text-sm flex items-center",
-              getTrendColor()
+              "text-3xl font-bold tracking-tight",
+              variant === 'accent' ? 'text-white' : 'text-text-primary'
             )}>
-              <span className="font-medium">
-                {change > 0 ? '+' : ''}{change}%
-              </span>
-              {getTrendIcon()}
-              <span className="ml-2 text-text-muted">vs last period</span>
+              {value}
+            </div>
+            {change !== undefined && (
+              <div className={cn(
+                "text-sm flex items-center",
+                getTrendColor()
+              )}>
+                <span className="font-medium">
+                  {change > 0 ? '+' : ''}{change}%
+                </span>
+                {getTrendIcon()}
+                <span className="ml-2 text-text-muted">vs last period</span>
+              </div>
+            )}
+          </div>
+          {trendData && trendData.length > 0 && (
+            <div className="w-20 h-12">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData}>
+                  <Line 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke={trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))'} 
+                    strokeWidth={2}
+                    dot={false}
+                    activeDot={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           )}
         </div>
