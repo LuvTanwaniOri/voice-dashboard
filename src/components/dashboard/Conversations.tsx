@@ -623,14 +623,7 @@ export function Conversations() {
                     )}
                   </div>
                   
-                  {selectedSession.customer.totalDebt && (
-                    <div className="p-3 bg-warning/10 rounded-lg border border-warning/20">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-text-muted">Total Debt</span>
-                        <span className="text-lg font-bold text-warning">${selectedSession.customer.totalDebt}</span>
-                      </div>
-                    </div>
-                  )}
+                
                 </div>
               </CollapsibleContent>
             </Collapsible>
