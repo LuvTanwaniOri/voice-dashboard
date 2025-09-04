@@ -19,7 +19,15 @@ import {
   Timer,
   TrendingUp,
   MapPin,
-  Mail
+  Mail,
+  BarChart3,
+  FileText,
+  Shield,
+  Headphones,
+  Star,
+  Activity,
+  Target,
+  Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -166,6 +174,8 @@ export function Conversations() {
   const [callDetailsOpen, setCallDetailsOpen] = useState(false);
   const [insightsOpen, setInsightsOpen] = useState(false);
   const [customerInfoOpen, setCustomerInfoOpen] = useState(false);
+  const [performanceOpen, setPerformanceOpen] = useState(false);
+  const [recordingOpen, setRecordingOpen] = useState(false);
 
   const filteredSessions = mockSessions.filter(session =>
     session.phoneNumber.includes(searchQuery) ||
@@ -238,6 +248,12 @@ export function Conversations() {
                     </Badge>
                   </div>
                   
+                  <div className="mb-2">
+                    <span className="text-xs font-mono text-text-muted bg-surface-2 px-2 py-1 rounded">
+                      ID: {session.id}
+                    </span>
+                  </div>
+                  
                   <div className="space-y-1 text-xs text-text-muted">
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-3 h-3" />
@@ -263,12 +279,17 @@ export function Conversations() {
       {selectedSession ? (
         <div className="flex-1 flex flex-col">
           {/* Call Header */}
-          <div className="p-6 border-b border-border/50 bg-surface-2">
+          <div className="p-6 border-b border-border/50 bg-gradient-subtle">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold text-text-primary">
-                  Call {selectedSession.id}
-                </h3>
+                <div className="flex items-center space-x-3 mb-1">
+                  <h3 className="text-lg font-semibold text-text-primary">
+                    Session {selectedSession.id}
+                  </h3>
+                  <Badge variant="outline" className="text-xs font-mono">
+                    {selectedSession.phoneNumber}
+                  </Badge>
+                </div>
                 <p className="text-sm text-text-muted">
                   {selectedSession.date} at {selectedSession.time}
                 </p>
@@ -279,58 +300,93 @@ export function Conversations() {
             </div>
 
             {/* Audio Player */}
-            <div className="flex items-center space-x-4 p-4 bg-surface rounded-lg border border-border/50">
+            <div className="flex items-center space-x-4 p-4 bg-surface rounded-lg border border-border/50 shadow-sm">
               <Button
                 size="sm"
                 variant={isPlaying ? "secondary" : "default"}
                 onClick={() => setIsPlaying(!isPlaying)}
+                className="shadow-sm"
               >
                 {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               </Button>
-              <div className="flex-1 bg-muted rounded-full h-2">
-                <div className="bg-accent-blue h-2 rounded-full w-1/3"></div>
+              <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
+                <div className="bg-gradient-primary h-full rounded-full w-1/3 transition-all duration-300"></div>
               </div>
-              <span className="text-sm text-text-muted">0:00 / 1:36</span>
-              <Button size="sm" variant="ghost">
+              <span className="text-sm text-text-muted font-mono">0:00 / 1:36</span>
+              <Button size="sm" variant="ghost" className="hover:bg-accent-blue/10">
                 <Download className="w-4 h-4" />
               </Button>
             </div>
           </div>
 
           {/* Transcript */}
-          <ScrollArea className="flex-1 p-6">
-            <div className="space-y-4">
-              <h4 className="font-medium text-text-primary mb-4">Call Transcript</h4>
-              {selectedSession.transcript.map((entry, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "flex",
-                    entry.speaker === 'bot' ? "justify-start" : "justify-end"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "max-w-[70%] p-3 rounded-lg",
-                      entry.speaker === 'bot'
-                        ? "bg-surface-2 text-text-primary"
-                        : "bg-accent-blue text-white"
-                    )}
-                  >
-                    <p className="text-sm">{entry.message}</p>
-                    <div className={cn(
-                      "flex items-center mt-1 text-xs",
-                      entry.speaker === 'bot' ? "text-text-muted" : "text-white/70"
-                    )}>
-                      <User className="w-3 h-3 mr-1" />
-                      <span className="mr-2">{entry.speaker === 'bot' ? 'Bot' : 'Customer'}</span>
-                      <span>{entry.timestamp}</span>
-                    </div>
-                  </div>
+          <div className="flex-1 bg-gradient-to-b from-surface to-surface-2/30">
+            <ScrollArea className="h-full p-6">
+              <div className="space-y-6 max-w-4xl mx-auto">
+                <div className="flex items-center justify-between border-b border-border/30 pb-3">
+                  <h4 className="font-semibold text-text-primary flex items-center">
+                    <PhoneCall className="w-4 h-4 mr-2 text-accent-blue" />
+                    Call Transcript
+                  </h4>
+                  <span className="text-xs text-text-muted bg-surface-2 px-2 py-1 rounded-full">
+                    {selectedSession.transcript.length} messages
+                  </span>
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
+                
+                <div className="space-y-4">
+                  {selectedSession.transcript.map((entry, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        "flex gap-3 transition-all duration-200 hover:bg-surface-2/50 p-2 rounded-lg",
+                        entry.speaker === 'bot' ? "justify-start" : "justify-end"
+                      )}
+                    >
+                      {entry.speaker === 'bot' && (
+                        <div className="w-8 h-8 rounded-full bg-accent-blue/10 flex items-center justify-center flex-shrink-0 mt-1">
+                          <PhoneCall className="w-4 h-4 text-accent-blue" />
+                        </div>
+                      )}
+                      
+                      <div
+                        className={cn(
+                          "max-w-[70%] group relative",
+                          entry.speaker === 'customer' && "order-first"
+                        )}
+                      >
+                        <div
+                          className={cn(
+                            "p-4 rounded-2xl shadow-sm border transition-all duration-200",
+                            entry.speaker === 'bot'
+                              ? "bg-surface-2 text-text-primary border-border/50 rounded-tl-md"
+                              : "bg-gradient-primary text-white border-accent-blue/20 rounded-tr-md"
+                          )}
+                        >
+                          <p className="text-sm leading-relaxed">{entry.message}</p>
+                        </div>
+                        
+                        <div className={cn(
+                          "flex items-center mt-2 text-xs opacity-70 group-hover:opacity-100 transition-opacity",
+                          entry.speaker === 'bot' ? "text-text-muted" : "text-text-muted justify-end"
+                        )}>
+                          <span className="mr-2 font-medium">
+                            {entry.speaker === 'bot' ? 'AI Agent' : 'Customer'}
+                          </span>
+                          <span className="font-mono">{entry.timestamp}</span>
+                        </div>
+                      </div>
+                      
+                      {entry.speaker === 'customer' && (
+                        <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center flex-shrink-0 mt-1">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center">
@@ -342,135 +398,244 @@ export function Conversations() {
         </div>
       )}
 
-      {/* Right Panel - Call Details & Insights */}
+      {/* Right Panel - Enhanced Call Details & Insights */}
       {selectedSession && (
-        <div className="w-80 border-l border-border/50 p-4 space-y-4 overflow-y-auto">
-          {/* Call Details */}
-          <Collapsible open={callDetailsOpen} onOpenChange={setCallDetailsOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between p-2">
-                <span className="font-medium text-text-primary">Call Details</span>
-                <ChevronDown className={cn("w-4 h-4 transition-transform", callDetailsOpen && "rotate-180")} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-3 p-2">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="text-text-muted">Duration</span>
-                  <p className="font-medium text-text-primary">{selectedSession.details.callDuration}</p>
-                </div>
-                <div>
-                  <span className="text-text-muted">Hangup By</span>
-                  <p className="font-medium text-text-primary capitalize">{selectedSession.details.hangupBy}</p>
-                </div>
-                <div>
-                  <span className="text-text-muted">Quality</span>
-                  <p className="font-medium text-text-primary">{selectedSession.details.callQuality}/5</p>
-                </div>
-                {selectedSession.details.transferredTo && (
-                  <div>
-                    <span className="text-text-muted">Transferred To</span>
-                    <p className="font-medium text-text-primary">{selectedSession.details.transferredTo}</p>
+        <div className="w-80 border-l border-border/50 bg-gradient-to-b from-surface to-surface-2/30 overflow-y-auto">
+          <div className="p-4 space-y-3">
+            
+            {/* Performance Metrics */}
+            <Collapsible open={performanceOpen} onOpenChange={setPerformanceOpen} defaultOpen={true}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-3 hover:bg-surface-2/80 rounded-lg border border-border/30">
+                  <div className="flex items-center space-x-2">
+                    <BarChart3 className="w-4 h-4 text-accent-blue" />
+                    <span className="font-semibold text-text-primary">Performance</span>
                   </div>
-                )}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+                  <ChevronDown className={cn("w-4 h-4 transition-transform text-text-muted", performanceOpen && "rotate-180")} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="bg-surface-2/50 rounded-lg p-4 border border-border/30 space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-surface rounded-lg p-3 border border-border/20">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <Star className="w-3 h-3 text-warning" />
+                        <span className="text-xs text-text-muted">Satisfaction</span>
+                      </div>
+                      <p className="text-lg font-bold text-text-primary">{selectedSession.insights.satisfaction}/10</p>
+                    </div>
+                    <div className="bg-surface rounded-lg p-3 border border-border/20">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <Shield className="w-3 h-3 text-success" />
+                        <span className="text-xs text-text-muted">Quality</span>
+                      </div>
+                      <p className="text-lg font-bold text-text-primary">{selectedSession.details.callQuality}/5</p>
+                    </div>
+                  </div>
+                  <div className={cn(
+                    "flex items-center justify-between p-3 rounded-lg border",
+                    selectedSession.insights.resolution 
+                      ? "bg-success/10 border-success/30 text-success" 
+                      : "bg-destructive/10 border-destructive/30 text-destructive"
+                  )}>
+                    <span className="text-sm font-medium">Resolution Status</span>
+                    <div className="flex items-center space-x-1">
+                      <Target className="w-4 h-4" />
+                      <span className="font-semibold">
+                        {selectedSession.insights.resolution ? "Resolved" : "Unresolved"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
 
-          {/* Call Insights */}
-          <Collapsible open={insightsOpen} onOpenChange={setInsightsOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between p-2">
-                <span className="font-medium text-text-primary">Call Insights</span>
-                <ChevronDown className={cn("w-4 h-4 transition-transform", insightsOpen && "rotate-180")} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-3 p-2">
-              <div className="space-y-3 text-sm">
-                <div>
-                  <span className="text-text-muted">Disposition</span>
-                  <p className="font-medium text-text-primary">{selectedSession.insights.disposition}</p>
+            {/* Call Details */}
+            <Collapsible open={callDetailsOpen} onOpenChange={setCallDetailsOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-3 hover:bg-surface-2/80 rounded-lg border border-border/30">
+                  <div className="flex items-center space-x-2">
+                    <PhoneCall className="w-4 h-4 text-accent-blue" />
+                    <span className="font-semibold text-text-primary">Call Details</span>
+                  </div>
+                  <ChevronDown className={cn("w-4 h-4 transition-transform text-text-muted", callDetailsOpen && "rotate-180")} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="bg-surface-2/50 rounded-lg p-4 border border-border/30 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-1">
+                        <Timer className="w-3 h-3 text-text-muted" />
+                        <span className="text-xs text-text-muted">Duration</span>
+                      </div>
+                      <p className="font-semibold text-text-primary">{selectedSession.details.callDuration}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center space-x-1">
+                        <Activity className="w-3 h-3 text-text-muted" />
+                        <span className="text-xs text-text-muted">Hangup By</span>
+                      </div>
+                      <p className="font-semibold text-text-primary capitalize">{selectedSession.details.hangupBy}</p>
+                    </div>
+                  </div>
+                  {selectedSession.details.transferredTo && (
+                    <div className="p-3 bg-accent-blue/10 rounded-lg border border-accent-blue/20">
+                      <div className="flex items-center space-x-2">
+                        <Zap className="w-4 h-4 text-accent-blue" />
+                        <div>
+                          <span className="text-xs text-text-muted">Transferred To</span>
+                          <p className="font-semibold text-accent-blue">{selectedSession.details.transferredTo}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <span className="text-text-muted">Sentiment</span>
-                  <p className={cn("font-medium capitalize", getSentimentColor(selectedSession.insights.sentiment))}>
-                    {selectedSession.insights.sentiment}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-text-muted">Intent</span>
-                  <p className="font-medium text-text-primary">{selectedSession.insights.intent}</p>
-                </div>
-                <div>
-                  <span className="text-text-muted">Resolution</span>
-                  <p className={cn("font-medium", selectedSession.insights.resolution ? "text-success" : "text-destructive")}>
-                    {selectedSession.insights.resolution ? "Resolved" : "Unresolved"}
-                  </p>
-                </div>
-                <div>
-                  <span className="text-text-muted">Satisfaction</span>
-                  <p className="font-medium text-text-primary">{selectedSession.insights.satisfaction}/10</p>
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+              </CollapsibleContent>
+            </Collapsible>
 
-          {/* Customer Information */}
-          <Collapsible open={customerInfoOpen} onOpenChange={setCustomerInfoOpen}>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full justify-between p-2">
-                <span className="font-medium text-text-primary">Customer Information</span>
-                <ChevronDown className={cn("w-4 h-4 transition-transform", customerInfoOpen && "rotate-180")} />
-              </Button>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-3 p-2">
-              <div className="space-y-3 text-sm">
-                {selectedSession.customer.name && (
+            {/* Recording Details */}
+            <Collapsible open={recordingOpen} onOpenChange={setRecordingOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-3 hover:bg-surface-2/80 rounded-lg border border-border/30">
                   <div className="flex items-center space-x-2">
-                    <User className="w-4 h-4 text-text-muted" />
-                    <div>
-                      <span className="text-text-muted">Name</span>
-                      <p className="font-medium text-text-primary">{selectedSession.customer.name}</p>
-                    </div>
+                    <Headphones className="w-4 h-4 text-accent-blue" />
+                    <span className="font-semibold text-text-primary">Recording</span>
                   </div>
-                )}
-                {selectedSession.customer.email && (
-                  <div className="flex items-center space-x-2">
-                    <Mail className="w-4 h-4 text-text-muted" />
-                    <div>
-                      <span className="text-text-muted">Email</span>
-                      <p className="font-medium text-text-primary">{selectedSession.customer.email}</p>
-                    </div>
+                  <ChevronDown className={cn("w-4 h-4 transition-transform text-text-muted", recordingOpen && "rotate-180")} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="bg-surface-2/50 rounded-lg p-4 border border-border/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-text-muted">Available</span>
+                    <Badge variant="secondary" className="bg-success/20 text-success">
+                      Yes
+                    </Badge>
                   </div>
-                )}
-                {selectedSession.customer.location && (
-                  <div className="flex items-center space-x-2">
-                    <MapPin className="w-4 h-4 text-text-muted" />
-                    <div>
-                      <span className="text-text-muted">Location</span>
-                      <p className="font-medium text-text-primary">{selectedSession.customer.location}</p>
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-text-muted">Format</span>
+                    <span className="text-sm font-medium text-text-primary">MP3</span>
                   </div>
-                )}
-                <div>
-                  <span className="text-text-muted">Previous Calls</span>
-                  <p className="font-medium text-text-primary">{selectedSession.customer.previousCalls}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-text-muted">Size</span>
+                    <span className="text-sm font-medium text-text-primary">2.4 MB</span>
+                  </div>
+                  <Button size="sm" className="w-full mt-2" variant="outline">
+                    <Download className="w-3 h-3 mr-2" />
+                    Download Recording
+                  </Button>
                 </div>
-                {selectedSession.customer.totalDebt && (
-                  <div>
-                    <span className="text-text-muted">Total Debt</span>
-                    <p className="font-medium text-text-primary">${selectedSession.customer.totalDebt}</p>
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Call Insights */}
+            <Collapsible open={insightsOpen} onOpenChange={setInsightsOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-3 hover:bg-surface-2/80 rounded-lg border border-border/30">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="w-4 h-4 text-accent-blue" />
+                    <span className="font-semibold text-text-primary">Call Insights</span>
                   </div>
-                )}
-                {selectedSession.customer.creditScore && (
-                  <div>
-                    <span className="text-text-muted">Credit Score</span>
-                    <p className="font-medium text-text-primary">{selectedSession.customer.creditScore}</p>
+                  <ChevronDown className={cn("w-4 h-4 transition-transform text-text-muted", insightsOpen && "rotate-180")} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="bg-surface-2/50 rounded-lg p-4 border border-border/30 space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-text-muted">Disposition</span>
+                      <Badge variant="secondary" className="bg-surface text-text-primary">
+                        {selectedSession.insights.disposition}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-text-muted">Sentiment</span>
+                      <Badge className={cn(
+                        "capitalize",
+                        selectedSession.insights.sentiment === 'positive' ? "bg-success/20 text-success border-success/30" :
+                        selectedSession.insights.sentiment === 'negative' ? "bg-destructive/20 text-destructive border-destructive/30" :
+                        "bg-warning/20 text-warning border-warning/30"
+                      )}>
+                        {selectedSession.insights.sentiment}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-text-muted">Intent</span>
+                      <span className="text-sm font-semibold text-text-primary">{selectedSession.insights.intent}</span>
+                    </div>
                   </div>
-                )}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Customer Information */}
+            <Collapsible open={customerInfoOpen} onOpenChange={setCustomerInfoOpen}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-3 hover:bg-surface-2/80 rounded-lg border border-border/30">
+                  <div className="flex items-center space-x-2">
+                    <User className="w-4 h-4 text-accent-blue" />
+                    <span className="font-semibold text-text-primary">Customer Info</span>
+                  </div>
+                  <ChevronDown className={cn("w-4 h-4 transition-transform text-text-muted", customerInfoOpen && "rotate-180")} />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <div className="bg-surface-2/50 rounded-lg p-4 border border-border/30 space-y-4">
+                  {selectedSession.customer.name && (
+                    <div className="flex items-center space-x-3 p-2 bg-surface rounded-lg border border-border/20">
+                      <User className="w-4 h-4 text-accent-blue flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs text-text-muted block">Name</span>
+                        <p className="font-semibold text-text-primary truncate">{selectedSession.customer.name}</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedSession.customer.email && (
+                    <div className="flex items-center space-x-3 p-2 bg-surface rounded-lg border border-border/20">
+                      <Mail className="w-4 h-4 text-accent-blue flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs text-text-muted block">Email</span>
+                        <p className="font-semibold text-text-primary truncate">{selectedSession.customer.email}</p>
+                      </div>
+                    </div>
+                  )}
+                  {selectedSession.customer.location && (
+                    <div className="flex items-center space-x-3 p-2 bg-surface rounded-lg border border-border/20">
+                      <MapPin className="w-4 h-4 text-accent-blue flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <span className="text-xs text-text-muted block">Location</span>
+                        <p className="font-semibold text-text-primary truncate">{selectedSession.customer.location}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/30">
+                    <div className="text-center p-2 bg-surface rounded-lg border border-border/20">
+                      <p className="text-lg font-bold text-text-primary">{selectedSession.customer.previousCalls}</p>
+                      <span className="text-xs text-text-muted">Previous Calls</span>
+                    </div>
+                    {selectedSession.customer.creditScore && (
+                      <div className="text-center p-2 bg-surface rounded-lg border border-border/20">
+                        <p className="text-lg font-bold text-text-primary">{selectedSession.customer.creditScore}</p>
+                        <span className="text-xs text-text-muted">Credit Score</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedSession.customer.totalDebt && (
+                    <div className="p-3 bg-warning/10 rounded-lg border border-warning/20">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-text-muted">Total Debt</span>
+                        <span className="text-lg font-bold text-warning">${selectedSession.customer.totalDebt}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+
+          </div>
         </div>
       )}
     </div>
