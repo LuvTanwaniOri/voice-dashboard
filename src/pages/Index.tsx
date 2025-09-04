@@ -5,6 +5,7 @@ import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { CampaignManager } from "@/components/dashboard/CampaignManager";
 import { AgentBuilder } from "@/components/dashboard/AgentBuilder";
 import { AgentList } from "@/components/dashboard/AgentList";
+import { AgentOverview } from "@/components/dashboard/AgentOverview";
 import { Analytics } from "@/components/dashboard/Analytics";
 import { KnowledgeBase } from "@/components/dashboard/KnowledgeBase";
 import { UserManagement } from "@/components/dashboard/UserManagement";
@@ -15,20 +16,32 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [isCreatingAgent, setIsCreatingAgent] = useState(false);
+  const [isEditingAgent, setIsEditingAgent] = useState(false);
 
   const handleAgentSelect = (agentId: string) => {
     setSelectedAgentId(agentId);
     setIsCreatingAgent(false);
+    setIsEditingAgent(false);
   };
 
   const handleCreateAgent = () => {
     setSelectedAgentId(null);
     setIsCreatingAgent(true);
+    setIsEditingAgent(false);
+  };
+
+  const handleEditAgent = () => {
+    setIsEditingAgent(true);
   };
 
   const handleBackToAgentList = () => {
     setSelectedAgentId(null);
     setIsCreatingAgent(false);
+    setIsEditingAgent(false);
+  };
+
+  const handleBackToAgentOverview = () => {
+    setIsEditingAgent(false);
   };
 
   const renderContent = () => {
@@ -38,12 +51,21 @@ const Index = () => {
       case 'campaigns':
         return <CampaignManager />;
       case 'agents':
-        if (selectedAgentId || isCreatingAgent) {
+        if (isCreatingAgent || isEditingAgent) {
           return (
             <AgentBuilder 
               agentId={selectedAgentId} 
-              onBack={handleBackToAgentList}
+              onBack={isEditingAgent ? handleBackToAgentOverview : handleBackToAgentList}
               isCreating={isCreatingAgent}
+            />
+          );
+        }
+        if (selectedAgentId) {
+          return (
+            <AgentOverview 
+              agentId={selectedAgentId}
+              onBack={handleBackToAgentList}
+              onEdit={handleEditAgent}
             />
           );
         }
