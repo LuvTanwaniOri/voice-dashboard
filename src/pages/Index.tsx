@@ -11,6 +11,7 @@ import { KnowledgeBase } from "@/components/dashboard/KnowledgeBase";
 import { UserManagement } from "@/components/dashboard/UserManagement";
 import { OperationsWallboard } from "@/components/dashboard/OperationsWallboard";
 import { VoiceLexicon } from "@/components/dashboard/VoiceLexicon";
+import { Conversations } from "@/components/dashboard/Conversations";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -48,6 +49,8 @@ const Index = () => {
     switch (activeTab) {
       case 'dashboard':
         return <DashboardOverview />;
+      case 'conversations':
+        return <Conversations />;
       case 'campaigns':
         return <CampaignManager />;
       case 'agents':

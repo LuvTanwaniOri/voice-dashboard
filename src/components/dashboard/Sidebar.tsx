@@ -7,7 +7,8 @@ import {
   Zap,
   Activity,
   Volume2,
-  Target
+  Target,
+  MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { OnboardingProgress } from "./OnboardingProgress";
@@ -19,6 +20,7 @@ interface SidebarProps {
 
 const navigation = [
   { id: 'dashboard', name: 'Dashboard', icon: BarChart3 },
+  { id: 'conversations', name: 'Conversations', icon: MessageSquare },
   { id: 'campaigns', name: 'Campaigns', icon: Target },
   { id: 'agents', name: 'AI Agents', icon: Bot },
   { id: 'analytics', name: 'Analytics', icon: Activity },
