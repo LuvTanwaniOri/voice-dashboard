@@ -71,56 +71,66 @@ export function MetricCard({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-start justify-between">
-          <div className="space-y-2 flex-1">
+        <div className="space-y-4">
+          {/* Main metrics row */}
+          <div className="flex items-start justify-between">
             <div className={cn(
               "text-3xl font-bold tracking-tight",
               variant === 'accent' ? 'text-white' : 'text-text-primary'
             )}>
               {value}
             </div>
-            {change !== undefined && (
-              <div className={cn(
-                "text-sm flex items-center",
-                getTrendColor()
-              )}>
-                <span className="font-medium">
-                  {change > 0 ? '+' : ''}{change}%
-                </span>
-                {getTrendIcon()}
-                <span className="ml-2 text-text-muted">vs last period</span>
+            {trendData && trendData.length > 0 && (
+              <div className="flex flex-col items-end space-y-1">
+                <div className="text-xs text-text-muted font-medium">Last 7 days</div>
+                <div className="w-24 h-10">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={trendData}>
+                      <Line 
+                        type="monotone" 
+                        dataKey="value" 
+                        stroke={trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))'} 
+                        strokeWidth={2}
+                        dot={{ fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))', strokeWidth: 0, r: 1.5 }}
+                        activeDot={{ r: 3, fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))' }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
             )}
           </div>
-          {trendData && trendData.length > 0 && (
-            <div className="flex flex-col items-end space-y-1 ml-4">
-              <div className="text-xs text-text-muted font-medium">Last 7 days</div>
-              <div className="w-24 h-12 relative">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={trendData}>
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke={trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))'} 
-                      strokeWidth={2}
-                      dot={{ fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))', strokeWidth: 0, r: 1.5 }}
-                      activeDot={{ r: 3, fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))' }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="flex items-center gap-1">
+          
+          {/* Bottom aligned info row */}
+          {(change !== undefined || (trendData && trendData.length > 0)) && (
+            <div className="flex items-center justify-between">
+              {change !== undefined ? (
                 <div className={cn(
-                  "w-2 h-2 rounded-full",
-                  trend === 'up' ? 'bg-success' : trend === 'down' ? 'bg-destructive' : 'bg-accent-blue'
-                )}></div>
-                <span className={cn(
-                  "text-xs font-medium",
-                  trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-accent-blue'
+                  "text-sm flex items-center",
+                  getTrendColor()
                 )}>
-                  {trend === 'up' ? 'Trending up' : trend === 'down' ? 'Trending down' : 'Stable'}
-                </span>
-              </div>
+                  <span className="font-medium">
+                    {change > 0 ? '+' : ''}{change}%
+                  </span>
+                  {getTrendIcon()}
+                  <span className="ml-2 text-text-muted">vs last period</span>
+                </div>
+              ) : <div />}
+              
+              {trendData && trendData.length > 0 && (
+                <div className="flex items-center gap-1">
+                  <div className={cn(
+                    "w-2 h-2 rounded-full",
+                    trend === 'up' ? 'bg-success' : trend === 'down' ? 'bg-destructive' : 'bg-accent-blue'
+                  )}></div>
+                  <span className={cn(
+                    "text-xs font-medium",
+                    trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-accent-blue'
+                  )}>
+                    {trend === 'up' ? 'Trending up' : trend === 'down' ? 'Trending down' : 'Stable'}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
