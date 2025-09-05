@@ -26,14 +26,32 @@ import {
   CheckCircle2,
   Clock,
   Star,
-  ArrowUpDown
+  ArrowUpDown,
+  Play,
+  Pause,
+  Download,
+  SkipBack,
+  SkipForward,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ClientCallAudit } from "./ClientCallAuditDialog";
 
 // Mock data for demonstration
-const mockAudits: (ClientCallAudit & { id: string; timestamp: string; status: 'open' | 'resolved'; createdBy: string })[] = [
+const mockAudits: (ClientCallAudit & { 
+  id: string; 
+  timestamp: string; 
+  status: 'open' | 'resolved'; 
+  createdBy: string;
+  audioUrl?: string;
+  transcript?: Array<{
+    speaker: 'agent' | 'customer';
+    text: string;
+    timestamp: string;
+  }>;
+})[] = [
   {
     id: "audit-1",
     sessionId: "session-123",
@@ -47,7 +65,15 @@ const mockAudits: (ClientCallAudit & { id: string; timestamp: string; status: 'o
     rating: 2,
     severity: "high",
     status: "open",
-    createdBy: "John Doe"
+    createdBy: "John Doe",
+    audioUrl: "https://example.com/audio/session-123.mp3",
+    transcript: [
+      { speaker: 'agent', text: 'Hello, thank you for calling. How can I help you today?', timestamp: '00:00:02' },
+      { speaker: 'customer', text: 'Hi, I need help with my account balance.', timestamp: '00:00:08' },
+      { speaker: 'agent', text: 'I can help you with that. Can you please provide your account number?', timestamp: '00:00:12' },
+      { speaker: 'customer', text: 'Sure, it\'s 12345678.', timestamp: '00:00:18' },
+      { speaker: 'agent', text: 'Thank you. Let me look that up for you...', timestamp: '00:00:22' }
+    ]
   },
   {
     id: "audit-2", 
@@ -62,7 +88,13 @@ const mockAudits: (ClientCallAudit & { id: string; timestamp: string; status: 'o
     rating: 3,
     severity: "medium",
     status: "resolved",
-    createdBy: "Jane Smith"
+    createdBy: "Jane Smith",
+    audioUrl: "https://example.com/audio/session-456.mp3",
+    transcript: [
+      { speaker: 'agent', text: 'Good afternoon, how may I assist you?', timestamp: '00:00:01' },
+      { speaker: 'customer', text: 'I\'m having trouble with my recent order.', timestamp: '00:00:05' },
+      { speaker: 'agent', text: 'I understand your frustration. Let me help resolve this quickly.', timestamp: '00:00:09' }
+    ]
   },
   {
     id: "audit-3",
@@ -77,8 +109,148 @@ const mockAudits: (ClientCallAudit & { id: string; timestamp: string; status: 'o
     rating: 1,
     severity: "high",
     status: "open",
-    createdBy: "Mike Johnson"
+    createdBy: "Mike Johnson",
+    audioUrl: "https://example.com/audio/session-789.mp3",
+    transcript: [
+      { speaker: 'agent', text: 'Hello, welcome to our support line.', timestamp: '00:00:02' },
+      { speaker: 'customer', text: 'Hi, I need to speak with someone about billing.', timestamp: '00:00:06' }
+    ]
   },
+  {
+    id: "audit-4",
+    sessionId: "session-101",
+    timestamp: "2024-01-12T14:20:00Z",
+    speechToText: ["unclear-audio"],
+    aiBusinessLogic: ["context-loss"],
+    textToSpeech: [],
+    callExperience: ["interruptions"],
+    systemLevel: [],
+    overallFeedback: "Multiple interruptions and context was lost during conversation.",
+    rating: 2,
+    severity: "medium",
+    status: "open",
+    createdBy: "Sarah Wilson"
+  },
+  {
+    id: "audit-5",
+    sessionId: "session-202",
+    timestamp: "2024-01-11T11:15:00Z",
+    speechToText: [],
+    aiBusinessLogic: [],
+    textToSpeech: ["robotic-voice"],
+    callExperience: [],
+    systemLevel: [],
+    overallFeedback: "Voice sounded very robotic and unnatural.",
+    rating: 3,
+    severity: "low",
+    status: "resolved",
+    createdBy: "David Chen"
+  },
+  {
+    id: "audit-6",
+    sessionId: "session-303",
+    timestamp: "2024-01-10T16:30:00Z",
+    speechToText: ["accent-issues"],
+    aiBusinessLogic: ["inappropriate-response"],
+    textToSpeech: [],
+    callExperience: [],
+    systemLevel: ["timeout"],
+    overallFeedback: "Bot struggled with customer accent and gave inappropriate responses.",
+    rating: 1,
+    severity: "high",
+    status: "open",
+    createdBy: "Lisa Anderson"
+  },
+  {
+    id: "audit-7",
+    sessionId: "session-404",
+    timestamp: "2024-01-09T08:45:00Z",
+    speechToText: [],
+    aiBusinessLogic: [],
+    textToSpeech: [],
+    callExperience: ["excellent-flow"],
+    systemLevel: [],
+    overallFeedback: "Great conversation flow and customer was satisfied.",
+    rating: 5,
+    severity: "low",
+    status: "resolved",
+    createdBy: "Tom Rodriguez"
+  },
+  {
+    id: "audit-8",
+    sessionId: "session-505",
+    timestamp: "2024-01-08T13:10:00Z",
+    speechToText: ["missing-words"],
+    aiBusinessLogic: ["script-adherence"],
+    textToSpeech: ["pronunciation"],
+    callExperience: [],
+    systemLevel: [],
+    overallFeedback: "Some words were missed in transcription and pronunciation issues noted.",
+    rating: 3,
+    severity: "medium",
+    status: "resolved",
+    createdBy: "Emily Foster"
+  },
+  {
+    id: "audit-9",
+    sessionId: "session-606",
+    timestamp: "2024-01-07T12:00:00Z",
+    speechToText: [],
+    aiBusinessLogic: ["knowledge-gap"],
+    textToSpeech: [],
+    callExperience: ["long-wait"],
+    systemLevel: [],
+    overallFeedback: "Agent lacked knowledge on specific product features, causing delays.",
+    rating: 2,
+    severity: "medium",
+    status: "open",
+    createdBy: "Alex Thompson"
+  },
+  {
+    id: "audit-10",
+    sessionId: "session-707",
+    timestamp: "2024-01-06T10:30:00Z",
+    speechToText: [],
+    aiBusinessLogic: [],
+    textToSpeech: [],
+    callExperience: [],
+    systemLevel: ["api-error"],
+    overallFeedback: "System API error prevented proper call completion.",
+    rating: 1,
+    severity: "high",
+    status: "open",
+    createdBy: "Rachel Kim"
+  },
+  {
+    id: "audit-11",
+    sessionId: "session-808",
+    timestamp: "2024-01-05T15:20:00Z",
+    speechToText: [],
+    aiBusinessLogic: [],
+    textToSpeech: [],
+    callExperience: ["smooth-handoff"],
+    systemLevel: [],
+    overallFeedback: "Smooth handoff to human agent when needed.",
+    rating: 4,
+    severity: "low",
+    status: "resolved",
+    createdBy: "Mark Davis"
+  },
+  {
+    id: "audit-12",
+    sessionId: "session-909",
+    timestamp: "2024-01-04T09:15:00Z",
+    speechToText: ["echo-issues"],
+    aiBusinessLogic: [],
+    textToSpeech: [],
+    callExperience: ["audio-quality"],
+    systemLevel: [],
+    overallFeedback: "Echo and audio quality issues affected call quality.",
+    rating: 2,
+    severity: "medium",
+    status: "resolved",
+    createdBy: "Jennifer Lee"
+  }
 ];
 
 interface Filters {
@@ -104,6 +276,10 @@ export function AuditingHistory() {
   const [sortField, setSortField] = useState<SortField>('status');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [selectedAudit, setSelectedAudit] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [recordsPerPage, setRecordsPerPage] = useState(10);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -173,6 +349,18 @@ export function AuditingHistory() {
     });
 
     return filtered;
+  }, [filters, sortField, sortDirection]);
+
+  // Pagination calculations
+  const totalRecords = filteredAndSortedAudits.length;
+  const totalPages = Math.ceil(totalRecords / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const endIndex = startIndex + recordsPerPage;
+  const paginatedAudits = filteredAndSortedAudits.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useMemo(() => {
+    setCurrentPage(1);
   }, [filters, sortField, sortDirection]);
 
   const activeFilters = Object.entries(filters).filter(([key, value]) => {
@@ -260,7 +448,7 @@ export function AuditingHistory() {
               onClick={() => setSelectedAudit(null)}
               className="flex items-center space-x-2"
             >
-              <ChevronDown className="w-4 h-4 rotate-90" />
+              <ChevronLeft className="w-4 h-4" />
               <span>Back to History</span>
             </Button>
             <Badge variant="secondary" className="text-xs">
@@ -268,93 +456,291 @@ export function AuditingHistory() {
             </Badge>
           </div>
           
-          {/* Audit Detail View - simplified for now */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Call Audit Details</span>
-                <Button
-                  size="sm"
-                  onClick={() => toggleAuditStatus(audit.id)}
-                  className={cn(
-                    audit.status === 'open' 
-                      ? "bg-success hover:bg-success/90" 
-                      : "bg-warning hover:bg-warning/90"
-                  )}
-                >
-                  {audit.status === 'open' ? 'Mark Resolved' : 'Reopen'}
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div>
-                  <Label className="text-xs text-text-muted">Call ID</Label>
-                  <p className="font-mono text-sm">{audit.sessionId}</p>
-                </div>
-                <div>
-                  <Label className="text-xs text-text-muted">Created</Label>
-                  <p className="text-sm">{format(new Date(audit.timestamp), "MMM dd, yyyy")}</p>
-                </div>
-                <div>
-                  <Label className="text-xs text-text-muted">Severity</Label>
-                  <Badge className={cn("text-xs", getSeverityColor(audit.severity))}>
-                    {audit.severity}
-                  </Badge>
-                </div>
-                <div>
-                  <Label className="text-xs text-text-muted">Rating</Label>
-                  <div className="flex items-center space-x-1">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star
-                        key={i}
-                        className={cn(
-                          "w-4 h-4",
-                          audit.rating && i < audit.rating 
-                            ? "text-warning fill-current" 
-                            : "text-muted"
-                        )}
-                      />
-                    ))}
+          {/* Enhanced Audit Detail View */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Main Details */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Call Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Call Information</span>
+                    <Button
+                      size="sm"
+                      onClick={() => toggleAuditStatus(audit.id)}
+                      className={cn(
+                        audit.status === 'open' 
+                          ? "bg-success hover:bg-success/90" 
+                          : "bg-warning hover:bg-warning/90"
+                      )}
+                    >
+                      {audit.status === 'open' ? 'Mark Resolved' : 'Reopen'}
+                    </Button>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <Label className="text-xs text-text-muted">Call ID</Label>
+                      <p className="font-mono text-sm">{audit.sessionId}</p>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-text-muted">Created</Label>
+                      <p className="text-sm">{format(new Date(audit.timestamp), "MMM dd, HH:mm")}</p>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-text-muted">Severity</Label>
+                      <Badge className={cn("text-xs", getSeverityColor(audit.severity))}>
+                        {audit.severity}
+                      </Badge>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-text-muted">Rating</Label>
+                      <div className="flex items-center space-x-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={cn(
+                              "w-4 h-4",
+                              audit.rating && i < audit.rating 
+                                ? "text-warning fill-current" 
+                                : "text-text-muted"
+                            )}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              
-              <div>
-                <Label className="text-sm font-medium text-text-primary mb-2 block">
-                  Issues Identified ({getIssuesCount(audit)} total)
-                </Label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </CardContent>
+              </Card>
+
+              {/* Audio Player */}
+              {audit.audioUrl && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between text-lg">
+                      <span>Call Recording</span>
+                      <Button variant="outline" size="sm">
+                        <Download className="w-4 h-4 mr-2" />
+                        Download
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {/* Audio Controls */}
+                      <div className="flex items-center justify-center space-x-4 py-6 bg-surface-2 rounded-lg">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {/* Skip back 10s */}}
+                        >
+                          <SkipBack className="w-4 h-4" />
+                        </Button>
+                        
+                        <Button
+                          size="icon"
+                          onClick={() => setIsPlaying(!isPlaying)}
+                          className="bg-accent-blue hover:bg-accent-blue/90"
+                        >
+                          {isPlaying ? (
+                            <Pause className="w-5 h-5" />
+                          ) : (
+                            <Play className="w-5 h-5" />
+                          )}
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {/* Skip forward 10s */}}
+                        >
+                          <SkipForward className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* Progress Bar */}
+                      <div className="space-y-2">
+                        <div className="w-full bg-surface-2 rounded-full h-2">
+                          <div className="bg-accent-blue h-2 rounded-full" style={{ width: '35%' }}></div>
+                        </div>
+                        <div className="flex justify-between text-xs text-text-muted">
+                          <span>02:15</span>
+                          <span>06:30</span>
+                        </div>
+                      </div>
+                      
+                      {/* Speed Controls */}
+                      <div className="flex items-center justify-center space-x-2">
+                        <Label className="text-xs text-text-muted">Speed:</Label>
+                        {[0.5, 0.75, 1, 1.25, 1.5, 2].map(speed => (
+                          <Button
+                            key={speed}
+                            variant={playbackSpeed === speed ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setPlaybackSpeed(speed)}
+                            className="text-xs px-2 h-7"
+                          >
+                            {speed}x
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Call Transcript */}
+              {audit.transcript && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Call Transcript</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4 max-h-96 overflow-y-auto">
+                      {audit.transcript.map((entry, index) => (
+                        <div 
+                          key={index}
+                          className={cn(
+                            "flex space-x-3 p-3 rounded-lg",
+                            entry.speaker === 'agent' 
+                              ? "bg-accent-blue/5 border-l-4 border-accent-blue" 
+                              : "bg-surface-2 border-l-4 border-border"
+                          )}
+                        >
+                          <div className="flex-shrink-0">
+                            <Badge 
+                              variant="secondary" 
+                              className={cn(
+                                "text-xs",
+                                entry.speaker === 'agent' 
+                                  ? "bg-accent-blue/10 text-accent-blue" 
+                                  : "bg-surface text-text-muted"
+                              )}
+                            >
+                              {entry.speaker === 'agent' ? 'Agent' : 'Customer'}
+                            </Badge>
+                            <p className="text-xs text-text-muted mt-1">{entry.timestamp}</p>
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-text-primary">{entry.text}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Sidebar - Issues and Feedback */}
+            <div className="space-y-6">
+              {/* Issues Summary */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Issues Identified</CardTitle>
+                  <p className="text-sm text-text-muted">{getIssuesCount(audit)} total issues</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   {audit.speechToText.length > 0 && (
                     <div>
-                      <p className="text-xs text-text-muted mb-1">Speech-to-Text</p>
+                      <p className="text-xs font-medium text-text-primary mb-2">Speech-to-Text</p>
                       <div className="space-y-1">
                         {audit.speechToText.map(issue => (
-                          <Badge key={issue} variant="secondary" className="text-xs">
-                            {issue.replace('-', ' ')}
+                          <Badge key={issue} variant="secondary" className="text-xs mr-1 mb-1">
+                            {issue.replace(/[_-]/g, ' ')}
                           </Badge>
                         ))}
                       </div>
                     </div>
                   )}
-                  {/* Add other issue categories similarly */}
-                </div>
-              </div>
-              
+                  {audit.aiBusinessLogic.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-text-primary mb-2">AI/Business Logic</p>
+                      <div className="space-y-1">
+                        {audit.aiBusinessLogic.map(issue => (
+                          <Badge key={issue} variant="secondary" className="text-xs mr-1 mb-1">
+                            {issue.replace(/[_-]/g, ' ')}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {audit.textToSpeech.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-text-primary mb-2">Text-to-Speech</p>
+                      <div className="space-y-1">
+                        {audit.textToSpeech.map(issue => (
+                          <Badge key={issue} variant="secondary" className="text-xs mr-1 mb-1">
+                            {issue.replace(/[_-]/g, ' ')}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {audit.callExperience.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-text-primary mb-2">Call Experience</p>
+                      <div className="space-y-1">
+                        {audit.callExperience.map(issue => (
+                          <Badge key={issue} variant="secondary" className="text-xs mr-1 mb-1">
+                            {issue.replace(/[_-]/g, ' ')}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {audit.systemLevel.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-text-primary mb-2">System Level</p>
+                      <div className="space-y-1">
+                        {audit.systemLevel.map(issue => (
+                          <Badge key={issue} variant="secondary" className="text-xs mr-1 mb-1">
+                            {issue.replace(/[_-]/g, ' ')}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Overall Feedback */}
               {audit.overallFeedback && (
-                <div>
-                  <Label className="text-sm font-medium text-text-primary mb-2 block">
-                    Overall Feedback
-                  </Label>
-                  <Card className="bg-surface-2">
-                    <CardContent className="pt-4">
-                      <p className="text-sm text-text-secondary">{audit.overallFeedback}</p>
-                    </CardContent>
-                  </Card>
-                </div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Overall Feedback</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-text-secondary leading-relaxed">{audit.overallFeedback}</p>
+                  </CardContent>
+                </Card>
               )}
-            </CardContent>
-          </Card>
+
+              {/* Audit Metadata */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Audit Info</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <Label className="text-xs text-text-muted">Created By</Label>
+                    <p className="text-sm font-medium">{audit.createdBy}</p>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-text-muted">Status</Label>
+                    <Badge className={cn("text-xs mt-1", getStatusColor(audit.status))}>
+                      {audit.status}
+                    </Badge>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-text-muted">Created On</Label>
+                    <p className="text-sm">{format(new Date(audit.timestamp), "PPP 'at' p")}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       );
     }
@@ -527,97 +913,191 @@ export function AuditingHistory() {
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">
-              Audit Results ({filteredAndSortedAudits.length} records)
+              Audit Results ({totalRecords} total records)
             </CardTitle>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border border-border/50 overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-surface-2">
-                  <TableHead>
-                    <SortButton field="status">Status</SortButton>
-                  </TableHead>
-                  <TableHead>
-                    <SortButton field="severity">Severity</SortButton>
-                  </TableHead>
-                  <TableHead>
-                    <SortButton field="timestamp">Created On</SortButton>
-                  </TableHead>
-                  <TableHead>
-                    <SortButton field="createdBy">Created By</SortButton>
-                  </TableHead>
-                  <TableHead>Issues Marked</TableHead>
-                  <TableHead>
-                    <SortButton field="rating">Call Rating</SortButton>
-                  </TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAndSortedAudits.map((audit) => (
-                  <TableRow
-                    key={audit.id}
-                    className="hover:bg-surface-2 cursor-pointer transition-colors"
-                    onClick={() => setSelectedAudit(audit.id)}
-                  >
-                    <TableCell>
-                      <Badge className={cn("text-xs", getStatusColor(audit.status))}>
-                        {audit.status === 'open' ? (
-                          <Clock className="w-3 h-3 mr-1" />
-                        ) : (
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
-                        )}
-                        {audit.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={cn("text-xs", getSeverityColor(audit.severity))}>
-                        {audit.severity}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {format(new Date(audit.timestamp), "MMM dd, yyyy")}
-                    </TableCell>
-                    <TableCell className="text-sm">{audit.createdBy}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className="text-xs">
-                        {getIssuesCount(audit)} issues
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center space-x-1">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={cn(
-                              "w-4 h-4",
-                              audit.rating && i < audit.rating 
-                                ? "text-warning fill-current" 
-                                : "text-muted"
-                            )}
-                          />
-                        ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleAuditStatus(audit.id);
-                        }}
-                        className="text-xs"
-                      >
-                        {audit.status === 'open' ? 'Resolve' : 'Reopen'}
-                      </Button>
-                    </TableCell>
+          <div className="space-y-4">
+            {/* Records per page selector */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Label className="text-sm text-text-muted">Show:</Label>
+                <Select value={recordsPerPage.toString()} onValueChange={(value) => setRecordsPerPage(Number(value))}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-surface border-border/50 shadow-lg z-50">
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Label className="text-sm text-text-muted">records per page</Label>
+              </div>
+              
+              <div className="text-sm text-text-muted">
+                Showing {startIndex + 1} to {Math.min(endIndex, totalRecords)} of {totalRecords} entries
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-border/50 overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-surface-2 border-border/50">
+                    <TableHead className="w-[120px]">
+                      <SortButton field="status">Status</SortButton>
+                    </TableHead>
+                    <TableHead>
+                      <SortButton field="severity">Severity</SortButton>
+                    </TableHead>
+                    <TableHead>
+                      <SortButton field="timestamp">Created On</SortButton>
+                    </TableHead>
+                    <TableHead>
+                      <SortButton field="createdBy">Created By</SortButton>
+                    </TableHead>
+                    <TableHead>Issues</TableHead>
+                    <TableHead>
+                      <SortButton field="rating">Rating</SortButton>
+                    </TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {paginatedAudits.map((audit) => (
+                    <TableRow
+                      key={audit.id}
+                      className="cursor-pointer hover:bg-surface-2/50 border-border/30 transition-colors"
+                      onClick={() => setSelectedAudit(audit.id)}
+                    >
+                      <TableCell>
+                        <Badge className={cn("text-xs", getStatusColor(audit.status))}>
+                          {audit.status === 'open' ? (
+                            <Clock className="w-3 h-3 mr-1" />
+                          ) : (
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                          )}
+                          {audit.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={cn("text-xs", getSeverityColor(audit.severity))}>
+                          {audit.severity}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {format(new Date(audit.timestamp), "MMM dd, yyyy")}
+                      </TableCell>
+                      <TableCell className="font-medium">{audit.createdBy}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="text-xs">
+                          {getIssuesCount(audit)} issues
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-1">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              className={cn(
+                                "w-4 h-4",
+                                audit.rating && i < audit.rating 
+                                  ? "text-warning fill-current" 
+                                  : "text-text-muted/30"
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleAuditStatus(audit.id);
+                          }}
+                          className="text-xs hover:bg-surface-2"
+                        >
+                          {audit.status === 'open' ? (
+                            <>
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Resolve
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3 h-3 mr-1" />
+                              Reopen
+                            </>
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between pt-4">
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Previous
+                </Button>
+                
+                <div className="flex items-center space-x-1">
+                  {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={currentPage === pageNum ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className="w-10 h-9"
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                  {totalPages > 5 && (
+                    <>
+                      <span className="text-text-muted px-2">...</span>
+                      <Button
+                        variant={currentPage === totalPages ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(totalPages)}
+                        className="w-10 h-9"
+                      >
+                        {totalPages}
+                      </Button>
+                    </>
+                  )}
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+              
+              <div className="text-sm text-text-muted">
+                Page {currentPage} of {totalPages}
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
