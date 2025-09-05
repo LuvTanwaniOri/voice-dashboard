@@ -393,24 +393,9 @@ export function Conversations() {
               <div className="flex items-center gap-2">
                 <CallAuditDialog
                   sessionId={selectedSession.id}
-                  sessionDetails={{
-                    phoneNumber: selectedSession.phoneNumber,
-                    duration: selectedSession.details.callDuration,
-                    campaign: selectedSession.campaign,
-                    outcome: selectedSession.outcome
-                  }}
-                  onSaveAudit={(auditData) => handleSaveCallAudit(selectedSession.id, auditData)}
-                >
-                  <Button variant="outline" size="sm" className="gap-2">
-                    <ClipboardList className="w-4 h-4" />
-                    Audit Call
-                    {getSessionAudits(selectedSession.id).length > 0 && (
-                      <Badge variant="secondary" className="ml-1">
-                        {getSessionAudits(selectedSession.id).length}
-                      </Badge>
-                    )}
-                  </Button>
-                </CallAuditDialog>
+                  callDuration={parseInt(selectedSession.details.callDuration)}
+                  onSave={(auditData) => handleSaveCallAudit(selectedSession.id, auditData)}
+                />
                 <Badge className={getStatusColor(selectedSession.status)}>
                   {selectedSession.status}
                 </Badge>
