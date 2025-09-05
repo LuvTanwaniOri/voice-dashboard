@@ -29,11 +29,13 @@ import {
   Target,
   Zap,
   MessageSquare,
-  Plus
+  Plus,
+  ClipboardList
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnnotationDialog, type Annotation } from "./AnnotationDialog";
 import { AnnotationIndicator } from "./AnnotationIndicator";
+import { CallAuditDialog, type CallAudit } from "./CallAuditDialog";
 import { toast } from "sonner";
 
 interface CallSession {
@@ -187,6 +189,9 @@ export function Conversations() {
   const [annotationDialogOpen, setAnnotationDialogOpen] = useState(false);
   const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
 
+  // Call audit state
+  const [callAudits, setCallAudits] = useState<Record<string, CallAudit[]>>({});
+
   const filteredSessions = mockSessions.filter(session =>
     session.phoneNumber.includes(searchQuery) ||
     session.campaign.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -269,6 +274,26 @@ export function Conversations() {
     // For now, return mock timing based on message index
     // In a real implementation, you'd parse the actual timestamps
     return Math.floor(Math.random() * 60) + 10; // Random time between 10-70 seconds
+  };
+
+  // Call audit functions
+  const handleSaveCallAudit = (sessionId: string, auditData: Omit<CallAudit, 'id' | 'timestamp'>) => {
+    const audit: CallAudit = {
+      ...auditData,
+      id: `audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date().toISOString()
+    };
+
+    setCallAudits(prev => ({
+      ...prev,
+      [sessionId]: [...(prev[sessionId] || []), audit]
+    }));
+
+    toast.success("Call audit saved successfully");
+  };
+
+  const getSessionAudits = (sessionId: string) => {
+    return callAudits[sessionId] || [];
   };
 
   return (
@@ -365,9 +390,31 @@ export function Conversations() {
                   {selectedSession.date} at {selectedSession.time}
                 </p>
               </div>
-              <Badge className={getStatusColor(selectedSession.status)}>
-                {selectedSession.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <CallAuditDialog
+                  sessionId={selectedSession.id}
+                  sessionDetails={{
+                    phoneNumber: selectedSession.phoneNumber,
+                    duration: selectedSession.details.callDuration,
+                    campaign: selectedSession.campaign,
+                    outcome: selectedSession.outcome
+                  }}
+                  onSaveAudit={(auditData) => handleSaveCallAudit(selectedSession.id, auditData)}
+                >
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <ClipboardList className="w-4 h-4" />
+                    Audit Call
+                    {getSessionAudits(selectedSession.id).length > 0 && (
+                      <Badge variant="secondary" className="ml-1">
+                        {getSessionAudits(selectedSession.id).length}
+                      </Badge>
+                    )}
+                  </Button>
+                </CallAuditDialog>
+                <Badge className={getStatusColor(selectedSession.status)}>
+                  {selectedSession.status}
+                </Badge>
+              </div>
             </div>
 
             {/* Audio Player */}
