@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Save, X, Volume2, MessageSquare, Bot, Phone, Shield, Target, Clock, MapPin } from "lucide-react";
+import { Save, X, Volume2, MessageSquare, Bot, Phone, Shield, Target, Clock, MapPin, ClipboardList } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AudioWaveform } from "./AudioWaveform";
 
@@ -74,6 +74,7 @@ interface CallAuditDialogProps {
   audioUrl?: string;
   callDuration: number;
   onSave?: (audit: CallAudit) => void;
+  triggerText?: string;
 }
 
 const VOICE_AUDIO_ISSUES = [
@@ -141,7 +142,8 @@ export function CallAuditDialog({
   sessionId,
   audioUrl,
   callDuration,
-  onSave
+  onSave,
+  triggerText = "Audit Call"
 }: CallAuditDialogProps) {
   const [open, setOpen] = useState(false);
   const [overallRating, setOverallRating] = useState(5);
@@ -345,8 +347,9 @@ export function CallAuditDialog({
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} variant="outline" size="sm">
-        Audit Call
+      <Button onClick={() => setOpen(true)} variant="outline" size="sm" className="shadow-sm">
+        <ClipboardList className="w-4 h-4 mr-1" />
+        {triggerText}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

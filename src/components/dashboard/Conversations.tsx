@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { AnnotationDialog, type Annotation } from "./AnnotationDialog";
 import { AnnotationIndicator } from "./AnnotationIndicator";
 import { CallAuditDialog, type CallAudit } from "./CallAuditDialog";
+import { ClientCallAuditDialog, type ClientCallAudit } from "./ClientCallAuditDialog";
 import { toast } from "sonner";
 
 interface CallSession {
@@ -191,6 +192,7 @@ export function Conversations() {
 
   // Call audit state
   const [callAudits, setCallAudits] = useState<Record<string, CallAudit[]>>({});
+  const [clientCallAudits, setClientCallAudits] = useState<Record<string, ClientCallAudit[]>>({});
 
   const filteredSessions = mockSessions.filter(session =>
     session.phoneNumber.includes(searchQuery) ||
@@ -296,6 +298,26 @@ export function Conversations() {
     return callAudits[sessionId] || [];
   };
 
+  // Client call audit functions
+  const handleSaveClientCallAudit = (sessionId: string, auditData: Omit<ClientCallAudit, 'id' | 'timestamp'>) => {
+    const audit: ClientCallAudit = {
+      ...auditData,
+      id: `client_audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date().toISOString()
+    };
+
+    setClientCallAudits(prev => ({
+      ...prev,
+      [sessionId]: [...(prev[sessionId] || []), audit]
+    }));
+
+    toast.success("Client call audit saved successfully");
+  };
+
+  const getSessionClientAudits = (sessionId: string) => {
+    return clientCallAudits[sessionId] || [];
+  };
+
   return (
     <div className="h-screen flex bg-surface">
       {/* Left Panel - Sessions List */}
@@ -395,6 +417,11 @@ export function Conversations() {
                   sessionId={selectedSession.id}
                   callDuration={parseInt(selectedSession.details.callDuration)}
                   onSave={(auditData) => handleSaveCallAudit(selectedSession.id, auditData)}
+                  triggerText="Internal Call Audit"
+                />
+                <ClientCallAuditDialog
+                  sessionId={selectedSession.id}
+                  onSave={(auditData) => handleSaveClientCallAudit(selectedSession.id, auditData)}
                 />
                 <Badge className={getStatusColor(selectedSession.status)}>
                   {selectedSession.status}
