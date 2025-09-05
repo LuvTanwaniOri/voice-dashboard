@@ -27,9 +27,11 @@ export interface ClientCallAudit {
   id: string;
   sessionId: string;
   timestamp: string;
-  callQuality: string[];
-  botBehavior: string[];
-  customerExperience: string[];
+  speechToText: string[];
+  aiBusinessLogic: string[];
+  textToSpeech: string[];
+  callExperience: string[];
+  systemLevel: string[];
   overallFeedback: string;
   rating?: number;
 }
@@ -40,36 +42,56 @@ interface ClientCallAuditDialogProps {
 }
 
 const auditCategories = {
-  callQuality: [
-    { id: 'clear-audio', label: 'Clear Audio Quality', icon: Volume2 },
-    { id: 'no-interruptions', label: 'No Technical Interruptions', icon: CheckCircle2 },
-    { id: 'good-connection', label: 'Stable Connection', icon: Target },
-    { id: 'appropriate-timing', label: 'Appropriate Call Timing', icon: Clock }
+  speechToText: [
+    { id: 'wrong-transcription', label: 'Wrong transcription', icon: MessageSquare },
+    { id: 'background-noise', label: 'Background noise', icon: Volume2 },
+    { id: 'partial-transcription', label: 'Partial transcription', icon: MessageSquare },
+    { id: 'language-mismatch', label: 'Language/dialect mismatch', icon: MessageSquare }
   ],
-  botBehavior: [
-    { id: 'polite', label: 'Polite and Professional', icon: Users },
-    { id: 'understood-query', label: 'Understood Customer Query', icon: MessageSquare },
-    { id: 'helpful-responses', label: 'Provided Helpful Responses', icon: CheckCircle2 },
-    { id: 'natural-conversation', label: 'Natural Conversation Flow', icon: MessageSquare }
+  aiBusinessLogic: [
+    { id: 'script-deviation', label: 'Script deviation', icon: Target },
+    { id: 'hallucination', label: 'Hallucination', icon: MessageSquare },
+    { id: 'unhandled-case', label: 'Unhandled case', icon: CheckCircle2 },
+    { id: 'logical-inconsistency', label: 'Logical inconsistency', icon: Target },
+    { id: 'tone-mismatch', label: 'Tone mismatch', icon: Users }
   ],
-  customerExperience: [
-    { id: 'problem-solved', label: 'Problem Was Resolved', icon: CheckCircle2 },
-    { id: 'satisfying-experience', label: 'Overall Satisfying Experience', icon: Star },
-    { id: 'would-recommend', label: 'Would Recommend to Others', icon: Users },
-    { id: 'efficient-service', label: 'Quick and Efficient Service', icon: Target }
+  textToSpeech: [
+    { id: 'robotic-voice', label: 'Robotic voice', icon: Volume2 },
+    { id: 'wrong-pronunciation', label: 'Wrong pronunciation', icon: Volume2 },
+    { id: 'speech-rate-issues', label: 'Speech rate issues', icon: Clock },
+    { id: 'gibberish-speech', label: 'Gibberish speech', icon: Volume2 },
+    { id: 'voice-modulation-issues', label: 'Voice modulation issues', icon: Volume2 }
+  ],
+  callExperience: [
+    { id: 'delay-opening-message', label: 'Delay in opening message', icon: Clock },
+    { id: 'high-latency', label: 'High latency', icon: Clock },
+    { id: 'interruption-handling-failure', label: 'Interruption handling failure', icon: MessageSquare },
+    { id: 'awkward-pauses', label: 'Awkward pauses', icon: Clock },
+    { id: 'echo-audio-quality', label: 'Echo/audio quality issues', icon: Volume2 }
+  ],
+  systemLevel: [
+    { id: 'agent-transfer-failure', label: 'Agent transfer failure', icon: Users },
+    { id: 'incomplete-transfer-statement', label: 'Incomplete transfer statement', icon: MessageSquare },
+    { id: 'wrong-disposition', label: 'Wrong disposition', icon: Target },
+    { id: 'missing-incorrect-transcript', label: 'Missing/incorrect transcript', icon: MessageSquare },
+    { id: 'session-drop', label: 'Session drop', icon: CheckCircle2 }
   ]
 };
 
 export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<{
-    callQuality: string[];
-    botBehavior: string[];
-    customerExperience: string[];
+    speechToText: string[];
+    aiBusinessLogic: string[];
+    textToSpeech: string[];
+    callExperience: string[];
+    systemLevel: string[];
   }>({
-    callQuality: [],
-    botBehavior: [],
-    customerExperience: []
+    speechToText: [],
+    aiBusinessLogic: [],
+    textToSpeech: [],
+    callExperience: [],
+    systemLevel: []
   });
   const [overallFeedback, setOverallFeedback] = useState("");
   const [rating, setRating] = useState<number | null>(null);
@@ -86,9 +108,11 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
   const handleSubmit = () => {
     const auditData = {
       sessionId,
-      callQuality: selectedCategories.callQuality,
-      botBehavior: selectedCategories.botBehavior,
-      customerExperience: selectedCategories.customerExperience,
+      speechToText: selectedCategories.speechToText,
+      aiBusinessLogic: selectedCategories.aiBusinessLogic,
+      textToSpeech: selectedCategories.textToSpeech,
+      callExperience: selectedCategories.callExperience,
+      systemLevel: selectedCategories.systemLevel,
       overallFeedback,
       rating: rating || undefined
     };
@@ -97,9 +121,11 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
     
     // Reset form
     setSelectedCategories({
-      callQuality: [],
-      botBehavior: [],
-      customerExperience: []
+      speechToText: [],
+      aiBusinessLogic: [],
+      textToSpeech: [],
+      callExperience: [],
+      systemLevel: []
     });
     setOverallFeedback("");
     setRating(null);
@@ -165,24 +191,24 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
               </CardContent>
             </Card>
 
-            {/* Call Quality */}
+            {/* Speech-to-Text Issues */}
             <Card>
               <CardContent className="pt-4">
                 <Label className="text-sm font-medium text-text-primary mb-3 block flex items-center">
-                  <Volume2 className="w-4 h-4 mr-2" />
-                  Call Quality
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Speech-to-Text (STT) Issues
                   <Badge variant="secondary" className="ml-auto">
-                    {selectedCategories.callQuality.length} selected
+                    {selectedCategories.speechToText.length} selected
                   </Badge>
                 </Label>
-                <div className="grid grid-cols-1 gap-2">
-                  {auditCategories.callQuality.map((item) => {
-                    const isSelected = selectedCategories.callQuality.includes(item.id);
+                <div className="grid grid-cols-2 gap-2">
+                  {auditCategories.speechToText.map((item) => {
+                    const isSelected = selectedCategories.speechToText.includes(item.id);
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => handleCategoryToggle('callQuality', item.id)}
+                        onClick={() => handleCategoryToggle('speechToText', item.id)}
                         className={cn(
                           "flex items-center space-x-3 p-3 rounded-lg border text-left transition-all",
                           isSelected
@@ -202,24 +228,24 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
               </CardContent>
             </Card>
 
-            {/* Bot Behavior */}
+            {/* AI & Business Logic Issues */}
             <Card>
               <CardContent className="pt-4">
                 <Label className="text-sm font-medium text-text-primary mb-3 block flex items-center">
-                  <Users className="w-4 h-4 mr-2" />
-                  Bot Behavior
+                  <Target className="w-4 h-4 mr-2" />
+                  LLM / Gen AI & Business Logic Issues
                   <Badge variant="secondary" className="ml-auto">
-                    {selectedCategories.botBehavior.length} selected
+                    {selectedCategories.aiBusinessLogic.length} selected
                   </Badge>
                 </Label>
-                <div className="grid grid-cols-1 gap-2">
-                  {auditCategories.botBehavior.map((item) => {
-                    const isSelected = selectedCategories.botBehavior.includes(item.id);
+                <div className="grid grid-cols-2 gap-2">
+                  {auditCategories.aiBusinessLogic.map((item) => {
+                    const isSelected = selectedCategories.aiBusinessLogic.includes(item.id);
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => handleCategoryToggle('botBehavior', item.id)}
+                        onClick={() => handleCategoryToggle('aiBusinessLogic', item.id)}
                         className={cn(
                           "flex items-center space-x-3 p-3 rounded-lg border text-left transition-all",
                           isSelected
@@ -239,28 +265,102 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
               </CardContent>
             </Card>
 
-            {/* Customer Experience */}
+            {/* Text-to-Speech Issues */}
             <Card>
               <CardContent className="pt-4">
                 <Label className="text-sm font-medium text-text-primary mb-3 block flex items-center">
-                  <Star className="w-4 h-4 mr-2" />
-                  Customer Experience
+                  <Volume2 className="w-4 h-4 mr-2" />
+                  Text-to-Speech (TTS) Issues
                   <Badge variant="secondary" className="ml-auto">
-                    {selectedCategories.customerExperience.length} selected
+                    {selectedCategories.textToSpeech.length} selected
                   </Badge>
                 </Label>
-                <div className="grid grid-cols-1 gap-2">
-                  {auditCategories.customerExperience.map((item) => {
-                    const isSelected = selectedCategories.customerExperience.includes(item.id);
+                <div className="grid grid-cols-2 gap-2">
+                  {auditCategories.textToSpeech.map((item) => {
+                    const isSelected = selectedCategories.textToSpeech.includes(item.id);
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.id}
-                        onClick={() => handleCategoryToggle('customerExperience', item.id)}
+                        onClick={() => handleCategoryToggle('textToSpeech', item.id)}
                         className={cn(
                           "flex items-center space-x-3 p-3 rounded-lg border text-left transition-all",
                           isSelected
                             ? "bg-warning/10 border-warning/30 text-warning"
+                            : "bg-surface hover:bg-surface-2 border-border/50 text-text-secondary hover:text-text-primary"
+                        )}
+                      >
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm">{item.label}</span>
+                        {isSelected && (
+                          <CheckCircle2 className="w-4 h-4 ml-auto flex-shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Call Experience Issues */}
+            <Card>
+              <CardContent className="pt-4">
+                <Label className="text-sm font-medium text-text-primary mb-3 block flex items-center">
+                  <Clock className="w-4 h-4 mr-2" />
+                  Call Experience Issues
+                  <Badge variant="secondary" className="ml-auto">
+                    {selectedCategories.callExperience.length} selected
+                  </Badge>
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {auditCategories.callExperience.map((item) => {
+                    const isSelected = selectedCategories.callExperience.includes(item.id);
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleCategoryToggle('callExperience', item.id)}
+                        className={cn(
+                          "flex items-center space-x-3 p-3 rounded-lg border text-left transition-all",
+                          isSelected
+                            ? "bg-error/10 border-error/30 text-error"
+                            : "bg-surface hover:bg-surface-2 border-border/50 text-text-secondary hover:text-text-primary"
+                        )}
+                      >
+                        <Icon className="w-4 h-4 flex-shrink-0" />
+                        <span className="text-sm">{item.label}</span>
+                        {isSelected && (
+                          <CheckCircle2 className="w-4 h-4 ml-auto flex-shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* System-Level Issues */}
+            <Card>
+              <CardContent className="pt-4">
+                <Label className="text-sm font-medium text-text-primary mb-3 block flex items-center">
+                  <Users className="w-4 h-4 mr-2" />
+                  System-Level Issues
+                  <Badge variant="secondary" className="ml-auto">
+                    {selectedCategories.systemLevel.length} selected
+                  </Badge>
+                </Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {auditCategories.systemLevel.map((item) => {
+                    const isSelected = selectedCategories.systemLevel.includes(item.id);
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleCategoryToggle('systemLevel', item.id)}
+                        className={cn(
+                          "flex items-center space-x-3 p-3 rounded-lg border text-left transition-all",
+                          isSelected
+                            ? "bg-primary/10 border-primary/30 text-primary"
                             : "bg-surface hover:bg-surface-2 border-border/50 text-text-secondary hover:text-text-primary"
                         )}
                       >
