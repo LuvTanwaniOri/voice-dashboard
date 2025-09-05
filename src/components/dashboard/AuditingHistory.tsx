@@ -97,8 +97,8 @@ export function AuditingHistory() {
     callId: '',
     startDate: null,
     endDate: null,
-    severity: '',
-    status: ''
+    severity: 'all-severities',
+    status: 'all-statuses'
   });
   
   const [sortField, setSortField] = useState<SortField>('status');
@@ -125,10 +125,10 @@ export function AuditingHistory() {
       if (filters.endDate && new Date(audit.timestamp) > filters.endDate) { 
         return false;
       }
-      if (filters.severity && audit.severity !== filters.severity) {
+      if (filters.severity && filters.severity !== 'all-severities' && audit.severity !== filters.severity) {
         return false;
       }
-      if (filters.status && audit.status !== filters.status) {
+      if (filters.status && filters.status !== 'all-statuses' && audit.status !== filters.status) {
         return false;
       }
       return true;
@@ -177,13 +177,17 @@ export function AuditingHistory() {
 
   const activeFilters = Object.entries(filters).filter(([key, value]) => {
     if (key === 'startDate' || key === 'endDate') return value !== null;
+    if (key === 'severity') return value !== 'all-severities';
+    if (key === 'status') return value !== 'all-statuses';
     return value !== '';
   });
 
   const removeFilter = (filterKey: string) => {
     setFilters(prev => ({
       ...prev,
-      [filterKey]: filterKey === 'startDate' || filterKey === 'endDate' ? null : ''
+      [filterKey]: filterKey === 'startDate' || filterKey === 'endDate' ? null : 
+                   filterKey === 'severity' ? 'all-severities' :
+                   filterKey === 'status' ? 'all-statuses' : ''
     }));
   };
 
@@ -192,8 +196,8 @@ export function AuditingHistory() {
       callId: '',
       startDate: null,
       endDate: null,
-      severity: '',
-      status: ''
+      severity: 'all-severities',
+      status: 'all-statuses'
     });
   };
 
@@ -455,8 +459,8 @@ export function AuditingHistory() {
                 <SelectTrigger>
                   <SelectValue placeholder="All severities" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All severities</SelectItem>
+                <SelectContent className="bg-surface border-border/50 shadow-lg z-50">
+                  <SelectItem value="all-severities">All severities</SelectItem>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="low">Low</SelectItem>
@@ -470,8 +474,8 @@ export function AuditingHistory() {
                 <SelectTrigger>
                   <SelectValue placeholder="All statuses" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">All statuses</SelectItem>
+                <SelectContent className="bg-surface border-border/50 shadow-lg z-50">
+                  <SelectItem value="all-statuses">All statuses</SelectItem>
                   <SelectItem value="open">Open</SelectItem>
                   <SelectItem value="resolved">Resolved</SelectItem>
                 </SelectContent>
