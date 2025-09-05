@@ -27,9 +27,14 @@ import {
   Star,
   Activity,
   Target,
-  Zap
+  Zap,
+  MessageSquare,
+  Plus
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AnnotationDialog, type Annotation } from "./AnnotationDialog";
+import { AnnotationIndicator } from "./AnnotationIndicator";
+import { toast } from "sonner";
 
 interface CallSession {
   id: string;
@@ -176,6 +181,11 @@ export function Conversations() {
   const [customerInfoOpen, setCustomerInfoOpen] = useState(false);
   const [performanceOpen, setPerformanceOpen] = useState(false);
   const [recordingOpen, setRecordingOpen] = useState(false);
+  
+  // Annotation state
+  const [annotations, setAnnotations] = useState<Record<string, Annotation[]>>({});
+  const [annotationDialogOpen, setAnnotationDialogOpen] = useState(false);
+  const [selectedMessageIndex, setSelectedMessageIndex] = useState<number | null>(null);
 
   const filteredSessions = mockSessions.filter(session =>
     session.phoneNumber.includes(searchQuery) ||
@@ -198,6 +208,61 @@ export function Conversations() {
       case 'negative': return 'text-destructive';
       default: return 'text-warning';
     }
+  };
+
+  // Annotation functions
+  const getSessionAnnotations = (sessionId: string) => {
+    return annotations[sessionId] || [];
+  };
+
+  const getMessageAnnotations = (sessionId: string, messageIndex: number) => {
+    return getSessionAnnotations(sessionId).filter(a => a.messageIndex === messageIndex);
+  };
+
+  const handleAddAnnotation = (messageIndex: number, detectedText: string) => {
+    setSelectedMessageIndex(messageIndex);
+    setAnnotationDialogOpen(true);
+  };
+
+  const handleSaveAnnotation = (newAnnotation: Omit<Annotation, 'id' | 'timestamp'>) => {
+    if (!selectedSession) return;
+
+    const annotation: Annotation = {
+      ...newAnnotation,
+      id: `ann_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: new Date().toISOString()
+    };
+
+    setAnnotations(prev => ({
+      ...prev,
+      [selectedSession.id]: [...getSessionAnnotations(selectedSession.id), annotation]
+    }));
+
+    toast.success("Annotation saved successfully");
+  };
+
+  const handleEditAnnotation = (annotation: Annotation) => {
+    setSelectedMessageIndex(annotation.messageIndex);
+    setAnnotationDialogOpen(true);
+  };
+
+  const handleDeleteAnnotation = (annotationId: string) => {
+    if (!selectedSession) return;
+
+    setAnnotations(prev => ({
+      ...prev,
+      [selectedSession.id]: getSessionAnnotations(selectedSession.id).filter(a => a.id !== annotationId)
+    }));
+
+    toast.success("Annotation deleted");
+  };
+
+  const getCallDurationInSeconds = (duration: string) => {
+    const parts = duration.split(':');
+    if (parts.length === 2) {
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    }
+    return 120; // Default 2 minutes
   };
 
   return (
@@ -334,55 +399,86 @@ export function Conversations() {
                 </div>
                 
                 <div className="space-y-4">
-                  {selectedSession.transcript.map((entry, index) => (
-                    <div
-                      key={index}
-                      className={cn(
-                        "flex gap-3 transition-all duration-200 hover:bg-surface-2/50 p-2 rounded-lg",
-                        entry.speaker === 'bot' ? "justify-start" : "justify-end"
-                      )}
-                    >
-                      {entry.speaker === 'bot' && (
-                        <div className="w-8 h-8 rounded-full bg-accent-blue/10 flex items-center justify-center flex-shrink-0 mt-1">
-                          <PhoneCall className="w-4 h-4 text-accent-blue" />
-                        </div>
-                      )}
-                      
+                  {selectedSession.transcript.map((entry, index) => {
+                    const messageAnnotations = getMessageAnnotations(selectedSession.id, index);
+                    const isCustomerMessage = entry.speaker === 'customer';
+                    
+                    return (
                       <div
+                        key={index}
                         className={cn(
-                          "max-w-[70%] group relative",
-                          entry.speaker === 'customer' && "order-first"
+                          "flex gap-3 transition-all duration-200 hover:bg-surface-2/50 p-2 rounded-lg group",
+                          entry.speaker === 'bot' ? "justify-start" : "justify-end"
                         )}
                       >
+                        {entry.speaker === 'bot' && (
+                          <div className="w-8 h-8 rounded-full bg-accent-blue/10 flex items-center justify-center flex-shrink-0 mt-1">
+                            <PhoneCall className="w-4 h-4 text-accent-blue" />
+                          </div>
+                        )}
+                        
                         <div
                           className={cn(
-                            "p-4 rounded-2xl shadow-sm border transition-all duration-200",
-                            entry.speaker === 'bot'
-                              ? "bg-surface-2 text-text-primary border-border/50 rounded-tl-md"
-                              : "bg-gradient-primary text-white border-accent-blue/20 rounded-tr-md"
+                            "max-w-[70%] relative",
+                            entry.speaker === 'customer' && "order-first"
                           )}
                         >
-                          <p className="text-sm leading-relaxed">{entry.message}</p>
+                          <div
+                            className={cn(
+                              "p-4 rounded-2xl shadow-sm border transition-all duration-200",
+                              entry.speaker === 'bot'
+                                ? "bg-surface-2 text-text-primary border-border/50 rounded-tl-md"
+                                : "bg-gradient-primary text-white border-accent-blue/20 rounded-tr-md"
+                            )}
+                          >
+                            <p className="text-sm leading-relaxed">{entry.message}</p>
+                            
+                            {/* Add annotation button for customer messages */}
+                            {isCustomerMessage && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => handleAddAnnotation(index, entry.message)}
+                                className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-surface border border-border/50 shadow-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-accent-blue/10"
+                              >
+                                <Plus className="w-3 h-3" />
+                              </Button>
+                            )}
+                          </div>
+                          
+                          <div className={cn(
+                            "flex items-center mt-2 text-xs opacity-70 group-hover:opacity-100 transition-opacity",
+                            entry.speaker === 'bot' ? "text-text-muted" : "text-text-muted justify-end"
+                          )}>
+                            <span className="mr-2 font-medium">
+                              {entry.speaker === 'bot' ? 'AI Agent' : 'Customer'}
+                            </span>
+                            <span className="font-mono">{entry.timestamp}</span>
+                          </div>
+
+                          {/* Display annotations for customer messages */}
+                          {isCustomerMessage && messageAnnotations.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              {messageAnnotations.map((annotation) => (
+                                <AnnotationIndicator
+                                  key={annotation.id}
+                                  annotation={annotation}
+                                  onEdit={() => handleEditAnnotation(annotation)}
+                                  onDelete={() => handleDeleteAnnotation(annotation.id)}
+                                />
+                              ))}
+                            </div>
+                          )}
                         </div>
                         
-                        <div className={cn(
-                          "flex items-center mt-2 text-xs opacity-70 group-hover:opacity-100 transition-opacity",
-                          entry.speaker === 'bot' ? "text-text-muted" : "text-text-muted justify-end"
-                        )}>
-                          <span className="mr-2 font-medium">
-                            {entry.speaker === 'bot' ? 'AI Agent' : 'Customer'}
-                          </span>
-                          <span className="font-mono">{entry.timestamp}</span>
-                        </div>
+                        {entry.speaker === 'customer' && (
+                          <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center flex-shrink-0 mt-1">
+                            <User className="w-4 h-4 text-white" />
+                          </div>
+                        )}
                       </div>
-                      
-                      {entry.speaker === 'customer' && (
-                        <div className="w-8 h-8 rounded-full bg-gradient-primary flex items-center justify-center flex-shrink-0 mt-1">
-                          <User className="w-4 h-4 text-white" />
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </ScrollArea>
@@ -630,6 +726,25 @@ export function Conversations() {
 
           </div>
         </div>
+      )}
+
+      {/* Annotation Dialog */}
+      {annotationDialogOpen && selectedSession && selectedMessageIndex !== null && (
+        <AnnotationDialog
+          open={annotationDialogOpen}
+          onClose={() => {
+            setAnnotationDialogOpen(false);
+            setSelectedMessageIndex(null);
+          }}
+          onSave={handleSaveAnnotation}
+          messageIndex={selectedMessageIndex}
+          detectedText={selectedSession.transcript[selectedMessageIndex]?.message || ''}
+          audioUrl={selectedSession.details.recordingUrl}
+          callDuration={getCallDurationInSeconds(selectedSession.details.callDuration)}
+          existingAnnotation={
+            getMessageAnnotations(selectedSession.id, selectedMessageIndex)[0]
+          }
+        />
       )}
     </div>
   );
