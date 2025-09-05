@@ -183,7 +183,6 @@ export function CallAuditDialog({
 }: CallAuditDialogProps) {
   const [open, setOpen] = useState(false);
   const [overallRating, setOverallRating] = useState(5);
-  const [auditorName, setAuditorName] = useState("");
   
   // Voice & Audio state
   const [voiceAudioIssuesList, setVoiceAudioIssuesList] = useState<string[]>([]);
@@ -236,14 +235,9 @@ export function CallAuditDialog({
   };
 
   const handleSave = () => {
-    if (!auditorName.trim()) {
-      toast.error("Please enter auditor name");
-      return;
-    }
-
     const audit: Omit<CallAudit, 'id' | 'timestamp'> = {
       sessionId,
-      auditorName,
+      auditorName: "System Auditor", // Default auditor name
       overallRating,
       categories: {
         voiceAudio: {
@@ -292,7 +286,6 @@ export function CallAuditDialog({
 
   const resetForm = () => {
     setOverallRating(5);
-    setAuditorName("");
     setVoiceAudioIssuesList([]);
     setVoiceAudioSeverity('low');
     setVoiceAudioNotes("");
@@ -352,14 +345,17 @@ export function CallAuditDialog({
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Auditor Name</Label>
-                    <input
-                      type="text"
-                      placeholder="Enter your name"
-                      value={auditorName}
-                      onChange={(e) => setAuditorName(e.target.value)}
-                      className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-blue/20"
-                    />
+                    <Label>Overall Issue Severity</Label>
+                    <Select value={voiceAudioSeverity} onValueChange={(value: 'low' | 'medium' | 'high') => setVoiceAudioSeverity(value)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low Impact</SelectItem>
+                        <SelectItem value="medium">Medium Impact</SelectItem>
+                        <SelectItem value="high">High Impact</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label>Overall Call Rating</Label>
@@ -440,20 +436,7 @@ export function CallAuditDialog({
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>Issue Severity</Label>
-                        <Select value={voiceAudioSeverity} onValueChange={(value: 'low' | 'medium' | 'high') => setVoiceAudioSeverity(value)}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="low">Low Impact</SelectItem>
-                            <SelectItem value="medium">Medium Impact</SelectItem>
-                            <SelectItem value="high">High Impact</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="grid grid-cols-1 gap-4">
                       
                       {voiceAudioIssuesList.includes("Background noise") && (
                         <div className="space-y-2">
