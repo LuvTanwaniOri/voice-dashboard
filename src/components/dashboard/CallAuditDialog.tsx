@@ -1,343 +1,367 @@
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { useState, useCallback } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  AlertTriangle,
-  CheckCircle,
-  Volume2,
-  MessageSquare,
-  Phone,
-  Shield,
-  Target,
-  ClipboardList,
-  Star,
-  Save,
-  X
-} from "lucide-react";
-import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Save, X, Volume2, MessageSquare, Bot, Phone, Shield, Target, Clock, MapPin } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { AudioWaveform } from "./AudioWaveform";
+
+export interface DetailedAuditItem {
+  issueType: string;
+  hasTimeRange?: boolean;
+  startTime?: number;
+  endTime?: number;
+  specificDetails?: {
+    mispronuncedWord?: string;
+    correctPronunciation?: string;
+    backgroundNoiseType?: string;
+    detectedText?: string;
+    actualText?: string;
+    incorrectResponse?: string;
+    expectedResponse?: string;
+    transferReason?: string;
+    keywordMissed?: string;
+    [key: string]: any;
+  };
+  severity: 'low' | 'medium' | 'high';
+  notes: string;
+  confidence: number;
+}
 
 export interface CallAudit {
   id: string;
   sessionId: string;
-  timestamp: string;
   auditorName: string;
   overallRating: number;
+  overallSeverity: 'low' | 'medium' | 'high';
   categories: {
-    voiceAudio: VoiceAudioAudit;
-    transcription: TranscriptionAudit;
-    botBehavior: BotBehaviorAudit;
-    callExperience: CallExperienceAudit;
-    compliance: ComplianceAudit;
-    outcome: OutcomeAudit;
+    voiceAudio: {
+      items: DetailedAuditItem[];
+      notes: string;
+    };
+    sttAccuracy: {
+      items: DetailedAuditItem[];
+      notes: string;
+    };
+    botBehavior: {
+      items: DetailedAuditItem[];
+      notes: string;
+    };
+    callExperience: {
+      items: DetailedAuditItem[];
+      notes: string;
+    };
+    compliance: {
+      items: DetailedAuditItem[];
+      notes: string;
+    };
+    outcome: {
+      items: DetailedAuditItem[];
+      notes: string;
+    };
   };
-  generalNotes: string;
-  recommendations: string;
-}
-
-interface VoiceAudioAudit {
-  issues: string[];
-  severity: 'low' | 'medium' | 'high';
-  notes: string;
-  backgroundNoiseType?: string;
-  volumeLevel?: number;
-}
-
-interface TranscriptionAudit {
-  issues: string[];
-  accuracy: number;
-  notes: string;
-  keywordMisses: string[];
-}
-
-interface BotBehaviorAudit {
-  issues: string[];
-  scriptCompliance: number;
-  responseLatency: 'too-fast' | 'optimal' | 'too-slow';
-  notes: string;
-}
-
-interface CallExperienceAudit {
-  issues: string[];
-  telephonyQuality: number;
-  notes: string;
-}
-
-interface ComplianceAudit {
-  issues: string[];
-  complianceScore: number;
-  notes: string;
-}
-
-interface OutcomeAudit {
-  issues: string[];
-  dispositionAccuracy: number;
-  notes: string;
+  timestamp: string;
 }
 
 interface CallAuditDialogProps {
   sessionId: string;
-  sessionDetails: {
-    phoneNumber: string;
-    duration: string;
-    campaign: string;
-    outcome: string;
-  };
-  children: React.ReactNode;
-  onSaveAudit?: (audit: Omit<CallAudit, 'id' | 'timestamp'>) => void;
+  audioUrl?: string;
+  callDuration: number;
+  onSave?: (audit: CallAudit) => void;
 }
 
-const voiceAudioIssues = [
-  "Robotic/unnatural prosody",
-  "Pronunciation error (TTS mispronounced word/name)",
-  "Voice mismatch (wrong persona/gender vs agent config)",
-  "Speaking too fast",
-  "Speaking too slow", 
-  "Volume too high",
-  "Volume too low",
-  "Background noise",
-  "Audio clipping/distortion",
-  "Cross-talk/overlap (AI + human speaking together)",
-  "Silence gap too long (awkward pause)",
-  "Jarring language switch audio"
+const VOICE_AUDIO_ISSUES = [
+  { id: "robotic_prosody", label: "Robotic/unnatural prosody", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "pronunciation_error", label: "Pronunciation error", requiresTimeRange: true, hasSpecificFields: true },
+  { id: "voice_mismatch", label: "Voice mismatch (wrong persona/gender)", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "speaking_pace", label: "Speaking too fast / too slow", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "volume_issue", label: "Volume too high/low", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "background_noise", label: "Background noise", requiresTimeRange: true, hasSpecificFields: true },
+  { id: "audio_distortion", label: "Audio clipping/distortion", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "cross_talk", label: "Cross-talk/overlap", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "silence_gap", label: "Silence gap too long", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "language_switch", label: "Jarring language switch audio", requiresTimeRange: true, hasSpecificFields: false }
 ];
 
-const transcriptionIssues = [
-  "Misrecognition (detected text ≠ actual speech)",
-  "Missed speech (no transcript for audible speech)",
-  "False positive (transcript when no speech)",
-  "Wrong language tag",
-  "Keyword miss (brand/SKU/proper noun missed)",
-  "Speaker attribution wrong (agent vs customer)"
+const STT_ACCURACY_ISSUES = [
+  { id: "misrecognition", label: "Misrecognition (detected ≠ actual)", requiresTimeRange: true, hasSpecificFields: true },
+  { id: "missed_speech", label: "Missed speech (no transcript)", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "false_positive", label: "False positive (transcript when no speech)", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "wrong_language", label: "Wrong language tag", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "keyword_miss", label: "Keyword miss", requiresTimeRange: true, hasSpecificFields: true },
+  { id: "speaker_attribution", label: "Speaker attribution wrong", requiresTimeRange: true, hasSpecificFields: false }
 ];
 
-const botBehaviorIssues = [
-  "Incorrect/irrelevant response",
-  "Did not follow script/policy",
-  "Response too slow (high latency)",
-  "Response too fast (interruptive)",
-  "Over-interrupting user (barge-in too aggressive)",
-  "Failed to recover after barge-in",
-  "Missed handoff opportunity",
-  "Unnecessary handoff",
-  "Tool misuse (SMS/DTMF/API called wrong time)",
-  "IVR navigation error",
-  "Language switch error",
-  "RAG/Knowledge error (used stale/irrelevant info)",
-  "Success evaluator mismatch"
+const BOT_BEHAVIOR_ISSUES = [
+  { id: "incorrect_response", label: "Incorrect/irrelevant response", requiresTimeRange: false, hasSpecificFields: true },
+  { id: "script_violation", label: "Did not follow script/policy", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "response_timing", label: "Latent response / Too snappy", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "over_interrupting", label: "Over-interrupting user", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "missed_handoff", label: "Missed handoff opportunity", requiresTimeRange: false, hasSpecificFields: true },
+  { id: "unnecessary_handoff", label: "Unnecessary handoff", requiresTimeRange: false, hasSpecificFields: true },
+  { id: "tool_misuse", label: "Tool misuse (SMS/DTMF/API)", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "ivr_error", label: "IVR navigation error", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "language_switch_error", label: "Language switch error", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "rag_error", label: "RAG/Knowledge error", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "evaluator_mismatch", label: "Success evaluator mismatch", requiresTimeRange: false, hasSpecificFields: false }
 ];
 
-const callExperienceIssues = [
-  "Auto-disconnected call (unexpected drop)",
-  "Did not disconnect properly",
-  "Bad carrier quality/jitter/packet loss",
-  "AMD error (human/voicemail detection wrong)",
-  "Voicemail drop issue",
-  "Wrong number masking/CLID rotation",
-  "Time window violation (call outside schedule)"
+const CALL_EXPERIENCE_ISSUES = [
+  { id: "auto_disconnect", label: "Auto-disconnected call", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "no_disconnect", label: "Did not disconnect", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "bad_quality", label: "Bad carrier quality", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "amd_error", label: "AMD error (misclassification)", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "voicemail_issue", label: "Voicemail drop issue", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "number_masking", label: "Wrong number masking", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "time_violation", label: "Time window violation", requiresTimeRange: false, hasSpecificFields: false }
 ];
 
-const complianceIssues = [
-  "Missing disclosure (TCPA/TRAI)",
-  "Opt-out not honored",
-  "Honorific/pronoun misuse",
-  "Wrong formality level",
-  "PII redaction miss",
-  "Sensitive topic handling issue"
+const COMPLIANCE_ISSUES = [
+  { id: "missing_disclosure", label: "Missing disclosure (TCPA/TRAI)", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "opt_out_ignored", label: "Opt-out not honored", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "honorific_misuse", label: "Honorific/pronoun misuse", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "formality_wrong", label: "Formality wrong", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "pii_redaction", label: "PII redaction miss", requiresTimeRange: true, hasSpecificFields: false },
+  { id: "sensitive_topic", label: "Sensitive topic handling issue", requiresTimeRange: false, hasSpecificFields: false }
 ];
 
-const outcomeIssues = [
-  "Disposition misclassified",
-  "Outcome fields wrong/missing",
-  "Handoff packet incomplete"
+const OUTCOME_ISSUES = [
+  { id: "disposition_wrong", label: "Disposition misclassified", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "outcome_fields", label: "Outcome fields wrong/missing", requiresTimeRange: false, hasSpecificFields: false },
+  { id: "handoff_incomplete", label: "Handoff packet incomplete", requiresTimeRange: false, hasSpecificFields: false }
 ];
 
-const backgroundNoiseTypes = [
-  "Line noise",
-  "Office noise", 
-  "Street noise",
-  "Echo",
-  "Other"
-];
-
-export function CallAuditDialog({ 
-  sessionId, 
-  sessionDetails, 
-  children, 
-  onSaveAudit 
+export function CallAuditDialog({
+  sessionId,
+  audioUrl,
+  callDuration,
+  onSave
 }: CallAuditDialogProps) {
   const [open, setOpen] = useState(false);
   const [overallRating, setOverallRating] = useState(5);
+  const [overallSeverity, setOverallSeverity] = useState<'low' | 'medium' | 'high'>('low');
   
-  // Voice & Audio state
-  const [voiceAudioIssuesList, setVoiceAudioIssuesList] = useState<string[]>([]);
-  const [voiceAudioSeverity, setVoiceAudioSeverity] = useState<'low' | 'medium' | 'high'>('low');
+  // Category items state
+  const [voiceAudioItems, setVoiceAudioItems] = useState<DetailedAuditItem[]>([]);
   const [voiceAudioNotes, setVoiceAudioNotes] = useState("");
-  const [backgroundNoiseType, setBackgroundNoiseType] = useState("");
-  const [volumeLevel, setVolumeLevel] = useState([5]);
-
-  // Transcription state
-  const [transcriptionIssuesList, setTranscriptionIssuesList] = useState<string[]>([]);
-  const [transcriptionAccuracy, setTranscriptionAccuracy] = useState([85]);
-  const [transcriptionNotes, setTranscriptionNotes] = useState("");
-  const [keywordMisses, setKeywordMisses] = useState("");
-
-  // Bot Behavior state
-  const [botBehaviorIssuesList, setBotBehaviorIssuesList] = useState<string[]>([]);
-  const [scriptCompliance, setScriptCompliance] = useState([80]);
-  const [responseLatency, setResponseLatency] = useState<'too-fast' | 'optimal' | 'too-slow'>('optimal');
+  
+  const [sttAccuracyItems, setSttAccuracyItems] = useState<DetailedAuditItem[]>([]);
+  const [sttAccuracyNotes, setSttAccuracyNotes] = useState("");
+  
+  const [botBehaviorItems, setBotBehaviorItems] = useState<DetailedAuditItem[]>([]);
   const [botBehaviorNotes, setBotBehaviorNotes] = useState("");
-
-  // Call Experience state
-  const [callExperienceIssuesList, setCallExperienceIssuesList] = useState<string[]>([]);
-  const [telephonyQuality, setTelephonyQuality] = useState([8]);
+  
+  const [callExperienceItems, setCallExperienceItems] = useState<DetailedAuditItem[]>([]);
   const [callExperienceNotes, setCallExperienceNotes] = useState("");
-
-  // Compliance state
-  const [complianceIssuesList, setComplianceIssuesList] = useState<string[]>([]);
-  const [complianceScore, setComplianceScore] = useState([90]);
+  
+  const [complianceItems, setComplianceItems] = useState<DetailedAuditItem[]>([]);
   const [complianceNotes, setComplianceNotes] = useState("");
-
-  // Outcome state
-  const [outcomeIssuesList, setOutcomeIssuesList] = useState<string[]>([]);
-  const [dispositionAccuracy, setDispositionAccuracy] = useState([85]);
+  
+  const [outcomeItems, setOutcomeItems] = useState<DetailedAuditItem[]>([]);
   const [outcomeNotes, setOutcomeNotes] = useState("");
 
-  // General
-  const [generalNotes, setGeneralNotes] = useState("");
-  const [recommendations, setRecommendations] = useState("");
+  // Current editing state
+  const [editingItem, setEditingItem] = useState<{
+    category: string;
+    issue: any;
+    timeRange?: { start: number; end: number };
+    specificDetails?: any;
+    severity: 'low' | 'medium' | 'high';
+    notes: string;
+    confidence: number;
+  } | null>(null);
 
-  const handleIssueToggle = (
-    issue: string, 
-    currentList: string[], 
-    setter: (list: string[]) => void
-  ) => {
-    if (currentList.includes(issue)) {
-      setter(currentList.filter(item => item !== issue));
-    } else {
-      setter([...currentList, issue]);
+  const { toast } = useToast();
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'voiceAudio':
+        return <Volume2 className="w-4 h-4" />;
+      case 'sttAccuracy':
+        return <MessageSquare className="w-4 h-4" />;
+      case 'botBehavior':
+        return <Bot className="w-4 h-4" />;
+      case 'callExperience':
+        return <Phone className="w-4 h-4" />;
+      case 'compliance':
+        return <Shield className="w-4 h-4" />;
+      case 'outcome':
+        return <Target className="w-4 h-4" />;
+      default:
+        return null;
     }
+  };
+
+  const handleIssueSelect = (category: string, issue: any, checked: boolean) => {
+    if (checked) {
+      setEditingItem({
+        category,
+        issue,
+        timeRange: issue.requiresTimeRange ? { start: 0, end: Math.min(5, callDuration) } : undefined,
+        specificDetails: {},
+        severity: 'low',
+        notes: '',
+        confidence: 5
+      });
+    } else {
+      // Remove existing item
+      const setterMap: any = {
+        voiceAudio: setVoiceAudioItems,
+        sttAccuracy: setSttAccuracyItems,
+        botBehavior: setBotBehaviorItems,
+        callExperience: setCallExperienceItems,
+        compliance: setComplianceItems,
+        outcome: setOutcomeItems
+      };
+      
+      const setter = setterMap[category];
+      if (setter) {
+        setter((prev: DetailedAuditItem[]) => prev.filter(item => item.issueType !== issue.id));
+      }
+    }
+  };
+
+  const handleTimeSelect = useCallback((startTime: number, endTime: number) => {
+    if (editingItem) {
+      setEditingItem(prev => prev ? {
+        ...prev,
+        timeRange: { start: startTime, end: endTime }
+      } : null);
+    }
+  }, [editingItem]);
+
+  const saveEditingItem = () => {
+    if (!editingItem) return;
+
+    const newItem: DetailedAuditItem = {
+      issueType: editingItem.issue.id,
+      hasTimeRange: editingItem.issue.requiresTimeRange,
+      startTime: editingItem.timeRange?.start,
+      endTime: editingItem.timeRange?.end,
+      specificDetails: editingItem.specificDetails,
+      severity: editingItem.severity,
+      notes: editingItem.notes,
+      confidence: editingItem.confidence
+    };
+
+    const setterMap: any = {
+      voiceAudio: setVoiceAudioItems,
+      sttAccuracy: setSttAccuracyItems,
+      botBehavior: setBotBehaviorItems,
+      callExperience: setCallExperienceItems,
+      compliance: setComplianceItems,
+      outcome: setOutcomeItems
+    };
+
+    const setter = setterMap[editingItem.category];
+    if (setter) {
+      setter((prev: DetailedAuditItem[]) => {
+        const filtered = prev.filter(item => item.issueType !== editingItem.issue.id);
+        return [...filtered, newItem];
+      });
+    }
+
+    setEditingItem(null);
   };
 
   const handleSave = () => {
     const audit: Omit<CallAudit, 'id' | 'timestamp'> = {
       sessionId,
-      auditorName: "System Auditor", // Default auditor name
+      auditorName: "System Auditor",
       overallRating,
+      overallSeverity,
       categories: {
-        voiceAudio: {
-          issues: voiceAudioIssuesList,
-          severity: voiceAudioSeverity,
-          notes: voiceAudioNotes,
-          backgroundNoiseType: backgroundNoiseType || undefined,
-          volumeLevel: volumeLevel[0]
-        },
-        transcription: {
-          issues: transcriptionIssuesList,
-          accuracy: transcriptionAccuracy[0],
-          notes: transcriptionNotes,
-          keywordMisses: keywordMisses.split(',').map(k => k.trim()).filter(k => k)
-        },
-        botBehavior: {
-          issues: botBehaviorIssuesList,
-          scriptCompliance: scriptCompliance[0],
-          responseLatency,
-          notes: botBehaviorNotes
-        },
-        callExperience: {
-          issues: callExperienceIssuesList,
-          telephonyQuality: telephonyQuality[0],
-          notes: callExperienceNotes
-        },
-        compliance: {
-          issues: complianceIssuesList,
-          complianceScore: complianceScore[0],
-          notes: complianceNotes
-        },
-        outcome: {
-          issues: outcomeIssuesList,
-          dispositionAccuracy: dispositionAccuracy[0],
-          notes: outcomeNotes
-        }
-      },
-      generalNotes,
-      recommendations
+        voiceAudio: { items: voiceAudioItems, notes: voiceAudioNotes },
+        sttAccuracy: { items: sttAccuracyItems, notes: sttAccuracyNotes },
+        botBehavior: { items: botBehaviorItems, notes: botBehaviorNotes },
+        callExperience: { items: callExperienceItems, notes: callExperienceNotes },
+        compliance: { items: complianceItems, notes: complianceNotes },
+        outcome: { items: outcomeItems, notes: outcomeNotes }
+      }
     };
 
-    onSaveAudit?.(audit);
-    toast.success("Call audit saved successfully");
+    const fullAudit: CallAudit = {
+      ...audit,
+      id: `audit-${sessionId}-${Date.now()}`,
+      timestamp: new Date().toISOString()
+    };
+
+    onSave?.(fullAudit);
+    toast({
+      title: "Audit Saved",
+      description: "Call audit has been successfully saved with detailed analysis."
+    });
     setOpen(false);
+    resetForm();
   };
 
   const resetForm = () => {
     setOverallRating(5);
-    setVoiceAudioIssuesList([]);
-    setVoiceAudioSeverity('low');
+    setOverallSeverity('low');
+    setVoiceAudioItems([]);
     setVoiceAudioNotes("");
-    setBackgroundNoiseType("");
-    setVolumeLevel([5]);
-    setTranscriptionIssuesList([]);
-    setTranscriptionAccuracy([85]);
-    setTranscriptionNotes("");
-    setKeywordMisses("");
-    setBotBehaviorIssuesList([]);
-    setScriptCompliance([80]);
-    setResponseLatency('optimal');
+    setSttAccuracyItems([]);
+    setSttAccuracyNotes("");
+    setBotBehaviorItems([]);
     setBotBehaviorNotes("");
-    setCallExperienceIssuesList([]);
-    setTelephonyQuality([8]);
+    setCallExperienceItems([]);
     setCallExperienceNotes("");
-    setComplianceIssuesList([]);
-    setComplianceScore([90]);
+    setComplianceItems([]);
     setComplianceNotes("");
-    setOutcomeIssuesList([]);
-    setDispositionAccuracy([85]);
+    setOutcomeItems([]);
     setOutcomeNotes("");
-    setGeneralNotes("");
-    setRecommendations("");
+    setEditingItem(null);
+  };
+
+  const getIssuesForCategory = (category: string) => {
+    switch (category) {
+      case 'voiceAudio': return VOICE_AUDIO_ISSUES;
+      case 'sttAccuracy': return STT_ACCURACY_ISSUES;
+      case 'botBehavior': return BOT_BEHAVIOR_ISSUES;
+      case 'callExperience': return CALL_EXPERIENCE_ISSUES;
+      case 'compliance': return COMPLIANCE_ISSUES;
+      case 'outcome': return OUTCOME_ISSUES;
+      default: return [];
+    }
+  };
+
+  const getItemsForCategory = (category: string) => {
+    switch (category) {
+      case 'voiceAudio': return voiceAudioItems;
+      case 'sttAccuracy': return sttAccuracyItems;
+      case 'botBehavior': return botBehaviorItems;
+      case 'callExperience': return callExperienceItems;
+      case 'compliance': return complianceItems;
+      case 'outcome': return outcomeItems;
+      default: return [];
+    }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => {
-      setOpen(newOpen);
-      if (!newOpen) resetForm();
-    }}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ClipboardList className="w-5 h-5 text-accent-blue" />
-            Call Quality Audit
-          </DialogTitle>
-          <div className="flex items-center gap-4 text-sm text-text-muted">
-            <Badge variant="outline">{sessionDetails.phoneNumber}</Badge>
-            <span>Duration: {sessionDetails.duration}</span>
-            <span>Campaign: {sessionDetails.campaign}</span>
-            <span>Outcome: {sessionDetails.outcome}</span>
-          </div>
-        </DialogHeader>
+    <>
+      <Button onClick={() => setOpen(true)} variant="outline" size="sm">
+        Audit Call
+      </Button>
 
-        <ScrollArea className="max-h-[calc(90vh-140px)]">
-          <div className="space-y-6 p-1">
-            {/* Auditor Info & Overall Rating */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <span>Call Quality Audit - Detailed Analysis</span>
+              <Badge variant="outline" className="text-xs">
+                Session #{sessionId}
+              </Badge>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Audit Overview */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Audit Overview</CardTitle>
@@ -346,7 +370,7 @@ export function CallAuditDialog({
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Overall Issue Severity</Label>
-                    <Select value={voiceAudioSeverity} onValueChange={(value: 'low' | 'medium' | 'high') => setVoiceAudioSeverity(value)}>
+                    <Select value={overallSeverity} onValueChange={(value: 'low' | 'medium' | 'high') => setOverallSeverity(value)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -359,483 +383,420 @@ export function CallAuditDialog({
                   </div>
                   <div className="space-y-2">
                     <Label>Overall Call Rating</Label>
-                    <div className="flex items-center gap-2">
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rating) => (
-                        <button
-                          key={rating}
-                          onClick={() => setOverallRating(rating)}
-                          className={`w-8 h-8 rounded-full border transition-all ${
-                            rating <= overallRating
-                              ? 'bg-accent-blue text-white border-accent-blue'
-                              : 'border-border hover:border-accent-blue/50'
-                          }`}
-                        >
-                          {rating}
-                        </button>
-                      ))}
+                    <div className="flex items-center space-x-4">
+                      <input
+                        type="range"
+                        min="1"
+                        max="10"
+                        value={overallRating}
+                        onChange={(e) => setOverallRating(Number(e.target.value))}
+                        className="flex-1 h-2 bg-surface-2 rounded-lg appearance-none cursor-pointer slider"
+                      />
+                      <Badge variant="outline" className="min-w-[3rem] text-center">
+                        {overallRating}/10
+                      </Badge>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Tabs defaultValue="voice" className="w-full">
+            {/* Category Tabs */}
+            <Tabs defaultValue="voiceAudio" className="w-full">
               <TabsList className="grid w-full grid-cols-6">
-                <TabsTrigger value="voice" className="flex items-center gap-1">
-                  <Volume2 className="w-4 h-4" />
-                  Voice & Audio
+                <TabsTrigger value="voiceAudio" className="flex items-center space-x-1">
+                  <Volume2 className="w-3 h-3" />
+                  <span className="hidden sm:inline">Voice</span>
                 </TabsTrigger>
-                <TabsTrigger value="transcription" className="flex items-center gap-1">
-                  <MessageSquare className="w-4 h-4" />
-                  Transcription
+                <TabsTrigger value="sttAccuracy" className="flex items-center space-x-1">
+                  <MessageSquare className="w-3 h-3" />
+                  <span className="hidden sm:inline">STT</span>
                 </TabsTrigger>
-                <TabsTrigger value="bot" className="flex items-center gap-1">
-                  <Phone className="w-4 h-4" />
-                  Bot Behavior
+                <TabsTrigger value="botBehavior" className="flex items-center space-x-1">
+                  <Bot className="w-3 h-3" />
+                  <span className="hidden sm:inline">Bot</span>
                 </TabsTrigger>
-                <TabsTrigger value="call" className="flex items-center gap-1">
-                  <Phone className="w-4 h-4" />
-                  Call Experience
+                <TabsTrigger value="callExperience" className="flex items-center space-x-1">
+                  <Phone className="w-3 h-3" />
+                  <span className="hidden sm:inline">Call</span>
                 </TabsTrigger>
-                <TabsTrigger value="compliance" className="flex items-center gap-1">
-                  <Shield className="w-4 h-4" />
-                  Compliance
+                <TabsTrigger value="compliance" className="flex items-center space-x-1">
+                  <Shield className="w-3 h-3" />
+                  <span className="hidden sm:inline">Compliance</span>
                 </TabsTrigger>
-                <TabsTrigger value="outcome" className="flex items-center gap-1">
-                  <Target className="w-4 h-4" />
-                  Outcome
+                <TabsTrigger value="outcome" className="flex items-center space-x-1">
+                  <Target className="w-3 h-3" />
+                  <span className="hidden sm:inline">Outcome</span>
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="voice" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Volume2 className="w-4 h-4" />
-                      Voice & Audio Quality Assessment
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <Label>Identified Issues</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        {voiceAudioIssues.map((issue) => (
-                          <div key={issue} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`voice-${issue}`}
-                              checked={voiceAudioIssuesList.includes(issue)}
-                              onCheckedChange={() => 
-                                handleIssueToggle(issue, voiceAudioIssuesList, setVoiceAudioIssuesList)
-                              }
-                            />
-                            <Label htmlFor={`voice-${issue}`} className="text-sm">
-                              {issue}
-                            </Label>
-                          </div>
-                        ))}
+              {/* Dynamic category rendering */}
+              {['voiceAudio', 'sttAccuracy', 'botBehavior', 'callExperience', 'compliance', 'outcome'].map((category) => (
+                <TabsContent key={category} value={category} className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        {getCategoryIcon(category)}
+                        <span>{category === 'voiceAudio' ? 'Voice & Audio Quality' : 
+                               category === 'sttAccuracy' ? 'STT / Transcription Accuracy' :
+                               category === 'botBehavior' ? 'Bot Behavior & Dialogue' :
+                               category === 'callExperience' ? 'Call Experience & Telephony' :
+                               category === 'compliance' ? 'Compliance & Etiquette' :
+                               'Outcome & Funnel Integrity'} Issues</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-3">
+                        {getIssuesForCategory(category).map((issue) => {
+                          const isSelected = getItemsForCategory(category).some(item => item.issueType === issue.id);
+                          return (
+                            <div key={issue.id} className="flex items-center justify-between p-3 border border-border/30 rounded-lg">
+                              <div className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={`${category}-${issue.id}`}
+                                  checked={isSelected}
+                                  onCheckedChange={(checked) => handleIssueSelect(category, issue, !!checked)}
+                                />
+                                <label
+                                  htmlFor={`${category}-${issue.id}`}
+                                  className="text-sm text-text-primary cursor-pointer flex-1"
+                                >
+                                  {issue.label}
+                                </label>
+                              </div>
+                              <div className="flex items-center space-x-2 text-xs text-text-muted">
+                                {issue.requiresTimeRange && <Clock className="w-3 h-3" />}
+                                {issue.hasSpecificFields && <MapPin className="w-3 h-3" />}
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 gap-4">
-                      
-                      {voiceAudioIssuesList.includes("Background noise") && (
-                        <div className="space-y-2">
-                          <Label>Background Noise Type</Label>
-                          <Select value={backgroundNoiseType} onValueChange={setBackgroundNoiseType}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select noise type" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {backgroundNoiseTypes.map((type) => (
-                                <SelectItem key={type} value={type}>{type}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                      {/* Show selected items summary */}
+                      {getItemsForCategory(category).length > 0 && (
+                        <div className="pt-4 border-t border-border/30">
+                          <h4 className="text-sm font-medium mb-2">Selected Issues ({getItemsForCategory(category).length})</h4>
+                          <div className="space-y-2">
+                            {getItemsForCategory(category).map((item, index) => {
+                              const issue = getIssuesForCategory(category).find(i => i.id === item.issueType);
+                              return (
+                                <div key={index} className="flex items-center justify-between p-2 bg-surface-2/50 rounded text-xs">
+                                  <span>{issue?.label}</span>
+                                  <div className="flex items-center space-x-2">
+                                    {item.hasTimeRange && (
+                                      <Badge variant="outline" className="text-xs">
+                                        {Math.floor(item.startTime || 0)}s-{Math.floor(item.endTime || 0)}s
+                                      </Badge>
+                                    )}
+                                    <Badge variant={item.severity === 'high' ? 'destructive' : 
+                                                  item.severity === 'medium' ? 'secondary' : 'default'} 
+                                           className="text-xs capitalize">
+                                      {item.severity}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       )}
-                    </div>
 
-                    {(voiceAudioIssuesList.includes("Volume too high") || voiceAudioIssuesList.includes("Volume too low")) && (
                       <div className="space-y-2">
-                        <Label>Volume Level (1-10)</Label>
-                        <Slider
-                          value={volumeLevel}
-                          onValueChange={setVolumeLevel}
-                          max={10}
-                          min={1}
-                          step={1}
-                          className="w-full"
+                        <Label>Category Notes</Label>
+                        <Textarea
+                          value={category === 'voiceAudio' ? voiceAudioNotes :
+                                 category === 'sttAccuracy' ? sttAccuracyNotes :
+                                 category === 'botBehavior' ? botBehaviorNotes :
+                                 category === 'callExperience' ? callExperienceNotes :
+                                 category === 'compliance' ? complianceNotes : outcomeNotes}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            switch (category) {
+                              case 'voiceAudio': setVoiceAudioNotes(value); break;
+                              case 'sttAccuracy': setSttAccuracyNotes(value); break;
+                              case 'botBehavior': setBotBehaviorNotes(value); break;
+                              case 'callExperience': setCallExperienceNotes(value); break;
+                              case 'compliance': setComplianceNotes(value); break;
+                              case 'outcome': setOutcomeNotes(value); break;
+                            }
+                          }}
+                          placeholder={`Add specific observations about ${category === 'voiceAudio' ? 'voice and audio quality' : 
+                                      category === 'sttAccuracy' ? 'transcription accuracy' :
+                                      category === 'botBehavior' ? 'bot behavior' :
+                                      category === 'callExperience' ? 'call experience' :
+                                      category === 'compliance' ? 'compliance issues' :
+                                      'outcome and funnel integrity'}...`}
+                          className="min-h-[80px] resize-none"
                         />
-                        <div className="text-sm text-text-muted">Current: {volumeLevel[0]}/10</div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              ))}
+            </Tabs>
+
+            {/* Issue Detail Modal */}
+            {editingItem && (
+              <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
+                <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center space-x-2">
+                      <span>Issue Details: {editingItem.issue.label}</span>
+                    </DialogTitle>
+                  </DialogHeader>
+
+                  <div className="space-y-6">
+                    {/* Time Range Selection */}
+                    {editingItem.issue.requiresTimeRange && (
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Time Range Selection</Label>
+                        <div className="p-4 bg-surface-2/30 rounded-lg border border-border/30">
+                          <AudioWaveform
+                            audioUrl={audioUrl}
+                            duration={callDuration}
+                            onTimeSelect={handleTimeSelect}
+                            selectedRange={editingItem.timeRange}
+                          />
+                        </div>
                       </div>
                     )}
 
-                    <div className="space-y-2">
-                      <Label>Additional Notes</Label>
-                      <Textarea
-                        value={voiceAudioNotes}
-                        onChange={(e) => setVoiceAudioNotes(e.target.value)}
-                        placeholder="Detailed observations about voice and audio quality..."
-                        className="min-h-20"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="transcription" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4" />
-                      STT / Transcription Accuracy (ASR)
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <Label>Transcription Issues</Label>
-                      <div className="grid grid-cols-1 gap-2">
-                        {transcriptionIssues.map((issue) => (
-                          <div key={issue} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`transcription-${issue}`}
-                              checked={transcriptionIssuesList.includes(issue)}
-                              onCheckedChange={() => 
-                                handleIssueToggle(issue, transcriptionIssuesList, setTranscriptionIssuesList)
-                              }
-                            />
-                            <Label htmlFor={`transcription-${issue}`} className="text-sm">
-                              {issue}
-                            </Label>
+                    {/* Specific Fields */}
+                    {editingItem.issue.hasSpecificFields && (
+                      <div className="space-y-4">
+                        <Label className="text-sm font-medium">Specific Details</Label>
+                        
+                        {editingItem.issue.id === 'pronunciation_error' && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Mispronounced Word</Label>
+                              <input
+                                type="text"
+                                placeholder="e.g., 'Customer Name'"
+                                value={editingItem.specificDetails?.mispronuncedWord || ''}
+                                onChange={(e) => setEditingItem(prev => prev ? {
+                                  ...prev,
+                                  specificDetails: { ...prev.specificDetails, mispronuncedWord: e.target.value }
+                                } : null)}
+                                className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text-primary"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Correct Pronunciation</Label>
+                              <input
+                                type="text"
+                                placeholder="e.g., 'KUST-uh-mer'"
+                                value={editingItem.specificDetails?.correctPronunciation || ''}
+                                onChange={(e) => setEditingItem(prev => prev ? {
+                                  ...prev,
+                                  specificDetails: { ...prev.specificDetails, correctPronunciation: e.target.value }
+                                } : null)}
+                                className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text-primary"
+                              />
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                        )}
 
-                    <div className="space-y-2">
-                      <Label>Overall Transcription Accuracy (%)</Label>
-                      <Slider
-                        value={transcriptionAccuracy}
-                        onValueChange={setTranscriptionAccuracy}
-                        max={100}
-                        min={0}
-                        step={5}
-                        className="w-full"
-                      />
-                      <div className="text-sm text-text-muted">Current: {transcriptionAccuracy[0]}%</div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Keyword Misses (comma-separated)</Label>
-                      <input
-                        type="text"
-                        value={keywordMisses}
-                        onChange={(e) => setKeywordMisses(e.target.value)}
-                        placeholder="brand names, SKUs, proper nouns..."
-                        className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent-blue/20"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Additional Notes</Label>
-                      <Textarea
-                        value={transcriptionNotes}
-                        onChange={(e) => setTranscriptionNotes(e.target.value)}
-                        placeholder="Detailed observations about transcription accuracy..."
-                        className="min-h-20"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Continue with other tabs... */}
-              <TabsContent value="bot" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      Bot Behavior & Dialogue Quality
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <Label>Bot Behavior Issues</Label>
-                      <div className="grid grid-cols-1 gap-2">
-                        {botBehaviorIssues.map((issue) => (
-                          <div key={issue} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`bot-${issue}`}
-                              checked={botBehaviorIssuesList.includes(issue)}
-                              onCheckedChange={() => 
-                                handleIssueToggle(issue, botBehaviorIssuesList, setBotBehaviorIssuesList)
-                              }
-                            />
-                            <Label htmlFor={`bot-${issue}`} className="text-sm">
-                              {issue}
-                            </Label>
+                        {editingItem.issue.id === 'background_noise' && (
+                          <div className="space-y-2">
+                            <Label>Background Noise Type</Label>
+                            <Select 
+                              value={editingItem.specificDetails?.backgroundNoiseType || ''} 
+                              onValueChange={(value) => setEditingItem(prev => prev ? {
+                                ...prev,
+                                specificDetails: { ...prev.specificDetails, backgroundNoiseType: value }
+                              } : null)}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select noise type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="line">Line noise</SelectItem>
+                                <SelectItem value="office">Office noise</SelectItem>
+                                <SelectItem value="street">Street noise</SelectItem>
+                                <SelectItem value="echo">Echo</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                        )}
 
+                        {editingItem.issue.id === 'misrecognition' && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>What was detected</Label>
+                              <input
+                                type="text"
+                                placeholder="e.g., 'I want to buy insurance'"
+                                value={editingItem.specificDetails?.detectedText || ''}
+                                onChange={(e) => setEditingItem(prev => prev ? {
+                                  ...prev,
+                                  specificDetails: { ...prev.specificDetails, detectedText: e.target.value }
+                                } : null)}
+                                className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text-primary"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>What was actually said</Label>
+                              <input
+                                type="text"
+                                placeholder="e.g., 'I want to cancel insurance'"
+                                value={editingItem.specificDetails?.actualText || ''}
+                                onChange={(e) => setEditingItem(prev => prev ? {
+                                  ...prev,
+                                  specificDetails: { ...prev.specificDetails, actualText: e.target.value }
+                                } : null)}
+                                className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text-primary"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {editingItem.issue.id === 'keyword_miss' && (
+                          <div className="space-y-2">
+                            <Label>Missed Keyword</Label>
+                            <input
+                              type="text"
+                              placeholder="e.g., 'Brand Name XYZ'"
+                              value={editingItem.specificDetails?.keywordMissed || ''}
+                              onChange={(e) => setEditingItem(prev => prev ? {
+                                ...prev,
+                                specificDetails: { ...prev.specificDetails, keywordMissed: e.target.value }
+                              } : null)}
+                              className="w-full px-3 py-2 border border-border rounded-md bg-surface text-text-primary"
+                            />
+                          </div>
+                        )}
+
+                        {editingItem.issue.id === 'incorrect_response' && (
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Bot's Response</Label>
+                              <Textarea
+                                placeholder="What the bot said..."
+                                value={editingItem.specificDetails?.incorrectResponse || ''}
+                                onChange={(e) => setEditingItem(prev => prev ? {
+                                  ...prev,
+                                  specificDetails: { ...prev.specificDetails, incorrectResponse: e.target.value }
+                                } : null)}
+                                className="min-h-[60px]"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Expected Response</Label>
+                              <Textarea
+                                placeholder="What it should have said..."
+                                value={editingItem.specificDetails?.expectedResponse || ''}
+                                onChange={(e) => setEditingItem(prev => prev ? {
+                                  ...prev,
+                                  specificDetails: { ...prev.specificDetails, expectedResponse: e.target.value }
+                                } : null)}
+                                className="min-h-[60px]"
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {(editingItem.issue.id === 'missed_handoff' || editingItem.issue.id === 'unnecessary_handoff') && (
+                          <div className="space-y-2">
+                            <Label>Transfer Reason / Context</Label>
+                            <Textarea
+                              placeholder="Why should/shouldn't the call have been transferred..."
+                              value={editingItem.specificDetails?.transferReason || ''}
+                              onChange={(e) => setEditingItem(prev => prev ? {
+                                ...prev,
+                                specificDetails: { ...prev.specificDetails, transferReason: e.target.value }
+                              } : null)}
+                              className="min-h-[60px]"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Severity */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Script Compliance (%)</Label>
-                        <Slider
-                          value={scriptCompliance}
-                          onValueChange={setScriptCompliance}
-                          max={100}
-                          min={0}
-                          step={5}
-                          className="w-full"
-                        />
-                        <div className="text-sm text-text-muted">Current: {scriptCompliance[0]}%</div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Response Latency</Label>
-                        <Select value={responseLatency} onValueChange={(value: 'too-fast' | 'optimal' | 'too-slow') => setResponseLatency(value)}>
+                        <Label>Issue Severity</Label>
+                        <Select 
+                          value={editingItem.severity} 
+                          onValueChange={(value: 'low' | 'medium' | 'high') => setEditingItem(prev => prev ? {
+                            ...prev,
+                            severity: value
+                          } : null)}
+                        >
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="too-fast">Too Fast (Interruptive)</SelectItem>
-                            <SelectItem value="optimal">Optimal</SelectItem>
-                            <SelectItem value="too-slow">Too Slow (High Latency)</SelectItem>
+                            <SelectItem value="low">Low Impact</SelectItem>
+                            <SelectItem value="medium">Medium Impact</SelectItem>
+                            <SelectItem value="high">High Impact</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label>Additional Notes</Label>
-                      <Textarea
-                        value={botBehaviorNotes}
-                        onChange={(e) => setBotBehaviorNotes(e.target.value)}
-                        placeholder="Detailed observations about bot behavior and dialogue quality..."
-                        className="min-h-20"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="call" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Phone className="w-4 h-4" />
-                      Call Experience & Telephony
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <Label>Call Experience Issues</Label>
-                      <div className="grid grid-cols-1 gap-2">
-                        {callExperienceIssues.map((issue) => (
-                          <div key={issue} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`call-${issue}`}
-                              checked={callExperienceIssuesList.includes(issue)}
-                              onCheckedChange={() => 
-                                handleIssueToggle(issue, callExperienceIssuesList, setCallExperienceIssuesList)
-                              }
-                            />
-                            <Label htmlFor={`call-${issue}`} className="text-sm">
-                              {issue}
-                            </Label>
-                          </div>
-                        ))}
+                      <div className="space-y-2">
+                        <Label>Confidence Level (1-10)</Label>
+                        <div className="flex items-center space-x-4">
+                          <input
+                            type="range"
+                            min="1"
+                            max="10"
+                            value={editingItem.confidence}
+                            onChange={(e) => setEditingItem(prev => prev ? {
+                              ...prev,
+                              confidence: Number(e.target.value)
+                            } : null)}
+                            className="flex-1 h-2 bg-surface-2 rounded-lg appearance-none cursor-pointer slider"
+                          />
+                          <Badge variant="outline" className="min-w-[3rem] text-center">
+                            {editingItem.confidence}/10
+                          </Badge>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label>Telephony Quality (1-10)</Label>
-                      <Slider
-                        value={telephonyQuality}
-                        onValueChange={setTelephonyQuality}
-                        max={10}
-                        min={1}
-                        step={1}
-                        className="w-full"
-                      />
-                      <div className="text-sm text-text-muted">Current: {telephonyQuality[0]}/10</div>
-                    </div>
-
+                    {/* Notes */}
                     <div className="space-y-2">
                       <Label>Additional Notes</Label>
                       <Textarea
-                        value={callExperienceNotes}
-                        onChange={(e) => setCallExperienceNotes(e.target.value)}
-                        placeholder="Detailed observations about call experience and telephony quality..."
-                        className="min-h-20"
+                        placeholder="Add specific context about this issue..."
+                        value={editingItem.notes}
+                        onChange={(e) => setEditingItem(prev => prev ? {
+                          ...prev,
+                          notes: e.target.value
+                        } : null)}
+                        className="min-h-[80px]"
                       />
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                  </div>
 
-              <TabsContent value="compliance" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
-                      Compliance & Etiquette
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <Label>Compliance Issues</Label>
-                      <div className="grid grid-cols-1 gap-2">
-                        {complianceIssues.map((issue) => (
-                          <div key={issue} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`compliance-${issue}`}
-                              checked={complianceIssuesList.includes(issue)}
-                              onCheckedChange={() => 
-                                handleIssueToggle(issue, complianceIssuesList, setComplianceIssuesList)
-                              }
-                            />
-                            <Label htmlFor={`compliance-${issue}`} className="text-sm">
-                              {issue}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Compliance Score (%)</Label>
-                      <Slider
-                        value={complianceScore}
-                        onValueChange={setComplianceScore}
-                        max={100}
-                        min={0}
-                        step={5}
-                        className="w-full"
-                      />
-                      <div className="text-sm text-text-muted">Current: {complianceScore[0]}%</div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Additional Notes</Label>
-                      <Textarea
-                        value={complianceNotes}
-                        onChange={(e) => setComplianceNotes(e.target.value)}
-                        placeholder="Detailed observations about compliance and etiquette..."
-                        className="min-h-20"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="outcome" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Target className="w-4 h-4" />
-                      Outcome & Funnel Integrity
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <Label>Outcome Issues</Label>
-                      <div className="grid grid-cols-1 gap-2">
-                        {outcomeIssues.map((issue) => (
-                          <div key={issue} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`outcome-${issue}`}
-                              checked={outcomeIssuesList.includes(issue)}
-                              onCheckedChange={() => 
-                                handleIssueToggle(issue, outcomeIssuesList, setOutcomeIssuesList)
-                              }
-                            />
-                            <Label htmlFor={`outcome-${issue}`} className="text-sm">
-                              {issue}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Disposition Accuracy (%)</Label>
-                      <Slider
-                        value={dispositionAccuracy}
-                        onValueChange={setDispositionAccuracy}
-                        max={100}
-                        min={0}
-                        step={5}
-                        className="w-full"
-                      />
-                      <div className="text-sm text-text-muted">Current: {dispositionAccuracy[0]}%</div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Additional Notes</Label>
-                      <Textarea
-                        value={outcomeNotes}
-                        onChange={(e) => setOutcomeNotes(e.target.value)}
-                        placeholder="Detailed observations about outcome accuracy and funnel integrity..."
-                        className="min-h-20"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-
-            {/* General Assessment */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">General Assessment</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>General Notes</Label>
-                  <Textarea
-                    value={generalNotes}
-                    onChange={(e) => setGeneralNotes(e.target.value)}
-                    placeholder="Overall observations about the call..."
-                    className="min-h-20"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Recommendations for Improvement</Label>
-                  <Textarea
-                    value={recommendations}
-                    onChange={(e) => setRecommendations(e.target.value)}
-                    placeholder="Specific recommendations for improving call quality..."
-                    className="min-h-20"
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setEditingItem(null)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={saveEditingItem}>
+                      Save Issue Details
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
           </div>
-        </ScrollArea>
 
-        <Separator />
-
-        <div className="flex justify-between items-center">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            <X className="w-4 h-4 mr-2" />
-            Cancel
-          </Button>
-          
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={resetForm}>
-              Reset Form
+          <DialogFooter className="flex items-center space-x-2">
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              <X className="w-4 h-4 mr-2" />
+              Cancel
             </Button>
             <Button onClick={handleSave}>
               <Save className="w-4 h-4 mr-2" />
               Save Audit
             </Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
