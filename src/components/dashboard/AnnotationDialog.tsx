@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +29,8 @@ interface AnnotationDialogProps {
   detectedText: string;
   audioUrl?: string;
   callDuration: number;
+  messageStartTime?: number;
+  messageEndTime?: number;
   existingAnnotation?: Annotation;
 }
 
@@ -40,6 +42,8 @@ export function AnnotationDialog({
   detectedText,
   audioUrl,
   callDuration,
+  messageStartTime = 0,
+  messageEndTime,
   existingAnnotation
 }: AnnotationDialogProps) {
   const [annotationType, setAnnotationType] = useState<Annotation['type']>(
@@ -48,8 +52,8 @@ export function AnnotationDialog({
   const [actualText, setActualText] = useState(existingAnnotation?.actualText || '');
   const [notes, setNotes] = useState(existingAnnotation?.notes || '');
   const [timeRange, setTimeRange] = useState({
-    start: existingAnnotation?.startTime || 0,
-    end: existingAnnotation?.endTime || Math.min(5, callDuration)
+    start: existingAnnotation?.startTime || messageStartTime,
+    end: existingAnnotation?.endTime || messageEndTime || Math.min(messageStartTime + 5, callDuration)
   });
   const [confidence, setConfidence] = useState(existingAnnotation?.confidence || 5);
 
@@ -69,9 +73,9 @@ export function AnnotationDialog({
     onClose();
   };
 
-  const handleTimeSelect = (startTime: number, endTime: number) => {
+  const handleTimeSelect = useCallback((startTime: number, endTime: number) => {
     setTimeRange({ start: startTime, end: endTime });
-  };
+  }, []);
 
   const getAnnotationTypeIcon = (type: Annotation['type']) => {
     switch (type) {

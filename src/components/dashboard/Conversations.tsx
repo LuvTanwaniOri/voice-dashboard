@@ -265,6 +265,12 @@ export function Conversations() {
     return 120; // Default 2 minutes
   };
 
+  const getMessageTimingInSeconds = (timestamp: string, callStartTime?: string) => {
+    // For now, return mock timing based on message index
+    // In a real implementation, you'd parse the actual timestamps
+    return Math.floor(Math.random() * 60) + 10; // Random time between 10-70 seconds
+  };
+
   return (
     <div className="h-screen flex bg-surface">
       {/* Left Panel - Sessions List */}
@@ -741,6 +747,10 @@ export function Conversations() {
           detectedText={selectedSession.transcript[selectedMessageIndex]?.message || ''}
           audioUrl={selectedSession.details.recordingUrl}
           callDuration={getCallDurationInSeconds(selectedSession.details.callDuration)}
+          messageStartTime={getMessageTimingInSeconds(selectedSession.transcript[selectedMessageIndex]?.timestamp || '')}
+          messageEndTime={selectedMessageIndex < selectedSession.transcript.length - 1 
+            ? getMessageTimingInSeconds(selectedSession.transcript[selectedMessageIndex + 1]?.timestamp || '')
+            : getCallDurationInSeconds(selectedSession.details.callDuration)}
           existingAnnotation={
             getMessageAnnotations(selectedSession.id, selectedMessageIndex)[0]
           }

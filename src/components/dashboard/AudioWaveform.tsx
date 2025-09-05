@@ -34,15 +34,19 @@ export function AudioWaveform({
   const waveformData = generateWaveform();
 
   useEffect(() => {
-    if (selectedRange) {
+    if (selectedRange && 
+        (selectedRange.start !== startTime || selectedRange.end !== endTime)) {
       setStartTime(selectedRange.start);
       setEndTime(selectedRange.end);
     }
   }, [selectedRange]);
 
-  useEffect(() => {
-    onTimeSelect(startTime, endTime);
-  }, [startTime, endTime, onTimeSelect]);
+  // Only call onTimeSelect when user explicitly changes values, not on initial load
+  const handleTimeChange = (newStart: number, newEnd: number) => {
+    setStartTime(newStart);
+    setEndTime(newEnd);
+    onTimeSelect(newStart, newEnd);
+  };
 
   // Draw waveform on canvas
   useEffect(() => {
@@ -133,9 +137,11 @@ export function AudioWaveform({
     const distToEnd = Math.abs(clickTime - endTime);
     
     if (distToStart < distToEnd) {
-      setStartTime(Math.max(0, Math.min(clickTime, endTime - 0.1)));
+      const newStart = Math.max(0, Math.min(clickTime, endTime - 0.1));
+      handleTimeChange(newStart, endTime);
     } else {
-      setEndTime(Math.min(duration, Math.max(clickTime, startTime + 0.1)));
+      const newEnd = Math.min(duration, Math.max(clickTime, startTime + 0.1));
+      handleTimeChange(startTime, newEnd);
     }
   };
 
@@ -182,7 +188,10 @@ export function AudioWaveform({
           <label className="text-xs text-text-muted">Start Time</label>
           <Slider
             value={[startTime]}
-            onValueChange={(value) => setStartTime(Math.min(value[0], endTime - 0.1))}
+            onValueChange={(value) => {
+              const newStart = Math.min(value[0], endTime - 0.1);
+              handleTimeChange(newStart, endTime);
+            }}
             max={duration}
             step={0.1}
             className="w-full"
@@ -194,7 +203,10 @@ export function AudioWaveform({
           <label className="text-xs text-text-muted">End Time</label>
           <Slider
             value={[endTime]}
-            onValueChange={(value) => setEndTime(Math.max(value[0], startTime + 0.1))}
+            onValueChange={(value) => {
+              const newEnd = Math.max(value[0], startTime + 0.1);
+              handleTimeChange(startTime, newEnd);
+            }}
             max={duration}
             step={0.1}
             className="w-full"
