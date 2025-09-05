@@ -410,7 +410,7 @@ export function CallAuditDialog({
                 </TabsTrigger>
                 <TabsTrigger value="sttAccuracy" className="flex items-center space-x-1">
                   <MessageSquare className="w-3 h-3" />
-                  <span className="hidden sm:inline">STT</span>
+                  <span className="hidden sm:inline">Transcription</span>
                 </TabsTrigger>
                 <TabsTrigger value="botBehavior" className="flex items-center space-x-1">
                   <Bot className="w-3 h-3" />
