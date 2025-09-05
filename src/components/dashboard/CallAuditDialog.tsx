@@ -414,11 +414,11 @@ export function CallAuditDialog({
                 </TabsTrigger>
                 <TabsTrigger value="botBehavior" className="flex items-center space-x-1">
                   <Bot className="w-3 h-3" />
-                  <span className="hidden sm:inline">Bot</span>
+                  <span className="hidden sm:inline">Bot Behaviour</span>
                 </TabsTrigger>
                 <TabsTrigger value="callExperience" className="flex items-center space-x-1">
                   <Phone className="w-3 h-3" />
-                  <span className="hidden sm:inline">Call</span>
+                  <span className="hidden sm:inline">Call Experience</span>
                 </TabsTrigger>
                 <TabsTrigger value="compliance" className="flex items-center space-x-1">
                   <Shield className="w-3 h-3" />
