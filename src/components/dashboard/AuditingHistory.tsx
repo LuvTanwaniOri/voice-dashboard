@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Activity, 
   Filter, 
@@ -33,7 +34,9 @@ import {
   SkipBack,
   SkipForward,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Volume2,
+  MessageSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -514,120 +517,87 @@ export function AuditingHistory() {
                 </CardContent>
               </Card>
 
-              {/* Audio Player */}
+              {/* Compact Audio Player */}
               {audit.audioUrl && (
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between text-lg">
-                      <span>Call Recording</span>
-                      <Button variant="outline" size="sm">
-                        <Download className="w-4 h-4 mr-2" />
-                        Download
-                      </Button>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Volume2 className="h-4 w-4" />
+                      Call Recording
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Audio Controls */}
-                      <div className="flex items-center justify-center space-x-4 py-6 bg-surface-2 rounded-lg">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {/* Skip back 10s */}}
-                        >
-                          <SkipBack className="w-4 h-4" />
-                        </Button>
-                        
-                        <Button
-                          size="icon"
-                          onClick={() => setIsPlaying(!isPlaying)}
-                          className="bg-accent-blue hover:bg-accent-blue/90"
-                        >
-                          {isPlaying ? (
-                            <Pause className="w-5 h-5" />
-                          ) : (
-                            <Play className="w-5 h-5" />
-                          )}
-                        </Button>
-                        
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {/* Skip forward 10s */}}
-                        >
-                          <SkipForward className="w-4 h-4" />
-                        </Button>
+                  <CardContent className="pt-0">
+                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsPlaying(!isPlaying)}
+                        className="h-8 w-8 p-0 hover:bg-background"
+                      >
+                        {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                      </Button>
+                      <div className="flex-1 bg-background rounded-full h-1.5 overflow-hidden">
+                        <div className="bg-primary h-full w-1/3 transition-all duration-300" />
                       </div>
-                      
-                      {/* Progress Bar */}
-                      <div className="space-y-2">
-                        <div className="w-full bg-surface-2 rounded-full h-2">
-                          <div className="bg-accent-blue h-2 rounded-full" style={{ width: '35%' }}></div>
-                        </div>
-                        <div className="flex justify-between text-xs text-text-muted">
-                          <span>02:15</span>
-                          <span>06:30</span>
-                        </div>
-                      </div>
-                      
-                      {/* Speed Controls */}
-                      <div className="flex items-center justify-center space-x-2">
-                        <Label className="text-xs text-text-muted">Speed:</Label>
-                        {[0.5, 0.75, 1, 1.25, 1.5, 2].map(speed => (
-                          <Button
-                            key={speed}
-                            variant={playbackSpeed === speed ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setPlaybackSpeed(speed)}
-                            className="text-xs px-2 h-7"
-                          >
-                            {speed}x
-                          </Button>
-                        ))}
-                      </div>
+                      <span className="text-xs text-muted-foreground min-w-fit">1:23 / 4:15</span>
+                      <Select value={playbackSpeed.toString()} onValueChange={(value) => setPlaybackSpeed(parseFloat(value))}>
+                        <SelectTrigger className="w-14 h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0.5">0.5x</SelectItem>
+                          <SelectItem value="1">1x</SelectItem>
+                          <SelectItem value="1.5">1.5x</SelectItem>
+                          <SelectItem value="2">2x</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-background">
+                        <Download className="h-3 w-3" />
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
               )}
 
-              {/* Call Transcript */}
+              {/* WhatsApp-Style Call Transcript */}
               {audit.transcript && (
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Call Transcript</CardTitle>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <MessageSquare className="h-4 w-4" />
+                      Call Transcript
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {audit.transcript.map((entry, index) => (
-                        <div 
-                          key={index}
-                          className={cn(
-                            "flex space-x-3 p-3 rounded-lg",
-                            entry.speaker === 'agent' 
-                              ? "bg-accent-blue/5 border-l-4 border-accent-blue" 
-                              : "bg-surface-2 border-l-4 border-border"
-                          )}
-                        >
-                          <div className="flex-shrink-0">
-                            <Badge 
-                              variant="secondary" 
-                              className={cn(
-                                "text-xs",
-                                entry.speaker === 'agent' 
-                                  ? "bg-accent-blue/10 text-accent-blue" 
-                                  : "bg-surface text-text-muted"
-                              )}
-                            >
-                              {entry.speaker === 'agent' ? 'Agent' : 'Customer'}
-                            </Badge>
-                            <p className="text-xs text-text-muted mt-1">{entry.timestamp}</p>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm text-text-primary">{entry.text}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+                  <CardContent className="pt-0">
+                    <ScrollArea className="h-80">
+                      <div className="space-y-3 p-2">
+                        {audit.transcript.map((entry, index) => {
+                          const isCustomer = entry.speaker === 'customer';
+                          return (
+                            <div key={index} className={`flex ${isCustomer ? 'justify-end' : 'justify-start'} mb-3`}>
+                              <div className={`max-w-[75%] ${isCustomer ? 'order-2' : 'order-1'}`}>
+                                <div className={`rounded-2xl px-4 py-2 ${
+                                  isCustomer 
+                                    ? 'bg-primary text-primary-foreground rounded-br-md' 
+                                    : 'bg-muted text-foreground rounded-bl-md'
+                                }`}>
+                                  <p className="text-sm leading-relaxed">{entry.text}</p>
+                                </div>
+                                <div className={`flex items-center gap-2 mt-1 ${isCustomer ? 'justify-end' : 'justify-start'}`}>
+                                  <span className="text-xs text-muted-foreground">{entry.timestamp}</span>
+                                  <Badge 
+                                    variant={isCustomer ? 'outline' : 'secondary'} 
+                                    className="text-xs px-2 py-0"
+                                  >
+                                    {entry.speaker === 'agent' ? 'AI Agent' : 'Customer'}
+                                  </Badge>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
                   </CardContent>
                 </Card>
               )}

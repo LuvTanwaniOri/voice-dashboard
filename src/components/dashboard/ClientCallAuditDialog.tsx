@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   MessageSquare, 
   CheckCircle2,
@@ -166,66 +167,60 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
             
             {/* Overall Rating and Severity */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardContent className="pt-4">
-                  <Label className="text-sm font-medium text-text-primary mb-3 block">
-                    Overall Call Rating
-                  </Label>
-                  <div className="flex items-center space-x-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        onClick={() => setRating(star)}
-                        className={cn(
-                          "p-1 rounded transition-colors",
-                          rating && rating >= star
-                            ? "text-warning hover:text-warning/80"
-                            : "text-muted hover:text-text-muted"
-                        )}
-                      >
-                        <Star className={cn(
-                          "w-6 h-6",
-                          rating && rating >= star ? "fill-current" : ""
-                        )} />
-                      </button>
-                    ))}
-                  </div>
-                  {rating && (
-                    <span className="mt-2 text-sm text-text-muted block">
-                      {rating} out of 5 stars
-                    </span>
-                  )}
-                </CardContent>
-              </Card>
+              {/* Compact Overall Rating */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Overall Call Rating</Label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setRating(star)}
+                      className={cn(
+                        "p-0.5 transition-colors rounded",
+                        star <= (rating || 0) 
+                          ? 'text-yellow-500 hover:text-yellow-600' 
+                          : 'text-muted-foreground hover:text-yellow-400 border border-muted-foreground/30'
+                      )}
+                    >
+                      <Star className={`h-5 w-5 ${star <= (rating || 0) ? 'fill-current' : ''}`} />
+                    </button>
+                  ))}
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {rating ? `${rating}/5` : 'No rating'}
+                  </span>
+                </div>
+              </div>
 
-              <Card>
-                <CardContent className="pt-4">
-                  <Label className="text-sm font-medium text-text-primary mb-3 block">
-                    Issue Severity
-                  </Label>
-                  <div className="space-y-2">
-                    {(['low', 'medium', 'high'] as const).map((level) => (
-                      <button
-                        key={level}
-                        onClick={() => setSeverity(level)}
-                        className={cn(
-                          "w-full flex items-center justify-between p-3 rounded-lg border text-left transition-all",
-                          severity === level
-                            ? level === 'low' ? "bg-success/10 border-success/30 text-success"
-                              : level === 'medium' ? "bg-warning/10 border-warning/30 text-warning"
-                              : "bg-error/10 border-error/30 text-error"
-                            : "bg-surface hover:bg-surface-2 border-border/50 text-text-secondary hover:text-text-primary"
-                        )}
-                      >
-                        <span className="text-sm font-medium capitalize">{level}</span>
-                        {severity === level && (
-                          <CheckCircle2 className="w-4 h-4" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Issue Severity Dropdown */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Issue Severity</Label>
+                <Select value={severity} onValueChange={(value) => setSeverity(value as 'low' | 'medium' | 'high')}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select severity level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        <span>Low</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="medium">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                        <span>Medium</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="high">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                        <span>High</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Speech-to-Text Issues */}
