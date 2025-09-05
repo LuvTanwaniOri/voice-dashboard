@@ -12,6 +12,7 @@ import { UserManagement } from "@/components/dashboard/UserManagement";
 import { OperationsWallboard } from "@/components/dashboard/OperationsWallboard";
 import { VoiceLexicon } from "@/components/dashboard/VoiceLexicon";
 import { Conversations } from "@/components/dashboard/Conversations";
+import { AuditingHistory } from "@/components/dashboard/AuditingHistory";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -86,6 +87,8 @@ const Index = () => {
         return <OperationsWallboard />;
       case 'voice':
         return <VoiceLexicon />;
+      case 'auditing':
+        return <AuditingHistory />;
       case 'workspace':
         return <UserManagement />;
       default:

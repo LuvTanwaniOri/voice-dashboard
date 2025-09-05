@@ -299,11 +299,13 @@ export function Conversations() {
   };
 
   // Client call audit functions
-  const handleSaveClientCallAudit = (sessionId: string, auditData: Omit<ClientCallAudit, 'id' | 'timestamp'>) => {
+  const handleSaveClientCallAudit = (sessionId: string, auditData: Omit<ClientCallAudit, 'id' | 'timestamp' | 'status' | 'createdBy'>) => {
     const audit: ClientCallAudit = {
       ...auditData,
       id: `client_audit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      status: 'open',
+      createdBy: 'Current User'
     };
 
     setClientCallAudits(prev => ({

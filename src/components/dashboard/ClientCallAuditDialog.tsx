@@ -34,11 +34,14 @@ export interface ClientCallAudit {
   systemLevel: string[];
   overallFeedback: string;
   rating?: number;
+  severity: 'low' | 'medium' | 'high';
+  status: 'open' | 'resolved';
+  createdBy: string;
 }
 
 interface ClientCallAuditDialogProps {
   sessionId: string;
-  onSave: (auditData: Omit<ClientCallAudit, 'id' | 'timestamp'>) => void;
+  onSave: (auditData: Omit<ClientCallAudit, 'id' | 'timestamp' | 'status' | 'createdBy'>) => void;
 }
 
 const auditCategories = {
@@ -95,6 +98,7 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
   });
   const [overallFeedback, setOverallFeedback] = useState("");
   const [rating, setRating] = useState<number | null>(null);
+  const [severity, setSeverity] = useState<'low' | 'medium' | 'high'>('medium');
 
   const handleCategoryToggle = (category: keyof typeof selectedCategories, itemId: string) => {
     setSelectedCategories(prev => ({
@@ -114,7 +118,8 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
       callExperience: selectedCategories.callExperience,
       systemLevel: selectedCategories.systemLevel,
       overallFeedback,
-      rating: rating || undefined
+      rating: rating || undefined,
+      severity
     };
 
     onSave(auditData);
@@ -129,6 +134,7 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
     });
     setOverallFeedback("");
     setRating(null);
+    setSeverity('medium');
     setOpen(false);
   };
 
@@ -158,38 +164,69 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
         <ScrollArea className="max-h-[60vh] pr-4">
           <div className="space-y-6 py-4">
             
-            {/* Overall Rating */}
-            <Card>
-              <CardContent className="pt-4">
-                <Label className="text-sm font-medium text-text-primary mb-3 block">
-                  Overall Call Rating
-                </Label>
-                <div className="flex items-center space-x-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => setRating(star)}
-                      className={cn(
-                        "p-1 rounded transition-colors",
-                        rating && rating >= star
-                          ? "text-warning hover:text-warning/80"
-                          : "text-muted hover:text-text-muted"
-                      )}
-                    >
-                      <Star className={cn(
-                        "w-6 h-6",
-                        rating && rating >= star ? "fill-current" : ""
-                      )} />
-                    </button>
-                  ))}
+            {/* Overall Rating and Severity */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardContent className="pt-4">
+                  <Label className="text-sm font-medium text-text-primary mb-3 block">
+                    Overall Call Rating
+                  </Label>
+                  <div className="flex items-center space-x-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        onClick={() => setRating(star)}
+                        className={cn(
+                          "p-1 rounded transition-colors",
+                          rating && rating >= star
+                            ? "text-warning hover:text-warning/80"
+                            : "text-muted hover:text-text-muted"
+                        )}
+                      >
+                        <Star className={cn(
+                          "w-6 h-6",
+                          rating && rating >= star ? "fill-current" : ""
+                        )} />
+                      </button>
+                    ))}
+                  </div>
                   {rating && (
-                    <span className="ml-2 text-sm text-text-muted">
+                    <span className="mt-2 text-sm text-text-muted block">
                       {rating} out of 5 stars
                     </span>
                   )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="pt-4">
+                  <Label className="text-sm font-medium text-text-primary mb-3 block">
+                    Issue Severity
+                  </Label>
+                  <div className="space-y-2">
+                    {(['low', 'medium', 'high'] as const).map((level) => (
+                      <button
+                        key={level}
+                        onClick={() => setSeverity(level)}
+                        className={cn(
+                          "w-full flex items-center justify-between p-3 rounded-lg border text-left transition-all",
+                          severity === level
+                            ? level === 'low' ? "bg-success/10 border-success/30 text-success"
+                              : level === 'medium' ? "bg-warning/10 border-warning/30 text-warning"
+                              : "bg-error/10 border-error/30 text-error"
+                            : "bg-surface hover:bg-surface-2 border-border/50 text-text-secondary hover:text-text-primary"
+                        )}
+                      >
+                        <span className="text-sm font-medium capitalize">{level}</span>
+                        {severity === level && (
+                          <CheckCircle2 className="w-4 h-4" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Speech-to-Text Issues */}
             <Card>
@@ -405,6 +442,13 @@ export function ClientCallAuditDialog({ sessionId, onSave }: ClientCallAuditDial
                 {rating}★ rating
               </Badge>
             )}
+            <Badge variant="secondary" className={cn(
+              severity === 'low' ? "bg-success/10 text-success" :
+              severity === 'medium' ? "bg-warning/10 text-warning" :
+              "bg-error/10 text-error"
+            )}>
+              {severity} severity
+            </Badge>
           </div>
           <div className="flex items-center space-x-2">
             <Button variant="outline" onClick={() => setOpen(false)}>
