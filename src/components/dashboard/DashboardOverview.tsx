@@ -18,7 +18,8 @@ import {
   MessageSquare,
   Calendar,
   DollarSign,
-  Zap
+  Zap,
+  Sparkles
 } from "lucide-react";
 import {
   AreaChart,
@@ -74,11 +75,51 @@ export function DashboardOverview() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold text-text-primary tracking-tight">Dashboard</h1>
-        <p className="text-text-secondary text-lg">Monitor your voice bot performance and campaigns</p>
+    <div className="space-y-8 animate-fade-in relative">
+      {/* AI Dashboard Header with Smart Context */}
+      <div className="space-y-4">
+        <div className="flex items-start justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <h1 className="text-4xl font-bold text-text-primary tracking-tight">
+                Neural Dashboard
+              </h1>
+              <div className="px-3 py-1 bg-gradient-primary rounded-full text-white text-sm font-medium shadow-glow/30">
+                Live AI
+              </div>
+            </div>
+            <p className="text-text-secondary text-lg max-w-2xl">
+              Real-time intelligence from your AI voice systems. Monitor performance, track outcomes, and optimize for success.
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-sm text-text-muted mb-1">System Status</div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-success rounded-full animate-ai-pulse"></div>
+              <span className="text-success font-medium">All Systems Optimal</span>
+            </div>
+          </div>
+        </div>
+        
+        {/* Smart Contextual Help */}
+        <div className="bg-accent-blue/5 border border-accent-blue/20 rounded-2xl p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-text-primary mb-1">What's Happening Right Now</h3>
+              <p className="text-sm text-text-secondary mb-2">
+                Your AI agents are actively processing <span className="font-medium text-accent-blue">23 conversations</span> with 
+                a <span className="font-medium text-success">12.1 QO/100CM</span> qualification rate. 
+                System latency is optimal at <span className="font-medium text-accent-blue">1.34s</span>.
+              </p>
+              <p className="text-xs text-text-muted">
+                ✓ All neural networks operational • ✓ Voice synthesis ready • ✓ Knowledge base synced
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Hero Metrics - Top 3 KPIs */}

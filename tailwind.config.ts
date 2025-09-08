@@ -56,24 +56,32 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				
-				// Enhanced color system
-				surface: {
-					DEFAULT: 'hsl(var(--surface))',
-					2: 'hsl(var(--surface-2))'
-				},
-				text: {
-					primary: 'hsl(var(--text-primary))',
-					secondary: 'hsl(var(--text-secondary))',
-					muted: 'hsl(var(--text-muted))',
-					inverse: 'hsl(var(--text-inverse))'
-				},
-				
-				// Accent system with variants
-				'accent-blue': {
-					DEFAULT: 'hsl(var(--accent-blue))',
-					hover: 'hsl(var(--accent-blue-hover))',
-					subtle: 'hsl(var(--accent-blue-subtle))'
-				},
+			// Enhanced AI surface system
+			surface: {
+				DEFAULT: 'hsl(var(--surface))',
+				2: 'hsl(var(--surface-2))',
+				3: 'hsl(var(--surface-3))'
+			},
+			text: {
+				primary: 'hsl(var(--text-primary))',
+				secondary: 'hsl(var(--text-secondary))',
+				muted: 'hsl(var(--text-muted))',
+				inverse: 'hsl(var(--text-inverse))',
+				accent: 'hsl(var(--text-accent))'
+			},
+			
+			// AI Accent spectrum
+			'accent-blue': {
+				DEFAULT: 'hsl(var(--accent-blue))',
+				hover: 'hsl(var(--accent-blue-hover))',
+				subtle: 'hsl(var(--accent-blue-subtle))'
+			},
+			'accent-neural': {
+				DEFAULT: 'hsl(var(--accent-neural))'
+			},
+			'accent-quantum': {
+				DEFAULT: 'hsl(var(--accent-quantum))'
+			},
 				
 				// Legacy compatibility
 				primary: {
@@ -146,17 +154,24 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-neural': 'var(--gradient-neural)',
 				'gradient-success': 'var(--gradient-success)',
+				'gradient-warning': 'var(--gradient-warning)',
 				'gradient-card': 'var(--gradient-card)',
-				'gradient-glass': 'var(--gradient-glass)'
+				'gradient-glass': 'var(--gradient-glass)',
+				'gradient-neural-mesh': 'var(--gradient-neural-mesh)',
+				'gradient-ai-glow': 'var(--gradient-ai-glow)'
 			},
 			boxShadow: {
 				'sm': 'var(--shadow-sm)',
 				'md': 'var(--shadow-md)', 
 				'lg': 'var(--shadow-lg)',
 				'glow': 'var(--shadow-glow)',
+				'neural': 'var(--shadow-neural)',
+				'quantum': 'var(--shadow-quantum)',
 				'card': 'var(--shadow-card)',
-				'focus': 'var(--shadow-focus)'
+				'focus': 'var(--shadow-focus)',
+				'ai-elegant': 'var(--shadow-ai-elegant)'
 			},
 			transitionDuration: {
 				'fast': 'var(--duration-fast)',
@@ -177,10 +192,19 @@ export default {
 				'2xl': 'var(--radius-2xl)'
 			},
 			keyframes: {
-				// Voice-specific animations
-				'shimmer': {
-					'0%': { left: '-100%' },
-					'100%': { left: '100%' }
+				// AI Neural animations
+				'neural-shimmer': {
+					'0%': { left: '-100%', opacity: '0' },
+					'50%': { opacity: '1' },
+					'100%': { left: '100%', opacity: '0' }
+				},
+				'ai-pulse': {
+					'0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+					'50%': { opacity: '1', transform: 'scale(1.02)' }
+				},
+				'neural-float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-4px)' }
 				},
 				'waveform': {
 					'0%, 100%': { transform: 'scaleY(1)' },
@@ -209,8 +233,10 @@ export default {
 				}
 			},
 			animation: {
-				// Voice animations
-				'shimmer': 'shimmer var(--duration-slow) infinite',
+				// AI Neural animations
+				'neural-shimmer': 'neural-shimmer var(--duration-deliberate) infinite',
+				'ai-pulse': 'ai-pulse 3s infinite',
+				'neural-float': 'neural-float 4s ease-in-out infinite',
 				'waveform': 'waveform var(--duration-base) infinite ease-in-out',
 				'listening-pulse': 'listening-pulse 2s infinite',
 				'fade-in': 'fade-in var(--duration-base) var(--easing-out)',
