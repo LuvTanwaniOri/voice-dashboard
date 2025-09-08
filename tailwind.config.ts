@@ -56,23 +56,30 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				
-				// Enhanced color system
+				// Neural surfaces with AI-inspired depth
 				surface: {
 					DEFAULT: 'hsl(var(--surface))',
-					2: 'hsl(var(--surface-2))'
+					2: 'hsl(var(--surface-2))',
+					glass: 'hsl(var(--surface-glass))'
 				},
+				
+				// Neural borders for glassmorphism
+				'border-glass': 'hsl(var(--border-glass))',
+				
+				// Enhanced text hierarchy
 				text: {
 					primary: 'hsl(var(--text-primary))',
 					secondary: 'hsl(var(--text-secondary))',
-					muted: 'hsl(var(--text-muted))',
+					muted: 'hsl(var(--text-muted))', 
 					inverse: 'hsl(var(--text-inverse))'
 				},
 				
-				// Accent system with variants
+				// AI Electric Blue accent system
 				'accent-blue': {
 					DEFAULT: 'hsl(var(--accent-blue))',
 					hover: 'hsl(var(--accent-blue-hover))',
-					subtle: 'hsl(var(--accent-blue-subtle))'
+					subtle: 'hsl(var(--accent-blue-subtle))',
+					glow: 'hsl(var(--accent-blue-glow))'
 				},
 				
 				// Legacy compatibility
@@ -145,18 +152,23 @@ export default {
 				}
 			},
 			backgroundImage: {
+				'gradient-neural': 'var(--gradient-neural)',
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-success': 'var(--gradient-success)',
 				'gradient-card': 'var(--gradient-card)',
-				'gradient-glass': 'var(--gradient-glass)'
+				'gradient-glass': 'var(--gradient-glass)',
+				'gradient-neural-mesh': 'var(--gradient-neural-mesh)'
 			},
 			boxShadow: {
 				'sm': 'var(--shadow-sm)',
 				'md': 'var(--shadow-md)', 
 				'lg': 'var(--shadow-lg)',
+				'neural': 'var(--shadow-neural)',
 				'glow': 'var(--shadow-glow)',
+				'glow-subtle': 'var(--shadow-glow-subtle)',
 				'card': 'var(--shadow-card)',
-				'focus': 'var(--shadow-focus)'
+				'focus': 'var(--shadow-focus)',
+				'neural-pulse': 'var(--shadow-neural-pulse)'
 			},
 			transitionDuration: {
 				'fast': 'var(--duration-fast)',
@@ -177,18 +189,41 @@ export default {
 				'2xl': 'var(--radius-2xl)'
 			},
 			keyframes: {
-				// Voice-specific animations
+				// Neural AI animations
+				'neural-pulse': {
+					'0%, 100%': { 
+						transform: 'scale(1)',
+						boxShadow: 'var(--shadow-glow-subtle)'
+					},
+					'50%': { 
+						transform: 'scale(1.02)',
+						boxShadow: 'var(--shadow-neural-pulse)'
+					}
+				},
 				'shimmer': {
 					'0%': { left: '-100%' },
 					'100%': { left: '100%' }
 				},
-				'waveform': {
-					'0%, 100%': { transform: 'scaleY(1)' },
-					'50%': { transform: 'scaleY(1.3)' }
+				'neural-wave': {
+					'0%, 100%': { transform: 'scaleY(1) scaleX(1)' },
+					'25%': { transform: 'scaleY(1.2) scaleX(0.95)' },
+					'50%': { transform: 'scaleY(1.4) scaleX(0.9)' },
+					'75%': { transform: 'scaleY(1.1) scaleX(0.98)' }
 				},
-				'listening-pulse': {
-					'0%, 100%': { transform: 'scale(1)', opacity: '1' },
-					'50%': { transform: 'scale(1.05)', opacity: '0.8' }
+				'ai-breathe': {
+					'0%, 100%': { 
+						opacity: '0.8',
+						transform: 'scale(1)'
+					},
+					'50%': { 
+						opacity: '1',
+						transform: 'scale(1.05)'
+					}
+				},
+				'status-sweep': {
+					'0%': { left: '-100%' },
+					'50%': { left: '100%' },
+					'100%': { left: '100%' }
 				},
 				'fade-in': {
 					'0%': { opacity: '0', transform: 'translateY(8px)' },
@@ -209,10 +244,12 @@ export default {
 				}
 			},
 			animation: {
-				// Voice animations
+				// Neural AI animations
+				'neural-pulse': 'neural-pulse 2s infinite ease-in-out',
 				'shimmer': 'shimmer var(--duration-slow) infinite',
-				'waveform': 'waveform var(--duration-base) infinite ease-in-out',
-				'listening-pulse': 'listening-pulse 2s infinite',
+				'neural-wave': 'neural-wave var(--duration-base) infinite ease-in-out',
+				'ai-breathe': 'ai-breathe 3s infinite ease-in-out',
+				'status-sweep': 'status-sweep 3s infinite',
 				'fade-in': 'fade-in var(--duration-base) var(--easing-out)',
 				'scale-in': 'scale-in var(--duration-fast) var(--easing-out)',
 				// Legacy animations

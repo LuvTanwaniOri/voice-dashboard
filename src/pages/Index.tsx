@@ -119,12 +119,19 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Neural Background Mesh */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-gradient-neural-mesh opacity-40" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-accent-blue/5 rounded-full blur-3xl animate-ai-breathe" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-success/5 rounded-full blur-3xl animate-ai-breathe" style={{ animationDelay: '1.5s' }} />
+      </div>
+      
       <div className="fixed left-0 top-0 h-full z-30">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
-      <main className="ml-64 min-h-screen overflow-auto">
-        <div className="p-6">
+      <main className="ml-64 min-h-screen overflow-auto relative z-10">
+        <div className="p-8">
           {renderContent()}
         </div>
       </main>

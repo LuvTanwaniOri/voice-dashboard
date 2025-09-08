@@ -6,30 +6,34 @@
 
 /* 
 ============================================================================
-OPERATOR SLATE DESIGN SYSTEM v1.0
-Modern voice-bot platform with "Operational Calm" aesthetic
+NEURAL VOICE DESIGN SYSTEM v2.0
+AI-native voice platform with "Futuristic Calm" aesthetic
+Inspired by neural networks, waveforms, and ambient intelligence
 ============================================================================
 */
 
 @layer base {
   :root {
-    /* === OPERATOR SLATE (Dark Default) === */
-    /* Core surfaces */
-    --bg: 204 23% 7%;              /* #0B1215 - Deep slate background */
-    --surface: 204 24% 9%;         /* #0F181D - Primary surface */
-    --surface-2: 204 23% 13%;      /* #132129 - Secondary surface */
-    --border: 204 22% 18%;         /* #23323B - Borders */
+    /* === NEURAL DARK (Primary Theme) === */
+    /* Core neural surfaces with depth */
+    --bg: 220 30% 4%;              /* #060B0F - Deep neural background */
+    --surface: 220 26% 7%;         /* #0A1117 - Primary surface with neural depth */
+    --surface-2: 220 24% 10%;      /* #0F1824 - Secondary surface */
+    --surface-glass: 220 20% 12%;  /* #141D2B - Glass panel surface */
+    --border: 220 20% 15%;         /* #1E2A3A - Neural borders */
+    --border-glass: 220 15% 20%;   /* #2A3441 - Glass borders */
     
-    /* Typography */
-    --text-primary: 204 38% 92%;   /* #E6F1F5 - Primary text */
-    --text-secondary: 204 24% 71%; /* #A5B8C2 - Secondary text */
-    --text-muted: 204 18% 55%;     /* #6B7F8A - Muted text */
-    --text-inverse: 204 23% 7%;    /* #0B1215 - Inverse text */
+    /* Neural typography with enhanced contrast */
+    --text-primary: 220 50% 96%;   /* #F2F6FB - High contrast primary text */
+    --text-secondary: 220 30% 78%; /* #B8C5D1 - Secondary text */
+    --text-muted: 220 20% 60%;     /* #8A97A3 - Muted text */
+    --text-inverse: 220 30% 4%;    /* #060B0F - Inverse text */
     
-    /* Electric Blue Accent (Lead Qualification) */
-    --accent-blue: 210 100% 64%;   /* #4DA3FF - Primary accent */
-    --accent-blue-hover: 210 100% 70%; /* #64B5FF - Hover state */
-    --accent-blue-subtle: 210 100% 95%; /* Very light blue */
+    /* AI Electric Blue (Neural accent) */
+    --accent-blue: 215 100% 68%;   /* #5BB3FF - AI primary accent */
+    --accent-blue-hover: 215 100% 74%; /* #73C2FF - Neural hover */
+    --accent-blue-subtle: 215 100% 95%; /* #E8F4FF - Very light accent */
+    --accent-blue-glow: 215 100% 68%; /* Neural glow effect */
     
     /* State colors */
     --success: 150 80% 42%;        /* #12B76A - Success green */
@@ -66,22 +70,38 @@ Modern voice-bot platform with "Operational Calm" aesthetic
     --input: var(--surface-2);
     --ring: var(--accent-blue);
     
-    /* === GRADIENTS === */
+    /* === NEURAL GRADIENTS === */
+    --gradient-neural: linear-gradient(135deg, 
+      hsl(var(--accent-blue) / 0.1), 
+      hsl(var(--accent-blue-hover) / 0.05),
+      hsl(var(--success) / 0.03)
+    );
     --gradient-primary: linear-gradient(135deg, hsl(var(--accent-blue)), hsl(var(--accent-blue-hover)));
     --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-subtle)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--surface)), hsl(var(--surface-2)));
+    --gradient-card: linear-gradient(145deg, 
+      hsl(var(--surface) / 0.95), 
+      hsl(var(--surface-2) / 0.98)
+    );
     --gradient-glass: linear-gradient(145deg, 
-      hsl(var(--surface) / 0.8), 
-      hsl(var(--surface-2) / 0.9)
+      hsl(var(--surface-glass) / 0.85), 
+      hsl(var(--surface-2) / 0.95)
+    );
+    --gradient-neural-mesh: radial-gradient(ellipse at top, 
+      hsl(var(--accent-blue) / 0.15) 0%, 
+      hsl(var(--accent-blue) / 0.05) 45%, 
+      transparent 80%
     );
     
-    /* === SHADOWS & ELEVATION === */
-    --shadow-sm: 0 1px 2px hsl(204 23% 4% / 0.12);
-    --shadow-md: 0 4px 14px hsl(204 23% 4% / 0.16);
-    --shadow-lg: 0 12px 30px hsl(204 23% 4% / 0.22);
-    --shadow-glow: 0 0 40px hsl(var(--accent-blue) / 0.3);
-    --shadow-card: 0 8px 32px hsl(204 23% 4% / 0.3);
-    --shadow-focus: 0 0 0 2px hsl(var(--accent-blue) / 0.3);
+    /* === NEURAL SHADOWS & ELEVATION === */
+    --shadow-sm: 0 1px 3px hsl(220 30% 2% / 0.15);
+    --shadow-md: 0 4px 16px hsl(220 30% 2% / 0.2);
+    --shadow-lg: 0 12px 32px hsl(220 30% 2% / 0.25);
+    --shadow-neural: 0 8px 32px hsl(220 30% 2% / 0.4);
+    --shadow-glow: 0 0 48px hsl(var(--accent-blue-glow) / 0.35);
+    --shadow-glow-subtle: 0 0 24px hsl(var(--accent-blue-glow) / 0.2);
+    --shadow-card: 0 8px 40px hsl(220 30% 2% / 0.35);
+    --shadow-focus: 0 0 0 2px hsl(var(--accent-blue) / 0.4);
+    --shadow-neural-pulse: 0 0 60px hsl(var(--accent-blue) / 0.25);
     
     /* === MOTION & TIMING === */
     --duration-fast: 90ms;
@@ -178,10 +198,11 @@ Modern voice-bot platform with "Operational Calm" aesthetic
   }
 }
 
-/* === VOICE-SPECIFIC ANIMATIONS === */
+/* === NEURAL AI ANIMATIONS === */
 @layer components {
-  .listening-pulse {
-    @apply animate-pulse;
+  .neural-pulse {
+    animation: neural-pulse 2s infinite ease-in-out;
+    box-shadow: var(--shadow-glow-subtle);
   }
   
   .thinking-shimmer {
@@ -198,42 +219,101 @@ Modern voice-bot platform with "Operational Calm" aesthetic
     height: 100%;
     background: linear-gradient(
       90deg,
-      transparent,
-      hsl(var(--accent-blue) / 0.3),
-      transparent
+      transparent 0%,
+      hsl(var(--accent-blue-glow) / 0.4) 50%,
+      transparent 100%
     );
     animation: shimmer var(--duration-slow) infinite;
   }
   
-  .speaking-waveform {
+  .neural-waveform {
     background: linear-gradient(
       90deg,
       hsl(var(--accent-blue)),
-      hsl(var(--accent-blue-hover))
+      hsl(var(--accent-blue-hover)),
+      hsl(var(--success))
     );
-    animation: waveform var(--duration-base) infinite ease-in-out;
+    animation: neural-wave var(--duration-base) infinite ease-in-out;
   }
   
-  .voice-state-chip {
-    @apply transition-all duration-300 ease-in-out;
+  .ai-breathing {
+    animation: ai-breathe 3s infinite ease-in-out;
   }
   
-  .metric-card-enhanced {
+  .metric-card-neural {
     background: var(--gradient-card);
     border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-card);
+    box-shadow: var(--shadow-neural);
     transition: var(--transition-smooth);
+    position: relative;
   }
   
-  .metric-card-enhanced:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+  .metric-card-neural::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-neural);
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity var(--duration-base) ease;
   }
   
-  .glass-panel {
+  .metric-card-neural:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .metric-card-neural:hover::before {
+    opacity: 1;
+  }
+  
+  .neural-glass {
     background: var(--gradient-glass);
-    backdrop-filter: blur(12px);
-    border: 1px solid hsl(var(--border) / 0.5);
+    backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--border-glass) / 0.6);
+    position: relative;
+  }
+  
+  .neural-glass::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-neural-mesh);
+    border-radius: inherit;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+  
+  .neural-status {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .neural-status::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 200%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--success) / 0.3),
+      transparent
+    );
+    animation: status-sweep 3s infinite;
+  }
+}
+
+@keyframes neural-pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: var(--shadow-glow-subtle);
+  }
+  50% { 
+    transform: scale(1.02);
+    box-shadow: var(--shadow-neural-pulse);
   }
 }
 
@@ -242,15 +322,34 @@ Modern voice-bot platform with "Operational Calm" aesthetic
   100% { left: 100%; }
 }
 
-@keyframes waveform {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(1.3); }
+@keyframes neural-wave {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  25% { transform: scaleY(1.2) scaleX(0.95); }
+  50% { transform: scaleY(1.4) scaleX(0.9); }
+  75% { transform: scaleY(1.1) scaleX(0.98); }
+}
+
+@keyframes ai-breathe {
+  0%, 100% { 
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes status-sweep {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
 }
 
 @keyframes fade-in {
   0% {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(12px);
   }
   100% {
     opacity: 1;
@@ -260,7 +359,7 @@ Modern voice-bot platform with "Operational Calm" aesthetic
 
 @keyframes scale-in {
   0% {
-    transform: scale(0.95);
+    transform: scale(0.92);
     opacity: 0;
   }
   100% {

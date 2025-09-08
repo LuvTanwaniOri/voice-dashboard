@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { ContextualHelp, MetricExplainer } from "@/components/ui/contextual-help";
 import { 
   Phone, 
   Clock, 
@@ -75,22 +76,44 @@ export function DashboardOverview() {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-4xl font-bold text-text-primary tracking-tight">Dashboard</h1>
-        <p className="text-text-secondary text-lg">Monitor your voice bot performance and campaigns</p>
+      {/* Header with contextual help */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <h1 className="text-4xl font-bold text-text-primary tracking-tight">Dashboard</h1>
+          <MetricExplainer 
+            metric="Dashboard Overview"
+            definition="Real-time performance metrics for your AI voice platform. These metrics update every 30 seconds with the latest data from your active campaigns."
+            why="Monitor system health, campaign performance, and quality metrics to optimize your voice bot operations."
+          />
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-success rounded-full neural-pulse" />
+            <span className="text-text-secondary text-sm">Live data • Updated 30s ago</span>
+          </div>
+          <div className="text-text-muted text-sm">•</div>
+          <span className="text-text-secondary text-sm">Neural processing active</span>
+        </div>
       </div>
 
-      {/* Hero Metrics - Top 3 KPIs */}
+      {/* Hero Metrics - Top 3 KPIs with enhanced neural styling */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <MetricCard
           title="QO/100 CM"
           value="12.1"
           change={8.7}
           trend="up"
-          icon={<Target className="w-6 h-6" />}
+          icon={<div className="flex items-center gap-2">
+            <Target className="w-6 h-6" />
+            <MetricExplainer 
+              metric="QO/100 CM"
+              definition="Qualified Outcomes per 100 Contact Minutes. Measures how efficiently your voice bot qualifies leads."
+              target="Industry benchmark: 8-15 QO/100 CM"
+              why="Higher QO rates indicate better conversation quality and lead qualification accuracy."
+            />
+          </div>}
           variant="glass"
-          className="bg-gradient-glass backdrop-blur-xl border-border/30 shadow-lg hover:shadow-glow transition-all duration-300"
+          className="neural-glass backdrop-blur-xl border-border-glass/40 shadow-neural hover:shadow-glow transition-all duration-500"
           trendData={[
             { value: 8.2 }, { value: 9.1 }, { value: 10.8 }, 
             { value: 11.3 }, { value: 11.8 }, { value: 12.1 }, { value: 12.1 }
@@ -101,9 +124,17 @@ export function DashboardOverview() {
           value="1.34s"
           change={-12.3}
           trend="up"
-          icon={<Clock className="w-6 h-6" />}
+          icon={<div className="flex items-center gap-2">
+            <Clock className="w-6 h-6" />
+            <MetricExplainer 
+              metric="P95 Turn Latency"
+              definition="95th percentile response time for voice bot turns. Lower is better for natural conversations."
+              target="Target: <2.0s for excellent user experience"
+              why="Fast response times create more natural, engaging conversations and reduce caller frustration."
+            />
+          </div>}
           variant="glass"
-          className="bg-gradient-glass backdrop-blur-xl border-border/30 shadow-lg hover:shadow-glow transition-all duration-300"
+          className="neural-glass backdrop-blur-xl border-border-glass/40 shadow-neural hover:shadow-glow transition-all duration-500"
           trendData={[
             { value: 1.45 }, { value: 1.38 }, { value: 1.42 }, 
             { value: 1.35 }, { value: 1.34 }, { value: 1.34 }, { value: 1.34 }
@@ -114,9 +145,17 @@ export function DashboardOverview() {
           value="2,847"
           change={12.5}
           trend="up"
-          icon={<Phone className="w-6 h-6" />}
+          icon={<div className="flex items-center gap-2">
+            <Phone className="w-6 h-6" />
+            <MetricExplainer 
+              metric="Connected Minutes"
+              definition="Total minutes of successful voice bot conversations. Includes all connected calls with meaningful interaction."
+              target="Growth target: +15% month-over-month"
+              why="More connected minutes indicate successful call connections and engagement, directly impacting revenue potential."
+            />
+          </div>}
           variant="glass"
-          className="bg-gradient-glass backdrop-blur-xl border-border/30 shadow-lg hover:shadow-glow transition-all duration-300"
+          className="neural-glass backdrop-blur-xl border-border-glass/40 shadow-neural hover:shadow-glow transition-all duration-500"
           trendData={[
             { value: 2340 }, { value: 2567 }, { value: 2789 }, 
             { value: 2654 }, { value: 2847 }, { value: 2847 }, { value: 2847 }
@@ -124,16 +163,21 @@ export function DashboardOverview() {
         />
       </div>
 
-      {/* Performance Insights */}
+      {/* Performance Insights with contextual guidance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Live Campaigns */}
-        <Card className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-300">
+        <Card className="neural-glass border-border-glass/50 shadow-neural hover:shadow-glow transition-all duration-500">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-semibold text-text-primary flex items-center gap-3">
-              <div className="p-2 bg-accent-blue/10 rounded-lg">
+              <div className="p-2 bg-accent-blue/10 rounded-lg neural-pulse">
                 <Activity className="w-5 h-5 text-accent-blue" />
               </div>
               <span>Live Campaigns</span>
+              <MetricExplainer 
+                metric="Campaign Status"
+                definition="Real-time status of active voice campaigns. Green means active, yellow means preparing, blue means scheduled."
+                why="Monitor campaign health to ensure optimal performance and quick issue resolution."
+              />
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
