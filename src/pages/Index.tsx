@@ -119,24 +119,15 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background relative">
-      {/* Neural Background Glow */}
-      <div className="fixed inset-0 bg-gradient-glow pointer-events-none opacity-30" />
-      
-      {/* Sidebar */}
+    <div className="min-h-screen bg-background">
       <div className="fixed left-0 top-0 h-full z-30">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
-      
-      {/* Main Content */}
-      <main className="ml-64 min-h-screen overflow-auto relative">
-        <div className="p-8 max-w-7xl mx-auto">
-          <div className="animate-fade-in-up">
-            {renderContent()}
-          </div>
+      <main className="ml-64 min-h-screen overflow-auto">
+        <div className="p-6">
+          {renderContent()}
         </div>
       </main>
-      
       <OnboardingDrawer />
     </div>
   );

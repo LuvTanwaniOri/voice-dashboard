@@ -11,11 +11,10 @@ interface MetricCardProps {
   trend?: 'up' | 'down' | 'neutral';
   className?: string;
   variant?: 'default' | 'glass' | 'accent';
-  description?: string;
   trendData?: Array<{ value: number }>;
 }
 
-export function MetricCard({
+export function MetricCard({ 
   title, 
   value, 
   change, 
@@ -23,7 +22,6 @@ export function MetricCard({
   trend = 'neutral',
   variant = 'default',
   className,
-  description,
   trendData
 }: MetricCardProps) {
   const getTrendColor = () => {
@@ -33,7 +31,7 @@ export function MetricCard({
       case 'down':
         return 'text-danger';
       default:
-        return 'text-text-muted';
+        return 'text-muted-foreground';
     }
   };
 
@@ -49,33 +47,28 @@ export function MetricCard({
       case 'glass':
         return 'glass-panel border-border/50';
       case 'accent':
-        return 'bg-gradient-primary border-accent-primary/20 shadow-glow/20';
+        return 'bg-gradient-primary border-accent-blue/20 shadow-glow/20';
       default:
-        return 'card-neural';
+        return 'metric-card-enhanced';
     }
   };
 
   return (
     <Card className={cn(
-      "interactive-glow transition-all duration-base",
+      "transition-all duration-base hover:scale-[1.02] hover:shadow-lg",
       getVariantClasses(),
       className
     )}>
       <CardHeader className="pb-3">
-        <div className="narrative-section">
-          <CardTitle className="text-sm font-medium text-text-secondary flex items-center justify-between">
-            <div>
-              <span>{title}</span>
-              {description && <p className="narrative-context mt-1">{description}</p>}
-            </div>
-            <div className={cn(
-              "p-2 rounded-lg transition-colors duration-base",
-              variant === 'accent' ? 'bg-white/10' : 'bg-accent-primary/10 text-accent-primary'
-            )}>
-              {icon}
-            </div>
-          </CardTitle>
-        </div>
+        <CardTitle className="text-sm font-medium text-text-secondary flex items-center justify-between">
+          <span>{title}</span>
+          <div className={cn(
+            "p-2 rounded-lg transition-colors duration-base",
+            variant === 'accent' ? 'bg-white/10' : 'bg-accent-blue/10 text-accent-blue'
+          )}>
+            {icon}
+          </div>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -96,10 +89,10 @@ export function MetricCard({
                       <Line 
                         type="monotone" 
                         dataKey="value" 
-                        stroke={trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--danger))' : 'hsl(var(--accent-primary))'} 
+                        stroke={trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))'} 
                         strokeWidth={2}
-                        dot={false}
-                        activeDot={{ r: 3, fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--danger))' : 'hsl(var(--accent-primary))' }}
+                        dot={{ fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))', strokeWidth: 0, r: 1.5 }}
+                        activeDot={{ r: 3, fill: trend === 'up' ? 'hsl(var(--success))' : trend === 'down' ? 'hsl(var(--destructive))' : 'hsl(var(--accent-blue))' }}
                       />
                     </LineChart>
                   </ResponsiveContainer>
@@ -127,14 +120,14 @@ export function MetricCard({
               {trendData && trendData.length > 0 && (
                 <div className="flex items-center gap-1">
                   <div className={cn(
-                    "w-2 h-2 rounded-full animate-neural-pulse",
-                    trend === 'up' ? 'bg-success' : trend === 'down' ? 'bg-danger' : 'bg-accent-primary'
+                    "w-2 h-2 rounded-full",
+                    trend === 'up' ? 'bg-success' : trend === 'down' ? 'bg-destructive' : 'bg-accent-blue'
                   )}></div>
                   <span className={cn(
                     "text-xs font-medium",
-                    trend === 'up' ? 'text-success' : trend === 'down' ? 'text-danger' : 'text-accent-primary'
+                    trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-accent-blue'
                   )}>
-                    {trend === 'up' ? 'Improving' : trend === 'down' ? 'Declining' : 'Stable'}
+                    {trend === 'up' ? 'Trending up' : trend === 'down' ? 'Trending down' : 'Stable'}
                   </span>
                 </div>
               )}
