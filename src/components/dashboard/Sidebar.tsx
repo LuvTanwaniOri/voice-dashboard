@@ -26,6 +26,7 @@ const navigation = [
   { id: 'analytics', name: 'Analytics', icon: Activity },
   { id: 'knowledge', name: 'Knowledge Base', icon: Database },
   { id: 'operations', name: 'Operations', icon: Zap },
+  { id: 'voice', name: 'Voice & Lexicon', icon: Volume2 },
   { id: 'auditing', name: 'Auditing History', icon: Activity },
   { id: 'workspace', name: 'Settings', icon: Users },
 ];
