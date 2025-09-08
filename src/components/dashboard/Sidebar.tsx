@@ -65,7 +65,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               className={cn(
                 "w-full flex items-center space-x-3 px-4 py-3.5 rounded-xl text-left font-medium transition-all duration-300 group relative overflow-hidden",
                 isActive
-                  ? "bg-gradient-primary text-white shadow-glow scale-[1.02] neural-pulse"
+                  ? "bg-gradient-primary text-white shadow-glow scale-[1.02]"
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-glass/50 hover:scale-[1.01] hover:shadow-glow-subtle"
               )}
             >
@@ -76,8 +76,8 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               <span className="font-medium tracking-wide relative z-10">{item.name}</span>
               {isActive && (
                 <div className="ml-auto flex items-center space-x-2 relative z-10">
-                  <div className="w-1.5 h-1.5 bg-white/60 rounded-full animate-pulse" />
-                  <div className="w-1 h-1 bg-white/40 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }} />
+                  <div className="w-1.5 h-1.5 bg-white/80 rounded-full" />
+                  <div className="w-1 h-1 bg-white/60 rounded-full" />
                 </div>
               )}
               {!isActive && (
