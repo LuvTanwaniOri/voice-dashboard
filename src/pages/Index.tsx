@@ -119,17 +119,12 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-surface relative overflow-hidden">
-      {/* AI Neural Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-neural-mesh opacity-30"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,hsl(var(--accent-blue))_0%,transparent_50%)] opacity-10"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,hsl(var(--accent-neural))_0%,transparent_50%)] opacity-5"></div>
-      
+    <div className="min-h-screen bg-background">
       <div className="fixed left-0 top-0 h-full z-30">
         <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
-      <main className="ml-72 min-h-screen overflow-auto relative z-10">
-        <div className="p-8">
+      <main className="ml-64 min-h-screen overflow-auto">
+        <div className="p-6">
           {renderContent()}
         </div>
       </main>

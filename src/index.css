@@ -13,39 +13,32 @@ Modern voice-bot platform with "Operational Calm" aesthetic
 
 @layer base {
   :root {
-    /* === NEURAL NEXUS (AI-First Dark Theme) === */
-    /* Core AI-themed surfaces */
-    --bg: 220 25% 6%;              /* #0A0E16 - Deep neural background */
-    --surface: 220 24% 8%;         /* #0D1321 - Primary surface */
-    --surface-2: 220 22% 11%;      /* #15202E - Secondary surface */
-    --surface-3: 220 20% 14%;      /* #1C2B3B - Tertiary surface */
-    --border: 220 18% 20%;         /* #283544 - Smart borders */
+    /* === OPERATOR SLATE (Dark Default) === */
+    /* Core surfaces */
+    --bg: 204 23% 7%;              /* #0B1215 - Deep slate background */
+    --surface: 204 24% 9%;         /* #0F181D - Primary surface */
+    --surface-2: 204 23% 13%;      /* #132129 - Secondary surface */
+    --border: 204 22% 18%;         /* #23323B - Borders */
     
-    /* Neural network typography */
-    --text-primary: 220 40% 94%;   /* #EAEFF7 - Primary text */
-    --text-secondary: 220 25% 72%; /* #A8B8CC - Secondary text */
-    --text-muted: 220 18% 56%;     /* #708090 - Muted text */
-    --text-inverse: 220 25% 6%;    /* #0A0E16 - Inverse text */
-    --text-accent: 220 85% 68%;    /* #5A8CFF - Accent text */
+    /* Typography */
+    --text-primary: 204 38% 92%;   /* #E6F1F5 - Primary text */
+    --text-secondary: 204 24% 71%; /* #A5B8C2 - Secondary text */
+    --text-muted: 204 18% 55%;     /* #6B7F8A - Muted text */
+    --text-inverse: 204 23% 7%;    /* #0B1215 - Inverse text */
     
-    /* AI Electric Spectrum */
-    --accent-blue: 220 85% 68%;    /* #5A8CFF - Primary AI blue */
-    --accent-blue-hover: 220 85% 74%; /* #73A1FF - Hover state */
-    --accent-blue-subtle: 220 85% 96%; /* Very light AI blue */
-    --accent-neural: 260 85% 70%;   /* #8A5AFF - Neural purple */
-    --accent-quantum: 180 85% 65%;  /* #5AFFCC - Quantum teal */
+    /* Electric Blue Accent (Lead Qualification) */
+    --accent-blue: 210 100% 64%;   /* #4DA3FF - Primary accent */
+    --accent-blue-hover: 210 100% 70%; /* #64B5FF - Hover state */
+    --accent-blue-subtle: 210 100% 95%; /* Very light blue */
     
-    /* AI State colors with neural glow */
-    --success: 150 75% 48%;        /* #1DB670 - AI success green */
-    --success-subtle: 150 65% 62%; /* #42D68A - Subtle success */
-    --success-glow: 150 85% 55%;   /* Success with glow */
-    --warning: 38 90% 62%;         /* #F7A316 - Neural warning */
-    --warning-subtle: 42 95% 68%;  /* #FFB84D - Subtle warning */
-    --warning-glow: 38 95% 65%;    /* Warning with glow */
-    --danger: 6 85% 62%;           /* #F14A3D - Smart danger */
-    --danger-subtle: 8 90% 72%;    /* #FF7369 - Subtle danger */
-    --danger-glow: 6 90% 65%;      /* Danger with glow */
-    --info: 220 85% 68%;           /* #5A8CFF - AI info blue */
+    /* State colors */
+    --success: 150 80% 42%;        /* #12B76A - Success green */
+    --success-subtle: 150 60% 55%; /* #3DD6A2 - Subtle success */
+    --warning: 35 95% 58%;         /* #F79009 - Warning amber */
+    --warning-subtle: 40 100% 63%; /* #FFC043 - Subtle warning */
+    --danger: 8 89% 58%;           /* #F04438 - Danger red */
+    --danger-subtle: 5 100% 71%;   /* #FF6B6B - Subtle danger */
+    --info: 210 100% 64%;          /* #2E90FA - Info blue */
     
     /* Audio quality indicators */
     --audio-good: 150 80% 42%;     /* #12B76A */
@@ -73,34 +66,22 @@ Modern voice-bot platform with "Operational Calm" aesthetic
     --input: var(--surface-2);
     --ring: var(--accent-blue);
     
-    /* === AI NEURAL GRADIENTS === */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--accent-blue)), hsl(var(--accent-neural)));
-    --gradient-neural: linear-gradient(135deg, hsl(var(--accent-neural)), hsl(var(--accent-quantum)));
-    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-glow)));
-    --gradient-warning: linear-gradient(135deg, hsl(var(--warning)), hsl(var(--warning-glow)));
+    /* === GRADIENTS === */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--accent-blue)), hsl(var(--accent-blue-hover)));
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(var(--success-subtle)));
     --gradient-card: linear-gradient(145deg, hsl(var(--surface)), hsl(var(--surface-2)));
     --gradient-glass: linear-gradient(145deg, 
-      hsl(var(--surface) / 0.85), 
-      hsl(var(--surface-2) / 0.95)
-    );
-    --gradient-neural-mesh: radial-gradient(ellipse at top, hsl(var(--accent-blue) / 0.1), transparent 50%),
-                           radial-gradient(ellipse at bottom, hsl(var(--accent-neural) / 0.05), transparent 50%);
-    --gradient-ai-glow: linear-gradient(90deg, 
-      hsl(var(--accent-blue) / 0.2), 
-      hsl(var(--accent-neural) / 0.2), 
-      hsl(var(--accent-quantum) / 0.2)
+      hsl(var(--surface) / 0.8), 
+      hsl(var(--surface-2) / 0.9)
     );
     
-    /* === AI NEURAL SHADOWS & ELEVATION === */
-    --shadow-sm: 0 1px 3px hsl(220 25% 4% / 0.15);
-    --shadow-md: 0 4px 16px hsl(220 25% 4% / 0.2);
-    --shadow-lg: 0 12px 40px hsl(220 25% 4% / 0.28);
-    --shadow-glow: 0 0 45px hsl(var(--accent-blue) / 0.4);
-    --shadow-neural: 0 0 60px hsl(var(--accent-neural) / 0.3);
-    --shadow-quantum: 0 0 35px hsl(var(--accent-quantum) / 0.25);
-    --shadow-card: 0 8px 36px hsl(220 25% 4% / 0.35);
-    --shadow-focus: 0 0 0 2px hsl(var(--accent-blue) / 0.4);
-    --shadow-ai-elegant: 0 20px 60px hsl(220 25% 4% / 0.4), 0 0 80px hsl(var(--accent-blue) / 0.1);
+    /* === SHADOWS & ELEVATION === */
+    --shadow-sm: 0 1px 2px hsl(204 23% 4% / 0.12);
+    --shadow-md: 0 4px 14px hsl(204 23% 4% / 0.16);
+    --shadow-lg: 0 12px 30px hsl(204 23% 4% / 0.22);
+    --shadow-glow: 0 0 40px hsl(var(--accent-blue) / 0.3);
+    --shadow-card: 0 8px 32px hsl(204 23% 4% / 0.3);
+    --shadow-focus: 0 0 0 2px hsl(var(--accent-blue) / 0.3);
     
     /* === MOTION & TIMING === */
     --duration-fast: 90ms;
@@ -197,18 +178,18 @@ Modern voice-bot platform with "Operational Calm" aesthetic
   }
 }
 
-/* === AI NEURAL ANIMATIONS & COMPONENTS === */
+/* === VOICE-SPECIFIC ANIMATIONS === */
 @layer components {
   .listening-pulse {
     @apply animate-pulse;
   }
   
-  .ai-neural-shimmer {
+  .thinking-shimmer {
     position: relative;
     overflow: hidden;
   }
   
-  .ai-neural-shimmer::after {
+  .thinking-shimmer::after {
     content: '';
     position: absolute;
     top: 0;
@@ -218,114 +199,47 @@ Modern voice-bot platform with "Operational Calm" aesthetic
     background: linear-gradient(
       90deg,
       transparent,
-      hsl(var(--accent-blue) / 0.4),
-      hsl(var(--accent-neural) / 0.3),
-      hsl(var(--accent-quantum) / 0.2),
+      hsl(var(--accent-blue) / 0.3),
       transparent
     );
-    animation: neural-shimmer var(--duration-deliberate) infinite;
+    animation: shimmer var(--duration-slow) infinite;
   }
   
-  .ai-waveform {
-    background: var(--gradient-primary);
+  .speaking-waveform {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--accent-blue)),
+      hsl(var(--accent-blue-hover))
+    );
     animation: waveform var(--duration-base) infinite ease-in-out;
   }
   
-  .neural-glow {
-    box-shadow: var(--shadow-glow);
-    transition: var(--transition-smooth);
+  .voice-state-chip {
+    @apply transition-all duration-300 ease-in-out;
   }
   
-  .neural-glow:hover {
-    box-shadow: var(--shadow-neural);
-    transform: translateY(-1px);
-  }
-  
-  .ai-card-enhanced {
+  .metric-card-enhanced {
     background: var(--gradient-card);
     border: 1px solid hsl(var(--border));
     box-shadow: var(--shadow-card);
     transition: var(--transition-smooth);
-    position: relative;
   }
   
-  .ai-card-enhanced::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--gradient-neural-mesh);
-    border-radius: inherit;
-    opacity: 0;
-    transition: var(--transition-smooth);
+  .metric-card-enhanced:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
   }
   
-  .ai-card-enhanced:hover::before {
-    opacity: 1;
-  }
-  
-  .ai-card-enhanced:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-ai-elegant);
-    border-color: hsl(var(--accent-blue) / 0.3);
-  }
-  
-  .glass-neural {
+  .glass-panel {
     background: var(--gradient-glass);
-    backdrop-filter: blur(16px);
-    border: 1px solid hsl(var(--border) / 0.6);
-    position: relative;
-  }
-  
-  .glass-neural::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--gradient-ai-glow);
-    border-radius: inherit;
-    opacity: 0.1;
-    pointer-events: none;
-  }
-  
-  /* Contextual help tooltips */
-  .ai-tooltip {
-    @apply bg-surface-2 border border-border/50 rounded-lg px-3 py-2 text-sm text-text-secondary shadow-lg;
-    backdrop-filter: blur(8px);
-  }
-  
-  /* Smart indicators */
-  .status-indicator {
-    @apply inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium;
-    background: hsl(var(--surface-2) / 0.8);
-    border: 1px solid hsl(var(--border) / 0.3);
-  }
-  
-  .status-indicator.active {
-    background: hsl(var(--success) / 0.15);
-    border-color: hsl(var(--success) / 0.3);
-    color: hsl(var(--success));
-  }
-  
-  .status-indicator.processing {
-    background: hsl(var(--accent-blue) / 0.15);
-    border-color: hsl(var(--accent-blue) / 0.3);
-    color: hsl(var(--accent-blue));
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
   }
 }
 
-@keyframes neural-shimmer {
-  0% { left: -100%; opacity: 0; }
-  50% { opacity: 1; }
-  100% { left: 100%; opacity: 0; }
-}
-
-@keyframes ai-pulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.02); }
-}
-
-@keyframes neural-float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-4px); }
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 @keyframes waveform {
