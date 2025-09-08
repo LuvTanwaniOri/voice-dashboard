@@ -4,6 +4,7 @@ import { OnboardingDrawer } from "@/components/dashboard/OnboardingDrawer";
 import { DashboardOverview } from "@/components/dashboard/DashboardOverview";
 import { CampaignManager } from "@/components/dashboard/CampaignManager";
 import { AgentBuilder } from "@/components/dashboard/AgentBuilder";
+import { AgentCreationWizard } from "@/components/dashboard/AgentCreationWizard";
 import { AgentList } from "@/components/dashboard/AgentList";
 import { AgentOverview } from "@/components/dashboard/AgentOverview";
 import { Analytics } from "@/components/dashboard/Analytics";
@@ -19,6 +20,7 @@ const Index = () => {
   const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const [isCreatingAgent, setIsCreatingAgent] = useState(false);
   const [isEditingAgent, setIsEditingAgent] = useState(false);
+  const [isUsingWizard, setIsUsingWizard] = useState(false);
 
   const handleAgentSelect = (agentId: string) => {
     setSelectedAgentId(agentId);
@@ -30,6 +32,17 @@ const Index = () => {
     setSelectedAgentId(null);
     setIsCreatingAgent(true);
     setIsEditingAgent(false);
+    setIsUsingWizard(true);
+  };
+
+  const handleWizardComplete = (agentData: any) => {
+    // Here you would typically save the agent data to your backend
+    console.log('Agent created:', agentData);
+    
+    // Reset states and show the new agent
+    setIsCreatingAgent(false);
+    setIsUsingWizard(false);
+    setSelectedAgentId(agentData.id);
   };
 
   const handleEditAgent = () => {
@@ -40,6 +53,7 @@ const Index = () => {
     setSelectedAgentId(null);
     setIsCreatingAgent(false);
     setIsEditingAgent(false);
+    setIsUsingWizard(false);
   };
 
   const handleBackToAgentOverview = () => {
@@ -55,6 +69,14 @@ const Index = () => {
       case 'campaigns':
         return <CampaignManager />;
       case 'agents':
+        if (isCreatingAgent && isUsingWizard) {
+          return (
+            <AgentCreationWizard 
+              onComplete={handleWizardComplete}
+              onBack={handleBackToAgentList}
+            />
+          );
+        }
         if (isCreatingAgent || isEditingAgent) {
           return (
             <AgentBuilder 
