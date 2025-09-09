@@ -213,7 +213,7 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
       </div>
 
       <Tabs defaultValue="persona" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="persona" className="flex items-center space-x-2">
             <Bot className="w-4 h-4" />
             <span>Persona</span>
@@ -221,6 +221,10 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
           <TabsTrigger value="brain" className="flex items-center space-x-2">
             <Brain className="w-4 h-4" />
             <span>Brain</span>
+          </TabsTrigger>
+          <TabsTrigger value="audio" className="flex items-center space-x-2">
+            <Volume2 className="w-4 h-4" />
+            <span>Audio</span>
           </TabsTrigger>
           <TabsTrigger value="language" className="flex items-center space-x-2">
             <Globe className="w-4 h-4" />
@@ -679,6 +683,226 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
               ))}
             </div>
           </TooltipProvider>
+        </TabsContent>
+
+        <TabsContent value="audio" className="space-y-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground">Voice Selection</h2>
+              <p className="text-muted-foreground mt-1">Choose the perfect voice for your AI agent</p>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <span>309/10k slots used</span>
+            </div>
+          </div>
+
+          {/* Voice Filters */}
+          <Card className="bg-gradient-card border-border/50 shadow-card">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Volume2 className="w-5 h-5 text-primary" />
+                <span>Voice Filters</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Languages and Accent Row */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Languages</Label>
+                  <Select defaultValue="all">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose languages" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Languages</SelectItem>
+                      <SelectItem value="english">English</SelectItem>
+                      <SelectItem value="hindi">Hindi</SelectItem>
+                      <SelectItem value="tamil">Tamil</SelectItem>
+                      <SelectItem value="german">German</SelectItem>
+                      <SelectItem value="malay">Malay</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Accent</Label>
+                  <Select defaultValue="all">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose accent" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Accents</SelectItem>
+                      <SelectItem value="american">American</SelectItem>
+                      <SelectItem value="british">British</SelectItem>
+                      <SelectItem value="indian">Indian</SelectItem>
+                      <SelectItem value="standard">Standard</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Category Filters */}
+              <div className="space-y-3">
+                <Label>Category</Label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: "conversational", label: "Conversational", active: true },
+                    { id: "narrative", label: "Narrative & Story", active: false },
+                    { id: "characters", label: "Characters & Animation", active: false },
+                    { id: "social", label: "Social Media", active: false },
+                    { id: "entertainment", label: "Entertainment & TV", active: false },
+                    { id: "advertisement", label: "Advertisement", active: false },
+                    { id: "educational", label: "Informative & Educational", active: false }
+                  ].map((category) => (
+                    <Button
+                      key={category.id}
+                      variant={category.active ? "default" : "outline"}
+                      size="sm"
+                      className={`text-xs ${category.active ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                    >
+                      {category.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quality, Gender, Age Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-3">
+                  <Label>Quality</Label>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="text-xs">Any</Button>
+                    <Button variant="default" size="sm" className="text-xs">High-Quality</Button>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Label>Gender</Label>
+                  <div className="flex gap-2">
+                    <Button variant="default" size="sm" className="text-xs">Any</Button>
+                    <Button variant="outline" size="sm" className="text-xs">♂ Male</Button>
+                    <Button variant="outline" size="sm" className="text-xs">♀ Female</Button>
+                    <Button variant="outline" size="sm" className="text-xs">Neutral</Button>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Label>Age</Label>
+                  <div className="flex gap-2">
+                    <Button variant="default" size="sm" className="text-xs">Any</Button>
+                    <Button variant="outline" size="sm" className="text-xs">Young</Button>
+                    <Button variant="outline" size="sm" className="text-xs">Middle Aged</Button>
+                    <Button variant="outline" size="sm" className="text-xs">Old</Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Voice Library Results */}
+          <Card className="bg-gradient-card border-border/50 shadow-card">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Results</span>
+                <div className="flex items-center space-x-2">
+                  <Button variant="outline" size="sm" className="text-xs">
+                    <span>Trending</span>
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-xs">Reset filters</Button>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  {
+                    id: "anika",
+                    name: "Anika - Customer Care Agent",
+                    description: "Anika's voice is specially recorded with customer...",
+                    language: "English",
+                    accent: "Indian",
+                    category: "Conversational",
+                    usage: "13.9K",
+                    avatar: "🇮🇳"
+                  },
+                  {
+                    id: "shyam",
+                    name: "Shyam - Honest Words, Friendly Vibe",
+                    description: "A conversational voice that feels real, rooted, and...",
+                    language: "Hindi",
+                    accent: "Standard",
+                    category: "Conversational",
+                    usage: "23.9K",
+                    avatar: "🇮🇳"
+                  },
+                  {
+                    id: "russell",
+                    name: "Russell - Young and Excited",
+                    description: "A Young american make voice recorded while and...",
+                    language: "English",
+                    accent: "American",
+                    category: "Conversational",
+                    usage: "2.2K",
+                    avatar: "🇺🇸"
+                  },
+                  {
+                    id: "zara",
+                    name: "Zara - Sweet & Friendly Companion",
+                    description: "A light, cheerful voice that feels like a genuine frie...",
+                    language: "Hindi",
+                    accent: "Standard",
+                    category: "Conversational",
+                    usage: "5.7K",
+                    avatar: "🇮🇳"
+                  },
+                  {
+                    id: "belle",
+                    name: "Belle B - Warm & Empathetic Customer Voice",
+                    description: "A friendly and approachable voice designed to...",
+                    language: "English",
+                    accent: "American",
+                    category: "Conversational",
+                    usage: "1.9K",
+                    avatar: "🇺🇸"
+                  }
+                ].map((voice) => (
+                  <div
+                    key={voice.id}
+                    className="flex items-center justify-between p-4 border border-border/20 rounded-lg hover:bg-muted/30 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center text-lg">
+                        {voice.avatar}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <h4 className="font-medium text-foreground">{voice.name}</h4>
+                          <Badge variant="secondary" className="text-xs">
+                            {voice.language} {voice.accent && `+${voice.accent.split(' ')[0]}`}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{voice.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <Badge variant="outline" className="text-xs">
+                        {voice.category}
+                      </Badge>
+                      <div className="text-right">
+                        <div className="text-sm font-medium">2y</div>
+                        <div className="text-xs text-muted-foreground">{voice.usage}</div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="ghost" size="sm">
+                          <Play className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          Select
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="language" className="space-y-6">
