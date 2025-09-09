@@ -485,7 +485,11 @@ export function AuditingHistory() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setDebugCallId(audit.sessionId)}
+                        onClick={() => {
+                          console.log("Debug button clicked for sessionId:", audit.sessionId);
+                          setDebugCallId(audit.sessionId);
+                          console.log("debugCallId state set to:", audit.sessionId);
+                        }}
                         className="flex items-center space-x-1"
                       >
                         <Activity className="w-4 h-4" />

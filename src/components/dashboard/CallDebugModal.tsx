@@ -186,6 +186,7 @@ const mockDebugLogs: DebugLog[] = [
 ];
 
 export function CallDebugModal({ open, onOpenChange, callId }: CallDebugModalProps) {
+  console.log("CallDebugModal rendered with:", { open, callId });
   const [selectedLogType, setSelectedLogType] = useState<LogType | 'ALL'>('ALL');
   const [selectedLevel, setSelectedLevel] = useState<LogLevel | 'ALL'>('ALL');
 
