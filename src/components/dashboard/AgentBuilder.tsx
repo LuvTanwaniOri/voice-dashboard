@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { 
   Bot, 
   Settings, 
@@ -30,7 +31,8 @@ import {
   Mic,
   MicOff,
   HelpCircle,
-  Sparkles
+  Sparkles,
+  Eye
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -48,15 +50,16 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
   const [selectedModel, setSelectedModel] = useState("gpt-4-turbo");
   const [selectedTemplate, setSelectedTemplate] = useState("lead-collection");
   const [isRecording, setIsRecording] = useState<string | null>(null);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   
   // Brain section text areas
   const [brainSections, setBrainSections] = useState({
-    identity: "You are Sarah, a professional and friendly lead qualification agent representing our SaaS company. You have 5+ years of experience in B2B sales and understand the importance of building rapport while efficiently qualifying prospects.",
-    conversation: "Start each conversation with a warm greeting and introduce yourself. Ask for the prospect's name and use it throughout the conversation. Listen actively and ask follow-up questions to understand their business needs deeply.",
-    rebuttal: "When handling objections, acknowledge the prospect's concerns first. Use the 'Feel, Felt, Found' method: 'I understand how you feel, many of our clients felt the same way, but they found that...' Always provide specific examples and social proof.",
-    closing: "Summarize the key pain points discussed and how our solution addresses them. Ask for a clear next step: either a demo, a meeting with decision makers, or a trial. Create urgency by mentioning limited-time offers or competitor risks.",
-    compliance: "Always identify yourself and your company at the beginning of the call. Respect opt-out requests immediately. Follow TCPA guidelines for US prospects and TRAI guidelines for Indian prospects. Record consent when required.",
-    guardrail: "Never make false claims about pricing or features. Don't commit to delivery timelines without checking with the team. If asked about technical details you're unsure about, admit you'll need to follow up with an expert."
+    identity: "",
+    conversation: "",
+    rebuttal: "",
+    closing: "",
+    compliance: "",
+    guardrail: ""
   });
 
   const voices = [
@@ -105,17 +108,41 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
     { 
       id: "lead-collection", 
       name: "Lead Collection Sample",
-      description: "Perfect for B2B lead qualification and nurturing"
+      description: "Perfect for B2B lead qualification and nurturing",
+      data: {
+        identity: "You are Sarah, a professional and friendly lead qualification agent representing our SaaS company. You have 5+ years of experience in B2B sales and understand the importance of building rapport while efficiently qualifying prospects.",
+        conversation: "Start each conversation with a warm greeting and introduce yourself. Ask for the prospect's name and use it throughout the conversation. Listen actively and ask follow-up questions to understand their business needs deeply.",
+        rebuttal: "When handling objections, acknowledge the prospect's concerns first. Use the 'Feel, Felt, Found' method: 'I understand how you feel, many of our clients felt the same way, but they found that...' Always provide specific examples and social proof.",
+        closing: "Summarize the key pain points discussed and how our solution addresses them. Ask for a clear next step: either a demo, a meeting with decision makers, or a trial. Create urgency by mentioning limited-time offers or competitor risks.",
+        compliance: "Always identify yourself and your company at the beginning of the call. Respect opt-out requests immediately. Follow TCPA guidelines for US prospects and TRAI guidelines for Indian prospects. Record consent when required.",
+        guardrail: "Never make false claims about pricing or features. Don't commit to delivery timelines without checking with the team. If asked about technical details you're unsure about, admit you'll need to follow up with an expert."
+      }
     },
     { 
       id: "customer-service", 
       name: "Customer Service", 
-      description: "Handle support inquiries and troubleshooting"
+      description: "Handle support inquiries and troubleshooting",
+      data: {
+        identity: "You are Alex, a patient and knowledgeable customer service representative with 3+ years of experience in technical support. You excel at troubleshooting issues and making customers feel heard and valued.",
+        conversation: "Begin with empathy and understanding. Ask clarifying questions to identify the root cause of issues. Guide customers through solutions step-by-step, ensuring they understand each action.",
+        rebuttal: "When customers are frustrated, acknowledge their feelings first. Use phrases like 'I understand your frustration' and focus on solutions rather than limitations. Offer alternatives when the primary solution isn't available.",
+        closing: "Summarize the resolution provided and confirm the customer's satisfaction. Provide reference numbers for future contact and offer additional assistance if needed.",
+        compliance: "Follow data protection guidelines when accessing customer information. Document all interactions accurately and escalate to supervisors when required by company policy.",
+        guardrail: "Never promise refunds or discounts without proper authorization. Don't access customer accounts beyond what's necessary for the issue at hand. Always verify customer identity before sharing sensitive information."
+      }
     },
     { 
       id: "appointment-setting", 
       name: "Appointment Setting", 
-      description: "Schedule meetings and consultations"
+      description: "Schedule meetings and consultations",
+      data: {
+        identity: "You are Jordan, an efficient and courteous appointment scheduler with 4+ years of experience in calendar management. You're skilled at finding optimal meeting times and managing complex scheduling requirements.",
+        conversation: "Start with a clear purpose for the call and respect the prospect's time. Present available time slots clearly and be flexible with scheduling preferences. Confirm all details before ending the call.",
+        rebuttal: "When prospects say they're too busy, acknowledge their schedule challenges and offer flexible options like early morning, evening, or brief 15-minute calls. Emphasize the value of the meeting.",
+        closing: "Confirm the scheduled appointment with date, time, and duration. Send calendar invites immediately and provide clear instructions for joining the meeting. Set expectations for what will be discussed.",
+        compliance: "Respect time zone preferences and confirm appointment details in writing. Honor cancellation requests promptly and maintain accurate scheduling records.",
+        guardrail: "Never schedule meetings without clear availability confirmation. Don't commit to agenda items outside your scope of knowledge. Always provide clear cancellation and rescheduling policies."
+      }
     }
   ];
 
@@ -398,51 +425,83 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
 
         <TabsContent value="brain" className="space-y-6">
           <TooltipProvider>
-            {/* Header with Template Dropdown */}
+            {/* Header with Template Reference */}
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-2xl font-bold text-foreground">AI Agent Brain</h2>
                 <p className="text-muted-foreground mt-1">Configure your agent's intelligence and behavior patterns</p>
               </div>
-              <div className="flex items-center space-x-3">
-                <Label className="text-sm font-medium">Template:</Label>
-                <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Choose template" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {templates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {template.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button variant="outline" size="sm" className="flex items-center space-x-1">
-                  <FileText className="w-4 h-4" />
-                  <span>Preview</span>
-                </Button>
-              </div>
+              <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="flex items-center space-x-2">
+                    <Eye className="w-4 h-4" />
+                    <span>View Saved Templates for Reference</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Template Reference - {templates.find(t => t.id === selectedTemplate)?.name}</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-6 mt-4">
+                    <div className="flex items-center space-x-2 mb-4">
+                      <Label className="text-sm font-medium">Select Template:</Label>
+                      <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                        <SelectTrigger className="w-64">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {templates.map((template) => (
+                            <SelectItem key={template.id} value={template.id}>
+                              {template.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {(() => {
+                      const template = templates.find(t => t.id === selectedTemplate);
+                      return template ? (
+                        <div className="space-y-4">
+                          {[
+                            { key: "identity", title: "Identity & Persona" },
+                            { key: "conversation", title: "Conversation Instructions" },
+                            { key: "rebuttal", title: "Comprehensive Rebuttal Handling" },
+                            { key: "closing", title: "Call Closing" },
+                            { key: "compliance", title: "Compliance Rules" },
+                            { key: "guardrail", title: "Guardrail" }
+                          ].map((section) => (
+                            <div key={section.key} className="space-y-2">
+                              <h4 className="font-medium text-foreground">{section.title}</h4>
+                              <div className="p-3 bg-muted/30 rounded-md text-sm text-muted-foreground">
+                                {template.data[section.key as keyof typeof template.data]}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-
-              {/* Model Selection */}
-              <Card className="bg-gradient-card border-border/50 shadow-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Brain className="w-5 h-5 text-primary" />
-                    <span>AI Model</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            {/* Compact AI Model Selection */}
+            <Card className="bg-gradient-card border-border/50 shadow-card mb-8">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center space-x-2">
+                  <Brain className="w-5 h-5 text-primary" />
+                  <span>AI Model Configuration</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Provider</Label>
                     <Select value={selectedProvider} onValueChange={setSelectedProvider}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent style={{ background: 'hsl(var(--popover))', color: 'hsl(var(--popover-foreground))' }}>
+                      <SelectContent>
                         {providers.map((provider) => (
                           <SelectItem key={provider.id} value={provider.id}>
                             {provider.name}
@@ -458,7 +517,7 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent style={{ background: 'hsl(var(--popover))', color: 'hsl(var(--popover-foreground))' }}>
+                      <SelectContent>
                         {providers.find(p => p.id === selectedProvider)?.models.map((model) => (
                           <SelectItem key={model.id} value={model.id}>
                             <div className="flex flex-col">
@@ -472,19 +531,21 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                       </SelectContent>
                     </Select>
                   </div>
-                  
-                  {/* Model Info */}
-                  {(() => {
-                    const currentModel = providers
-                      .find(p => p.id === selectedProvider)
-                      ?.models.find(m => m.id === selectedModel);
-                    return currentModel ? (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
+                </div>
+                
+                {/* Model Info */}
+                {(() => {
+                  const currentModel = providers
+                    .find(p => p.id === selectedProvider)
+                    ?.models.find(m => m.id === selectedModel);
+                  return currentModel ? (
+                    <div className="mt-4 p-3 bg-muted/30 rounded-md">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div className="flex justify-between">
                           <span className="text-muted-foreground">Cost:</span>
                           <span className="font-medium">{currentModel.cost}/1k tokens</span>
                         </div>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between">
                           <span className="text-muted-foreground">Latency:</span>
                           <span className="font-medium">~{currentModel.latency} P95</span>
                         </div>
@@ -496,11 +557,11 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                           ))}
                         </div>
                       </div>
-                    ) : null;
-                  })()}
-                </CardContent>
-              </Card>
-            </div>
+                    </div>
+                  ) : null;
+                })()}
+              </CardContent>
+            </Card>
 
             {/* AI Agent Configuration Sections */}
             <div className="space-y-8">
@@ -587,28 +648,19 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="relative">
-                      <Textarea
-                        placeholder={section.placeholder}
-                        className="min-h-[140px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background placeholder:text-muted-foreground/70 placeholder:italic"
-                        value={brainSections[section.key as keyof typeof brainSections]}
-                        onChange={(e) => setBrainSections(prev => ({
-                          ...prev,
-                          [section.key]: e.target.value
-                        }))}
-                        style={{
-                          minHeight: '140px',
-                          lineHeight: '1.6'
-                        }}
-                      />
-                      {!brainSections[section.key as keyof typeof brainSections] && (
-                        <div className="absolute inset-0 p-3 pointer-events-none">
-                          <div className="text-sm text-muted-foreground/60 italic leading-relaxed">
-                            {section.placeholder}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    <Textarea
+                      placeholder={section.placeholder}
+                      className="min-h-[140px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background"
+                      value={brainSections[section.key as keyof typeof brainSections]}
+                      onChange={(e) => setBrainSections(prev => ({
+                        ...prev,
+                        [section.key]: e.target.value
+                      }))}
+                      style={{
+                        minHeight: '140px',
+                        lineHeight: '1.6'
+                      }}
+                    />
                   </CardContent>
                 </Card>
               ))}
