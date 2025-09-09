@@ -52,6 +52,13 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
   const [isRecording, setIsRecording] = useState<string | null>(null);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   
+  // Function dialogs state
+  const [showFunctionDialog, setShowFunctionDialog] = useState<string | null>(null);
+  const [functions, setFunctions] = useState([
+    { id: "transfer_call", name: "Transfer Call", type: "transfer_call", enabled: true },
+    { id: "end_call", name: "End Call", type: "end_call", enabled: true },
+  ]);
+  
   // Brain section text areas
   const [brainSections, setBrainSections] = useState({
     identity: "",
@@ -1129,47 +1136,617 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
         </TabsContent>
 
         <TabsContent value="tools" className="space-y-6">
-          <Card className="bg-gradient-card border-border/50 shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Wrench className="w-5 h-5 text-primary" />
-                <span>Available Tools</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {tools.map((tool) => (
-                  <div key={tool.id} className="flex items-center justify-between p-4 bg-accent/30 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Switch defaultChecked={tool.enabled} />
-                      <div>
-                        <div className="font-medium text-foreground">{tool.name}</div>
-                        <div className="text-sm text-muted-foreground">{tool.description}</div>
+          <div className="space-y-6">
+            {/* Functions Section */}
+            <Card className="bg-gradient-card border-border/50 shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Wrench className="w-5 h-5 text-primary" />
+                    <span>Functions</span>
+                  </div>
+                  <Button 
+                    onClick={() => setShowFunctionDialog('add')}
+                    className="flex items-center space-x-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Add</span>
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {functions.map((func) => (
+                    <div key={func.id} className="flex items-center justify-between p-3 bg-accent/30 rounded-lg border">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-2 bg-primary/10 rounded">
+                          <Wrench className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-foreground">{func.name}</div>
+                          <div className="text-sm text-muted-foreground">{func.id}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => setShowFunctionDialog(func.type)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm">
-                      <Settings className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              
-              <Separator className="my-6" />
-              
-              <div className="space-y-4">
-                <h4 className="font-medium text-foreground">Custom Webhooks</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-accent/20 rounded border-2 border-dashed border-border">
-                    <span className="text-sm text-muted-foreground">No custom webhooks configured</span>
-                    <Button variant="outline" size="sm">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Webhook
-                    </Button>
+                  ))}
+                  
+                  {functions.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Wrench className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                      <p>No functions configured</p>
+                      <p className="text-sm">Add functions to enable advanced capabilities</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Available Tools Section */}
+            <Card className="bg-gradient-card border-border/50 shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="w-5 h-5 text-primary" />
+                  <span>Available Tools</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {tools.map((tool) => (
+                    <div key={tool.id} className="flex items-center justify-between p-4 bg-accent/30 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Switch defaultChecked={tool.enabled} />
+                        <div>
+                          <div className="font-medium text-foreground">{tool.name}</div>
+                          <div className="text-sm text-muted-foreground">{tool.description}</div>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                
+                <Separator className="my-6" />
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium text-foreground">Custom Webhooks</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-accent/20 rounded border-2 border-dashed border-border">
+                      <span className="text-sm text-muted-foreground">No custom webhooks configured</span>
+                      <Button variant="outline" size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Webhook
+                      </Button>
+                    </div>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Function Selection Dialog */}
+          <Dialog open={showFunctionDialog === 'add'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add Function</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { id: 'end_call', name: 'End Call', icon: '📞' },
+                    { id: 'transfer_call', name: 'Call Transfer', icon: '↗️' },
+                    { id: 'agent_transfer', name: 'Agent Transfer', icon: '👤' },
+                    { id: 'calendar_check', name: 'Check Calendar Availability', icon: '📅' },
+                    { id: 'calendar_book', name: 'Book on the Calendar', icon: '🗓️' },
+                    { id: 'press_digit', name: 'Press Digit (IVR)', icon: '⌨️' },
+                    { id: 'send_sms', name: 'Send SMS', icon: '💬' },
+                    { id: 'extract_variable', name: 'Extract Dynamic Variable', icon: '📊' },
+                  ].map((func) => (
+                    <Button
+                      key={func.id}
+                      variant="outline"
+                      className="h-auto p-4 flex flex-col items-center space-y-2"
+                      onClick={() => setShowFunctionDialog(func.id)}
+                    >
+                      <span className="text-2xl">{func.icon}</span>
+                      <span className="text-xs text-center">{func.name}</span>
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </CardContent>
-          </Card>
+            </DialogContent>
+          </Dialog>
+
+          {/* End Call Dialog */}
+          <Dialog open={showFunctionDialog === 'end_call'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>📞</span>
+                  <span>End Call</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="end-call-name">Name</Label>
+                  <Input id="end-call-name" placeholder="end_call" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="end-call-desc">Description (Optional)</Label>
+                  <Textarea 
+                    id="end-call-desc" 
+                    placeholder="Enter function description" 
+                    className="resize-none h-20"
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Transfer Call Dialog */}
+          <Dialog open={showFunctionDialog === 'transfer_call'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>↗️</span>
+                  <span>Transfer Call</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="transfer-name">Name</Label>
+                  <Input id="transfer-name" placeholder="transfer_call" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="transfer-desc">Description (Optional)</Label>
+                  <Textarea 
+                    id="transfer-desc" 
+                    placeholder="Transfer the call to a human agent" 
+                    className="resize-none h-16"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <Label>Transfer to</Label>
+                  <div className="flex space-x-4">
+                    <Button variant="outline" className="flex-1">Static Destination</Button>
+                    <Button variant="outline" className="flex-1">Dynamic Routing</Button>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Input placeholder="+18563630633" />
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="extension" />
+                      <Label htmlFor="extension" className="text-sm">Extension Number</Label>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Enter a static phone number / SIP URI / dynamic variable.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Type</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <input type="radio" id="cold-transfer" name="transfer-type" defaultChecked />
+                      <Label htmlFor="cold-transfer" className="text-sm">Cold Transfer</Label>
+                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input type="radio" id="warm-transfer" name="transfer-type" />
+                      <Label htmlFor="warm-transfer" className="text-sm">Warm Transfer</Label>
+                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Displayed Phone Number</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <input type="radio" id="retail-number" name="display-number" defaultChecked />
+                      <Label htmlFor="retail-number" className="text-sm">Retail Agent's Number</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <input type="radio" id="transferee-number" name="display-number" />
+                      <Label htmlFor="transferee-number" className="text-sm">Transferee's Number</Label>
+                      <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Custom SIP Headers</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Add key/value pairs for call routing, metadata, or carrier integration.
+                  </p>
+                  <Button variant="outline" size="sm" className="w-fit">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add
+                  </Button>
+                </div>
+
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Agent Transfer Dialog */}
+          <Dialog open={showFunctionDialog === 'agent_transfer'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>👤</span>
+                  <span>Agent Transfer</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                  <p className="text-sm text-blue-800">
+                    Transfer to another agent to bring in new capabilities and fulfill different tasks.
+                  </p>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-xs text-blue-700">
+                      It will be a seamless transition, with all the call context preserved. It will appear as a single call in history.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Function Name</Label>
+                  <Input placeholder="agent_transfer" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea 
+                    placeholder="e.g. Transfer the call to the customer service agent"
+                    className="resize-none h-20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Select Agent</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Retail Delivery Customer Support (Latest)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="customer-support">Retail Delivery Customer Support (Latest)</SelectItem>
+                      <SelectItem value="sales-agent">Sales Agent</SelectItem>
+                      <SelectItem value="technical-support">Technical Support</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center space-x-2 p-2 bg-accent/30 rounded">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white text-xs">
+                        C
+                      </div>
+                      <span className="text-sm">Cimo</span>
+                    </div>
+                    <Button variant="ghost" size="sm">
+                      <ArrowLeft className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    It will use the voice that you set for the selected agent.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Execution Message</Label>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="speak-during-execution" />
+                    <Label htmlFor="speak-during-execution" className="text-sm">Speak During Execution</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    If the function will take over 2 seconds, the agent can say something like: "Let me check that for you."
+                  </p>
+                  
+                  <div className="space-y-2">
+                    <Label>Post Call Analysis Setting</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Select which agent's analysis to include in the call history, noting that including both increases usage cost.
+                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <input type="radio" id="only-transferred" name="analysis" defaultChecked />
+                        <Label htmlFor="only-transferred" className="text-sm">Only transferred agent</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input type="radio" id="both-agents" name="analysis" />
+                        <Label htmlFor="both-agents" className="text-sm">Both this agent and transferred agent</Label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Calendar Check Dialog */}
+          <Dialog open={showFunctionDialog === 'calendar_check'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>📅</span>
+                  <span>Check Calendar Availability (Cal.com)</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Name</Label>
+                  <Input placeholder="check_availability_cal" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description (Optional)</Label>
+                  <Textarea 
+                    placeholder="When users ask for availability, check the calendar and provide available slots."
+                    className="resize-none h-16"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>API Key (Cal.com)</Label>
+                  <Input placeholder="Enter Cal.com API key" type="password" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Event Type ID (Cal.com)</Label>
+                  <Input placeholder="Enter Event Type ID" />
+                  <p className="text-xs text-muted-foreground">
+                    You can find the Event Type ID in your cal.com URL. <Button variant="link" className="h-auto p-0 text-xs">Learn more</Button>
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Timezone (Optional)</Label>
+                  <Select defaultValue="america-los-angeles">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="america-los-angeles">America/Los_Angeles</SelectItem>
+                      <SelectItem value="america-new-york">America/New_York</SelectItem>
+                      <SelectItem value="asia-kolkata">Asia/Kolkata</SelectItem>
+                      <SelectItem value="europe-london">Europe/London</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Calendar Book Dialog */}
+          <Dialog open={showFunctionDialog === 'calendar_book'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>🗓️</span>
+                  <span>Book on the Calendar (Cal.com)</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Name</Label>
+                  <Input placeholder="book_appointment_cal" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description (Optional)</Label>
+                  <Textarea 
+                    placeholder="When users ask to book an appointment, book it on the calendar."
+                    className="resize-none h-16"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>API Key (Cal.com)</Label>
+                  <Input placeholder="Enter Cal.com API key" type="password" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Event Type ID (Cal.com)</Label>
+                  <Input placeholder="Enter Event Type ID" />
+                  <p className="text-xs text-muted-foreground">
+                    You can find the Event Type ID in your cal.com URL. <Button variant="link" className="h-auto p-0 text-xs">Learn more</Button>
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Timezone (Optional)</Label>
+                  <Select defaultValue="america-los-angeles">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="america-los-angeles">America/Los_Angeles</SelectItem>
+                      <SelectItem value="america-new-york">America/New_York</SelectItem>
+                      <SelectItem value="asia-kolkata">Asia/Kolkata</SelectItem>
+                      <SelectItem value="europe-london">Europe/London</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Press Digit Dialog */}
+          <Dialog open={showFunctionDialog === 'press_digit'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>⌨️</span>
+                  <span>Press Digit (IVR Navigation)</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Name</Label>
+                  <Input placeholder="press_digit" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description (Optional)</Label>
+                  <Textarea 
+                    placeholder="Navigate to the human agent of sales department"
+                    className="resize-none h-16"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Pause Detection Delay (Optional)</Label>
+                  <div className="flex items-center space-x-2">
+                    <Input placeholder="1000" />
+                    <span className="text-sm text-muted-foreground">milliseconds</span>
+                  </div>
+                  <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Send SMS Dialog */}
+          <Dialog open={showFunctionDialog === 'send_sms'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>💬</span>
+                  <span>Send SMS</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Name</Label>
+                  <Input placeholder="send_sms" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description (Optional)</Label>
+                  <Textarea 
+                    placeholder="e.g. Functions for sending SMS"
+                    className="resize-none h-16"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>SMS content</Label>
+                  <div className="flex space-x-2 mb-2">
+                    <Button variant="outline" size="sm">Prompt</Button>
+                    <Button variant="outline" size="sm">Static Sentence</Button>
+                  </div>
+                  <Textarea 
+                    placeholder="e.g. Inform the user that their appointment has been booked"
+                    className="resize-none h-16"
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Extract Dynamic Variable Dialog */}
+          <Dialog open={showFunctionDialog === 'extract_variable'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>📊</span>
+                  <span>Extract Dynamic Variable</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                  <p className="text-sm text-blue-800">
+                    Extract variables so they can be used in subsequent dialogue steps.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Function Name</Label>
+                  <Input placeholder="e.g. extract_user_details" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea 
+                    placeholder="e.g. Extract the user's details like name, email, age, etc. from the conversation"
+                    className="resize-none h-20"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Variables</Label>
+                  <Button variant="outline" size="sm" className="w-fit">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add
+                  </Button>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="knowledge" className="space-y-6">
