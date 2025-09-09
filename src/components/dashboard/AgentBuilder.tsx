@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { 
   Bot, 
   Settings, 
@@ -59,6 +60,10 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
     { id: "end_call", name: "End Call", type: "end_call", enabled: true },
   ]);
   
+  // Knowledge base state
+  const [showKnowledgeDialog, setShowKnowledgeDialog] = useState(false);
+  const [selectedKnowledgeBases, setSelectedKnowledgeBases] = useState<string[]>([]);
+  
   // Brain section text areas
   const [brainSections, setBrainSections] = useState({
     identity: "",
@@ -81,6 +86,13 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
     { id: 2, name: "Pricing Guidelines", status: "HOT", size: "2.1 MB", updated: "1 day ago" },
     { id: 3, name: "Competitor Analysis", status: "COLD", size: "24.8 MB", updated: "12 days ago" },
     { id: 4, name: "Objection Handling", status: "WARMING", size: "5.3 MB", updated: "3 hours ago" },
+  ];
+
+  const availableKnowledgeBases = [
+    { id: "kb1", name: "Testing KB", similarity: "Similarity" },
+    { id: "kb2", name: "Product Documentation", similarity: "Similarity" },
+    { id: "kb3", name: "Customer FAQs", similarity: "Similarity" },
+    { id: "kb4", name: "Technical Specs", similarity: "Similarity" },
   ];
 
   const providers = [
@@ -1910,67 +1922,104 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
         <TabsContent value="knowledge" className="space-y-6">
           <Card className="bg-gradient-card border-border/50 shadow-card">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <FileText className="w-5 h-5 text-primary" />
-                  <span>Knowledge Base Packs</span>
-                </div>
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Upload Pack
-                </Button>
+              <CardTitle className="flex items-center space-x-2">
+                <FileText className="w-5 h-5 text-primary" />
+                <span>Knowledge Base</span>
               </CardTitle>
+              <p className="text-sm text-muted-foreground mt-2">
+                Add knowledge base to provide context to the agent.
+              </p>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {knowledgePacks.map((pack) => (
-                  <div key={pack.id} className="flex items-center justify-between p-4 bg-accent/30 rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <FileText className="w-4 h-4 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium text-foreground">{pack.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {pack.size} • Updated {pack.updated}
+              <Dialog open={showKnowledgeDialog} onOpenChange={setShowKnowledgeDialog}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="w-fit">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Select Knowledge Bases</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="space-y-3">
+                      {availableKnowledgeBases.map((kb) => (
+                        <div key={kb.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-accent/50">
+                          <Checkbox 
+                            id={`kb-${kb.id}`}
+                            checked={selectedKnowledgeBases.includes(kb.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedKnowledgeBases([...selectedKnowledgeBases, kb.id]);
+                              } else {
+                                setSelectedKnowledgeBases(selectedKnowledgeBases.filter(id => id !== kb.id));
+                              }
+                            }}
+                          />
+                          <label htmlFor={`kb-${kb.id}`} className="flex-1 cursor-pointer">
+                            <div className="font-medium">{kb.name}</div>
+                            <div className="text-sm text-muted-foreground">{kb.similarity}</div>
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="border-t pt-4">
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => {
+                          // TODO: Navigate to knowledge base section
+                          console.log("Navigate to knowledge base creation");
+                          setShowKnowledgeDialog(false);
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add New Knowledge Base
+                      </Button>
+                    </div>
+
+                    <div className="flex justify-end space-x-2">
+                      <Button variant="outline" onClick={() => setShowKnowledgeDialog(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={() => setShowKnowledgeDialog(false)}>
+                        Add Selected
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {/* Display selected knowledge bases */}
+              {selectedKnowledgeBases.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {selectedKnowledgeBases.map((kbId) => {
+                    const kb = availableKnowledgeBases.find(k => k.id === kbId);
+                    return kb ? (
+                      <div key={kb.id} className="flex items-center justify-between p-3 bg-accent/30 rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <div className="font-medium">{kb.name}</div>
+                            <div className="text-sm text-muted-foreground">{kb.similarity}</div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge 
-                        variant={pack.status === "HOT" ? "default" : pack.status === "WARMING" ? "secondary" : "outline"}
-                        className={
-                          pack.status === "HOT" ? "bg-success/20 text-success" :
-                          pack.status === "WARMING" ? "bg-warning/20 text-warning" :
-                          "bg-muted/20 text-muted-foreground"
-                        }
-                      >
-                        {pack.status}
-                      </Badge>
-                      <div className="flex space-x-1">
-                        <Button variant="outline" size="sm">
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedKnowledgeBases(selectedKnowledgeBases.filter(id => id !== kbId));
+                          }}
+                        >
                           <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                <div className="flex items-start space-x-3">
-                  <div className="w-2 h-2 rounded-full bg-primary mt-2"></div>
-                  <div className="text-sm">
-                    <div className="font-medium text-foreground">Knowledge Pack Status</div>
-                    <div className="text-muted-foreground mt-1">
-                      <strong>HOT:</strong> Ready for use • <strong>WARMING:</strong> Loading into memory • <strong>COLD:</strong> Inactive (15+ days)
-                    </div>
-                  </div>
+                    ) : null;
+                  })}
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
