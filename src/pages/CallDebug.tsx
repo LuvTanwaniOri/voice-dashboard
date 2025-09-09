@@ -378,27 +378,37 @@ const CallDebug: React.FC = () => {
                   <select 
                     value={selectedLogType}
                     onChange={(e) => setSelectedLogType(e.target.value as LogType | 'ALL')}
-                    className="bg-surface-secondary border border-border rounded px-2 py-1 text-text-primary"
+                    className="bg-surface-primary border border-border rounded px-3 py-2 text-text-primary focus:ring-2 focus:ring-primary focus:border-primary"
+                    style={{ 
+                      backgroundColor: 'hsl(var(--surface))',
+                      color: 'hsl(var(--text-primary))',
+                      borderColor: 'hsl(var(--border))'
+                    }}
                   >
-                    <option value="ALL">All Types</option>
-                    <option value="STT">STT</option>
-                    <option value="TTS">TTS</option>
-                    <option value="LLM">LLM</option>
-                    <option value="MESSAGE">Message</option>
-                    <option value="SYSTEM">System</option>
+                    <option value="ALL" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>All Types</option>
+                    <option value="STT" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>STT</option>
+                    <option value="TTS" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>TTS</option>
+                    <option value="LLM" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>LLM</option>
+                    <option value="MESSAGE" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>Message</option>
+                    <option value="SYSTEM" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>System</option>
                   </select>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-text-muted">
                   <select 
                     value={selectedLevel}
                     onChange={(e) => setSelectedLevel(e.target.value as LogLevel | 'ALL')}
-                    className="bg-surface-secondary border border-border rounded px-2 py-1 text-text-primary"
+                    className="bg-surface-primary border border-border rounded px-3 py-2 text-text-primary focus:ring-2 focus:ring-primary focus:border-primary"
+                    style={{ 
+                      backgroundColor: 'hsl(var(--surface))',
+                      color: 'hsl(var(--text-primary))',
+                      borderColor: 'hsl(var(--border))'
+                    }}
                   >
-                    <option value="ALL">All Levels</option>
-                    <option value="INFO">Info</option>
-                    <option value="WARNING">Warning</option>
-                    <option value="ERROR">Error</option>
-                    <option value="SUCCESS">Success</option>
+                    <option value="ALL" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>All Levels</option>
+                    <option value="INFO" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>Info</option>
+                    <option value="WARNING" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>Warning</option>
+                    <option value="ERROR" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>Error</option>
+                    <option value="SUCCESS" style={{ backgroundColor: 'hsl(var(--surface))', color: 'hsl(var(--text-primary))' }}>Success</option>
                   </select>
                 </div>
               </div>
@@ -439,7 +449,7 @@ const CallDebug: React.FC = () => {
                       <TableCell>
                         <div className="flex items-start space-x-2">
                           {getSpeakerIcon(log.speaker)}
-                          <span className="text-sm text-text-primary">{log.message}</span>
+                          <span className="text-sm font-medium" style={{ color: 'hsl(var(--text-primary))' }}>{log.message}</span>
                         </div>
                       </TableCell>
                       <TableCell className="text-xs text-text-muted">
