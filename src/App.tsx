@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { OnboardingProvider } from "./contexts/OnboardingContext";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import CallDebug from "./pages/CallDebug";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/debug/call/:callId" element={<CallDebug />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
