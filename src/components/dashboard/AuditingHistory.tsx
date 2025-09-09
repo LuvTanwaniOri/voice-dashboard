@@ -468,28 +468,17 @@ export function AuditingHistory() {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>Call Information</span>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        onClick={() => toggleAuditStatus(audit.id)}
-                        className={cn(
-                          audit.status === 'open' 
-                            ? "bg-success hover:bg-success/90" 
-                            : "bg-warning hover:bg-warning/90"
-                        )}
-                      >
-                        {audit.status === 'open' ? 'Mark Resolved' : 'Reopen'}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => window.open(`/debug/call/${audit.sessionId}`, '_blank')}
-                        className="flex items-center space-x-1"
-                      >
-                        <Activity className="w-4 h-4" />
-                        <span>Debug Call</span>
-                      </Button>
-                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => toggleAuditStatus(audit.id)}
+                      className={cn(
+                        audit.status === 'open' 
+                          ? "bg-success hover:bg-success/90" 
+                          : "bg-warning hover:bg-warning/90"
+                      )}
+                    >
+                      {audit.status === 'open' ? 'Mark Resolved' : 'Reopen'}
+                    </Button>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
