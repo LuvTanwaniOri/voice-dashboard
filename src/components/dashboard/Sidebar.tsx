@@ -25,8 +25,7 @@ const navigation = [
   { id: 'agents', name: 'AI Agents', icon: Bot },
   { id: 'analytics', name: 'Analytics', icon: Activity },
   { id: 'knowledge', name: 'Knowledge Base', icon: Database },
-  { id: 'operations', name: 'Operations', icon: Zap },
-  { id: 'voice', name: 'Voice & Lexicon', icon: Volume2 },
+  { id: 'operations', name: 'Live Monitoring', icon: Zap },
   { id: 'auditing', name: 'Auditing History', icon: Activity },
   { id: 'workspace', name: 'Settings', icon: Users },
 ];

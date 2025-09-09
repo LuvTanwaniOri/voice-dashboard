@@ -38,6 +38,7 @@ import {
   Volume2,
   MessageSquare
 } from "lucide-react";
+import { CallDebugModal } from "./CallDebugModal";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ClientCallAudit } from "./ClientCallAuditDialog";
@@ -283,6 +284,7 @@ export function AuditingHistory() {
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [debugCallId, setDebugCallId] = useState<string | null>(null);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -483,7 +485,7 @@ export function AuditingHistory() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => window.open(`/debug/call/${audit.sessionId}`, '_blank')}
+                        onClick={() => setDebugCallId(audit.sessionId)}
                         className="flex items-center space-x-1"
                       >
                         <Activity className="w-4 h-4" />
@@ -1082,6 +1084,13 @@ export function AuditingHistory() {
           </div>
         </CardContent>
       </Card>
+      
+      {/* Call Debug Modal */}
+      <CallDebugModal 
+        open={debugCallId !== null}
+        onOpenChange={(open) => !open && setDebugCallId(null)}
+        callId={debugCallId || ''}
+      />
     </div>
   );
 }
