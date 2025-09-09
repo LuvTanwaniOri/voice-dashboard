@@ -133,7 +133,7 @@ export function OperationsWallboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Live System Monitoring</h1>
+          <h1 className="text-3xl font-bold text-foreground">Operations Wallboard</h1>
           <p className="text-muted-foreground">Real-time system monitoring and health dashboard</p>
         </div>
         <div className="text-right">

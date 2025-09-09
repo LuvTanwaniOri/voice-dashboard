@@ -107,6 +107,8 @@ const Index = () => {
         return <KnowledgeBase />;
       case 'operations':
         return <OperationsWallboard />;
+      case 'voice':
+        return <VoiceLexicon />;
       case 'auditing':
         return <AuditingHistory />;
       case 'workspace':
