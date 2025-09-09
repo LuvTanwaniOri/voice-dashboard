@@ -261,7 +261,7 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
       </div>
 
       <Tabs defaultValue="persona" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-10">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="persona" className="flex items-center space-x-2">
             <Bot className="w-4 h-4" />
             <span>Persona</span>
@@ -274,17 +274,9 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
             <Volume2 className="w-4 h-4" />
             <span>Audio</span>
           </TabsTrigger>
-          <TabsTrigger value="language" className="flex items-center space-x-2">
-            <Globe className="w-4 h-4" />
-            <span>Language</span>
-          </TabsTrigger>
           <TabsTrigger value="speech" className="flex items-center space-x-2">
             <Mic className="w-4 h-4" />
             <span>Speech</span>
-          </TabsTrigger>
-          <TabsTrigger value="models" className="flex items-center space-x-2">
-            <Settings className="w-4 h-4" />
-            <span>Models</span>
           </TabsTrigger>
           <TabsTrigger value="tools" className="flex items-center space-x-2">
             <Wrench className="w-4 h-4" />
@@ -297,6 +289,10 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
           <TabsTrigger value="voice-lexicon" className="flex items-center space-x-2">
             <Volume2 className="w-4 h-4" />
             <span>Voice & Lexicon</span>
+          </TabsTrigger>
+          <TabsTrigger value="language" className="flex items-center space-x-2">
+            <Globe className="w-4 h-4" />
+            <span>Language</span>
           </TabsTrigger>
           <TabsTrigger value="compliance" className="flex items-center space-x-2">
             <Shield className="w-4 h-4" />
@@ -1220,133 +1216,6 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                     />
                     <span className="text-sm text-muted-foreground">times</span>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="models" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="bg-gradient-card border-border/50 shadow-card">
-              <CardHeader>
-                <CardTitle>Language Model (LLM)</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Provider Policy</Label>
-                  <Select defaultValue="quality-first">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="quality-first">Quality First</SelectItem>
-                      <SelectItem value="cost-first">Cost First</SelectItem>
-                      <SelectItem value="latency-first">Latency First</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Select defaultValue="gpt-4-turbo">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="gpt-4-turbo">GPT-4 Turbo</SelectItem>
-                    <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                    <SelectItem value="claude-3">Claude 3 Sonnet</SelectItem>
-                    <SelectItem value="llama-2">Llama 2 70B</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="text-sm text-muted-foreground">
-                  <div>Cost: $0.03/1K tokens</div>
-                  <div>First Token: ~380ms P95</div>
-                  <div>Target: ≤400ms</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-card border-border/50 shadow-card">
-              <CardHeader>
-                <CardTitle>Text-to-Speech (TTS)</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="space-y-2">
-                    <Label>Voice Mapping</Label>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-2 bg-accent/30 rounded">
-                        <span className="text-sm">en-US</span>
-                        <Select defaultValue="11L:ArianaEN">
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="11L:ArianaEN">11L: Ariana EN</SelectItem>
-                            <SelectItem value="Azure:SarahUS">Azure: Sarah US</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center justify-between p-2 bg-accent/30 rounded">
-                        <span className="text-sm">hi-IN</span>
-                        <Select defaultValue="Azure:ArianaHI">
-                          <SelectTrigger className="w-32">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Azure:ArianaHI">Azure: Ariana HI</SelectItem>
-                            <SelectItem value="11L:PriyaIN">11L: Priya IN</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Crossfade (ms)</Label>
-                    <Input defaultValue="180" type="number" min="100" max="500" />
-                  </div>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  <div>Cost: $0.30/1K chars</div>
-                  <div>First Chunk: ~185ms P95</div>
-                  <div>Target: ≤200ms</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-card border-border/50 shadow-card">
-              <CardHeader>
-                <CardTitle>Speech-to-Text (STT)</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Provider Policy</Label>
-                  <Select defaultValue="quality-first">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="quality-first">Quality First</SelectItem>
-                      <SelectItem value="cost-first">Cost First</SelectItem>
-                      <SelectItem value="latency-first">Latency First</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Select defaultValue="deepgram">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="deepgram">Deepgram Nova-2</SelectItem>
-                    <SelectItem value="azure-stt">Azure Speech</SelectItem>
-                    <SelectItem value="google-stt">Google Speech-to-Text</SelectItem>
-                    <SelectItem value="aws-transcribe">AWS Transcribe</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="text-sm text-muted-foreground">
-                  <div>Cost: $0.0043/min</div>
-                  <div>WER: 8.7% (US EN), 11.2% (Hindi)</div>
-                  <div>First Partial: ~235ms P95</div>
-                  <div>Target: ≤250ms</div>
                 </div>
               </CardContent>
             </Card>
