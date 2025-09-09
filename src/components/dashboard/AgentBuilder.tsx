@@ -1254,6 +1254,7 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                     { id: 'press_digit', name: 'Press Digit (IVR)', icon: '⌨️' },
                     { id: 'send_sms', name: 'Send SMS', icon: '💬' },
                     { id: 'extract_variable', name: 'Extract Dynamic Variable', icon: '📊' },
+                    { id: 'custom_function', name: 'Custom Function', icon: '⚙️' },
                   ].map((func) => (
                     <Button
                       key={func.id}
@@ -1736,6 +1737,163 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                     Add
                   </Button>
                 </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={() => setShowFunctionDialog(null)}>
+                    Save
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Custom Function Dialog */}
+          <Dialog open={showFunctionDialog === 'custom_function'} onOpenChange={(open) => !open && setShowFunctionDialog(null)}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center space-x-2">
+                  <span>⚙️</span>
+                  <span>Custom Function</span>
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>Name</Label>
+                    <Input placeholder="Enter the name of the custom function" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea 
+                      placeholder="Enter the description of the custom function"
+                      className="resize-none h-12"
+                    />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>API Endpoint</Label>
+                    <div className="text-sm text-muted-foreground mb-2">
+                      The API Endpoint is the address of the service you are connecting to
+                    </div>
+                    <div className="flex space-x-2">
+                      <Select defaultValue="POST">
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="GET">GET</SelectItem>
+                          <SelectItem value="POST">POST</SelectItem>
+                          <SelectItem value="PUT">PUT</SelectItem>
+                          <SelectItem value="DELETE">DELETE</SelectItem>
+                          <SelectItem value="PATCH">PATCH</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input 
+                        placeholder="Enter the URL of the custom function"
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Timeout (ms)</Label>
+                    <div className="flex items-center space-x-2">
+                      <Input 
+                        type="number"
+                        defaultValue="120000"
+                        className="w-32"
+                      />
+                      <span className="text-sm text-muted-foreground">milliseconds</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <Label className="text-base font-medium">Headers</Label>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      Specify the HTTP headers required for your API request.
+                    </div>
+                    <Button variant="outline" size="sm" className="mb-3">
+                      <Plus className="w-4 h-4 mr-2" />
+                      New key value pair
+                    </Button>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-base font-medium">Query Parameters</Label>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      Query string parameters to append to the URL.
+                    </div>
+                    <Button variant="outline" size="sm" className="mb-3">
+                      <Plus className="w-4 h-4 mr-2" />
+                      New key value pair
+                    </Button>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-base font-medium">Parameters (Optional)</Label>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      JSON schema that defines the format in which the LLM will return. Please refer to the docs.
+                    </div>
+                    <div className="flex space-x-2 mb-3">
+                      <Button variant="outline" size="sm" className="bg-accent">
+                        JSON
+                      </Button>
+                      <Button variant="ghost" size="sm">
+                        Form
+                      </Button>
+                      <div className="ml-auto flex items-center space-x-2">
+                        <span className="text-sm text-muted-foreground">Payload: args only</span>
+                        <Switch />
+                      </div>
+                    </div>
+                    <Textarea 
+                      placeholder="Enter JSON Schema here..."
+                      className="min-h-[200px] font-mono text-sm bg-slate-900 text-white border-slate-700"
+                    />
+                    <div className="flex space-x-2 mt-2">
+                      <Button variant="outline" size="sm">example 1</Button>
+                      <Button variant="outline" size="sm">example 2</Button>
+                      <Button variant="outline" size="sm">example 3</Button>
+                      <Button variant="outline" size="sm" className="ml-auto">Format JSON</Button>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-base font-medium">Response Variables</Label>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      Extracted values from API response saved as dynamic variables.
+                    </div>
+                    <Button variant="outline" size="sm" className="mb-3">
+                      <Plus className="w-4 h-4 mr-2" />
+                      New key value pair
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Switch />
+                      <Label>Speak During Execution</Label>
+                    </div>
+                    <div className="text-sm text-muted-foreground ml-6">
+                      If the function takes over 2 seconds, the agent can say something like: "Let me check that for you."
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      <Switch defaultChecked />
+                      <Label>Speak After Execution</Label>
+                    </div>
+                    <div className="text-sm text-muted-foreground ml-6">
+                      Unselect if you want to run the function silently, such as uploading the call result to the server silently.
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="flex justify-end space-x-2">
                   <Button variant="outline" onClick={() => setShowFunctionDialog(null)}>
                     Cancel
