@@ -26,8 +26,13 @@ import {
   Edit,
   ArrowLeft,
   Upload,
-  Download
+  Download,
+  Mic,
+  MicOff,
+  HelpCircle,
+  Sparkles
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface AgentBuilderProps {
   agentId?: string | null;
@@ -39,6 +44,20 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
   const [agentName, setAgentName] = useState("Sarah - Lead Qualifier");
   const [selectedVoice, setSelectedVoice] = useState("neural-sarah-us");
   const [selectedLanguages, setSelectedLanguages] = useState(["en-US", "hi-IN"]);
+  const [selectedProvider, setSelectedProvider] = useState("OpenAI");
+  const [selectedModel, setSelectedModel] = useState("gpt-4-turbo");
+  const [selectedTemplate, setSelectedTemplate] = useState("lead-collection");
+  const [isRecording, setIsRecording] = useState<string | null>(null);
+  
+  // Brain section text areas
+  const [brainSections, setBrainSections] = useState({
+    identity: "You are Sarah, a professional and friendly lead qualification agent representing our SaaS company. You have 5+ years of experience in B2B sales and understand the importance of building rapport while efficiently qualifying prospects.",
+    conversation: "Start each conversation with a warm greeting and introduce yourself. Ask for the prospect's name and use it throughout the conversation. Listen actively and ask follow-up questions to understand their business needs deeply.",
+    rebuttal: "When handling objections, acknowledge the prospect's concerns first. Use the 'Feel, Felt, Found' method: 'I understand how you feel, many of our clients felt the same way, but they found that...' Always provide specific examples and social proof.",
+    closing: "Summarize the key pain points discussed and how our solution addresses them. Ask for a clear next step: either a demo, a meeting with decision makers, or a trial. Create urgency by mentioning limited-time offers or competitor risks.",
+    compliance: "Always identify yourself and your company at the beginning of the call. Respect opt-out requests immediately. Follow TCPA guidelines for US prospects and TRAI guidelines for Indian prospects. Record consent when required.",
+    guardrail: "Never make false claims about pricing or features. Don't commit to delivery timelines without checking with the team. If asked about technical details you're unsure about, admit you'll need to follow up with an expert."
+  });
 
   const voices = [
     { id: "neural-sarah-us", name: "Sarah (Neural)", language: "en-US", gender: "Female" },
@@ -54,6 +73,52 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
     { id: 4, name: "Objection Handling", status: "WARMING", size: "5.3 MB", updated: "3 hours ago" },
   ];
 
+  const providers = [
+    { 
+      id: "OpenAI", 
+      name: "OpenAI", 
+      models: [
+        { id: "gpt-4-turbo", name: "GPT-4 Turbo", cost: "$0.03", latency: "380ms", markers: ["Standard", "Conversational"] },
+        { id: "gpt-4", name: "GPT-4", cost: "$0.06", latency: "450ms", markers: ["Premium", "Multimodal"] },
+        { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo", cost: "$0.001", latency: "280ms", markers: ["Cheapest", "Fastest"] }
+      ]
+    },
+    { 
+      id: "Groq", 
+      name: "Groq", 
+      models: [
+        { id: "llama-3-70b", name: "Llama 3 70B", cost: "$0.02", latency: "120ms", markers: ["Fastest", "Open Source"] },
+        { id: "mixtral-8x7b", name: "Mixtral 8x7B", cost: "$0.015", latency: "150ms", markers: ["Fast", "Efficient"] }
+      ]
+    },
+    { 
+      id: "Anthropic", 
+      name: "Anthropic", 
+      models: [
+        { id: "claude-3-sonnet", name: "Claude 3 Sonnet", cost: "$0.015", latency: "320ms", markers: ["Balanced", "Reasoning"] },
+        { id: "claude-3-haiku", name: "Claude 3 Haiku", cost: "$0.008", latency: "250ms", markers: ["Fast", "Concise"] }
+      ]
+    }
+  ];
+
+  const templates = [
+    { 
+      id: "lead-collection", 
+      name: "Lead Collection Sample",
+      description: "Perfect for B2B lead qualification and nurturing"
+    },
+    { 
+      id: "customer-service", 
+      name: "Customer Service", 
+      description: "Handle support inquiries and troubleshooting"
+    },
+    { 
+      id: "appointment-setting", 
+      name: "Appointment Setting", 
+      description: "Schedule meetings and consultations"
+    }
+  ];
+
   const tools = [
     { id: "transfer", name: "Transfer Call", enabled: true, description: "Transfer to human agent" },
     { id: "sms", name: "Send SMS", enabled: true, description: "Send follow-up messages" },
@@ -61,6 +126,31 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
     { id: "calendar", name: "Schedule Meeting", enabled: false, description: "Book calendar appointments" },
     { id: "api", name: "API Request", enabled: true, description: "Custom webhook calls" },
   ];
+
+  const handleSpeechInput = (sectionKey: string, mode: 'replace' | 'append' | 'edit') => {
+    setIsRecording(sectionKey);
+    // TODO: Implement speech recognition
+    console.log(`Starting speech input for ${sectionKey} in ${mode} mode`);
+    
+    // Simulate speech recognition (replace with actual implementation)
+    setTimeout(() => {
+      setIsRecording(null);
+      console.log("Speech recognition completed");
+    }, 3000);
+  };
+
+  const applyTemplate = (templateId: string) => {
+    if (templateId === "lead-collection") {
+      setBrainSections({
+        identity: "You are Sarah, a professional and friendly lead qualification agent representing our SaaS company. You have 5+ years of experience in B2B sales and understand the importance of building rapport while efficiently qualifying prospects.",
+        conversation: "Start each conversation with a warm greeting and introduce yourself. Ask for the prospect's name and use it throughout the conversation. Listen actively and ask follow-up questions to understand their business needs deeply.",
+        rebuttal: "When handling objections, acknowledge the prospect's concerns first. Use the 'Feel, Felt, Found' method: 'I understand how you feel, many of our clients felt the same way, but they found that...' Always provide specific examples and social proof.",
+        closing: "Summarize the key pain points discussed and how our solution addresses them. Ask for a clear next step: either a demo, a meeting with decision makers, or a trial. Create urgency by mentioning limited-time offers or competitor risks.",
+        compliance: "Always identify yourself and your company at the beginning of the call. Respect opt-out requests immediately. Follow TCPA guidelines for US prospects and TRAI guidelines for Indian prospects. Record consent when required.",
+        guardrail: "Never make false claims about pricing or features. Don't commit to delivery timelines without checking with the team. If asked about technical details you're unsure about, admit you'll need to follow up with an expert."
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -96,17 +186,21 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
       </div>
 
       <Tabs defaultValue="persona" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="persona" className="flex items-center space-x-2">
             <Bot className="w-4 h-4" />
             <span>Persona</span>
+          </TabsTrigger>
+          <TabsTrigger value="brain" className="flex items-center space-x-2">
+            <Brain className="w-4 h-4" />
+            <span>Brain</span>
           </TabsTrigger>
           <TabsTrigger value="language" className="flex items-center space-x-2">
             <Globe className="w-4 h-4" />
             <span>Language</span>
           </TabsTrigger>
           <TabsTrigger value="models" className="flex items-center space-x-2">
-            <Brain className="w-4 h-4" />
+            <Settings className="w-4 h-4" />
             <span>Models</span>
           </TabsTrigger>
           <TabsTrigger value="tools" className="flex items-center space-x-2">
@@ -300,6 +394,237 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
               />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="brain" className="space-y-6">
+          <TooltipProvider>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              {/* Template Selection */}
+              <Card className="bg-gradient-card border-border/50 shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    <span>Quick Templates</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Choose a template to get started</Label>
+                    <Select value={selectedTemplate} onValueChange={(value) => {
+                      setSelectedTemplate(value);
+                      applyTemplate(value);
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templates.map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            {template.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      {templates.find(t => t.id === selectedTemplate)?.description}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Model Selection */}
+              <Card className="bg-gradient-card border-border/50 shadow-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Brain className="w-5 h-5 text-primary" />
+                    <span>AI Model</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Provider</Label>
+                    <Select value={selectedProvider} onValueChange={setSelectedProvider}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent style={{ background: 'hsl(var(--popover))', color: 'hsl(var(--popover-foreground))' }}>
+                        {providers.map((provider) => (
+                          <SelectItem key={provider.id} value={provider.id}>
+                            {provider.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Model</Label>
+                    <Select value={selectedModel} onValueChange={setSelectedModel}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent style={{ background: 'hsl(var(--popover))', color: 'hsl(var(--popover-foreground))' }}>
+                        {providers.find(p => p.id === selectedProvider)?.models.map((model) => (
+                          <SelectItem key={model.id} value={model.id}>
+                            <div className="flex flex-col">
+                              <span>{model.name}</span>
+                              <div className="text-xs text-muted-foreground">
+                                {model.cost}/1k tokens • First token: {model.latency} P95
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Model Info */}
+                  {(() => {
+                    const currentModel = providers
+                      .find(p => p.id === selectedProvider)
+                      ?.models.find(m => m.id === selectedModel);
+                    return currentModel ? (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Cost:</span>
+                          <span className="font-medium">{currentModel.cost}/1k tokens</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Latency:</span>
+                          <span className="font-medium">~{currentModel.latency} P95</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {currentModel.markers.map((marker, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {marker}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* AI Agent Configuration Sections */}
+            <div className="space-y-6">
+              {[
+                {
+                  key: "identity",
+                  title: "Identity & Persona", 
+                  tooltip: "Define your AI agent's professional background, personality, and role. Be specific about experience level, communication style, and industry expertise.",
+                  icon: <Bot className="w-5 h-5 text-primary" />
+                },
+                {
+                  key: "conversation", 
+                  title: "Conversation Instructions",
+                  tooltip: "Outline how your agent should structure conversations, handle greetings, build rapport, and guide the flow of dialogue.",
+                  icon: <Volume2 className="w-5 h-5 text-primary" />
+                },
+                {
+                  key: "rebuttal",
+                  title: "Comprehensive Rebuttal Handling", 
+                  tooltip: "Provide strategies for handling objections and concerns. Include specific phrases and techniques for overcoming common sales barriers.",
+                  icon: <Shield className="w-5 h-5 text-primary" />
+                },
+                {
+                  key: "closing",
+                  title: "Call Closing",
+                  tooltip: "Define how your agent should wrap up conversations, summarize key points, and secure next steps or commitments.",
+                  icon: <TestTube className="w-5 h-5 text-primary" />
+                },
+                {
+                  key: "compliance",
+                  title: "Compliance Rules", 
+                  tooltip: "Set legal and regulatory guidelines your agent must follow, including disclosure requirements and consent protocols.",
+                  icon: <FileText className="w-5 h-5 text-primary" />
+                },
+                {
+                  key: "guardrail",
+                  title: "Guardrail",
+                  tooltip: "Establish boundaries and limitations for your agent. Define what it should never do or promise to maintain trust and accuracy.",
+                  icon: <Settings className="w-5 h-5 text-primary" />
+                }
+              ].map((section) => (
+                <Card key={section.key} className="bg-gradient-card border-border/50 shadow-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {section.icon}
+                        <span>{section.title}</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-6 w-6">
+                              <HelpCircle className="w-4 h-4 text-muted-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <p>{section.tooltip}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSpeechInput(section.key, 'replace')}
+                          disabled={isRecording === section.key}
+                          className="flex items-center space-x-1"
+                        >
+                          {isRecording === section.key ? (
+                            <MicOff className="w-4 h-4 text-destructive" />
+                          ) : (
+                            <Mic className="w-4 h-4" />
+                          )}
+                          <span className="text-xs">Replace</span>
+                        </Button>
+                        <Button
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleSpeechInput(section.key, 'append')}
+                          disabled={isRecording === section.key}
+                          className="flex items-center space-x-1"
+                        >
+                          {isRecording === section.key ? (
+                            <MicOff className="w-4 h-4 text-destructive" />
+                          ) : (
+                            <Mic className="w-4 h-4" />
+                          )}
+                          <span className="text-xs">Add</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm" 
+                          onClick={() => handleSpeechInput(section.key, 'edit')}
+                          disabled={isRecording === section.key}
+                          className="flex items-center space-x-1"
+                        >
+                          {isRecording === section.key ? (
+                            <MicOff className="w-4 h-4 text-destructive" />
+                          ) : (
+                            <Mic className="w-4 h-4" />
+                          )}
+                          <span className="text-xs">Edit</span>
+                        </Button>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      placeholder={`Enter your ${section.title.toLowerCase()} instructions...`}
+                      className="min-h-[120px] resize-y"
+                      value={brainSections[section.key as keyof typeof brainSections]}
+                      onChange={(e) => setBrainSections(prev => ({
+                        ...prev,
+                        [section.key]: e.target.value
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TooltipProvider>
         </TabsContent>
 
         <TabsContent value="language" className="space-y-6">
