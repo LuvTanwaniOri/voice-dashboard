@@ -1193,6 +1193,48 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
               </CardContent>
             </Card>
 
+            {/* Available Tools Section */}
+            <Card className="bg-gradient-card border-border/50 shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="w-5 h-5 text-primary" />
+                  <span>Available Tools</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {tools.map((tool) => (
+                    <div key={tool.id} className="flex items-center justify-between p-4 bg-accent/30 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Switch defaultChecked={tool.enabled} />
+                        <div>
+                          <div className="font-medium text-foreground">{tool.name}</div>
+                          <div className="text-sm text-muted-foreground">{tool.description}</div>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                
+                <Separator className="my-6" />
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium text-foreground">Custom Webhooks</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-accent/20 rounded border-2 border-dashed border-border">
+                      <span className="text-sm text-muted-foreground">No custom webhooks configured</span>
+                      <Button variant="outline" size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Webhook
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Function Selection Dialog */}
