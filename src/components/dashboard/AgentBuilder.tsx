@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -64,6 +65,17 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
   const [showKnowledgeDialog, setShowKnowledgeDialog] = useState(false);
   const [selectedKnowledgeBases, setSelectedKnowledgeBases] = useState<string[]>([]);
   
+  // Speech settings state
+  const [selectedSTTModel, setSelectedSTTModel] = useState("deepgram");
+  const [backgroundSound, setBackgroundSound] = useState("none");
+  const [backgroundVolume, setBackgroundVolume] = useState([1]);
+  const [responsiveness, setResponsiveness] = useState([1]);
+  const [interruptionSensitivity, setInterruptionSensitivity] = useState([0.9]);
+  const [enableBackchanneling, setEnableBackchanneling] = useState(false);
+  const [enableSpeechNormalization, setEnableSpeechNormalization] = useState(false);
+  const [reminderSeconds, setReminderSeconds] = useState("10");
+  const [reminderTimes, setReminderTimes] = useState("1");
+  
   // Brain section text areas
   const [brainSections, setBrainSections] = useState({
     identity: "",
@@ -121,6 +133,23 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
         { id: "claude-3-haiku", name: "Claude 3 Haiku", cost: "$0.008", latency: "250ms", markers: ["Fast", "Concise"] }
       ]
     }
+  ];
+
+  const sttModels = [
+    { id: "deepgram", name: "Deepgram Nova-2", cost: "$0.0043/min", wer: "8.7% (US EN), 11.2% (Hindi)", firstPartial: "~235ms P95", target: "≤250ms" },
+    { id: "azure-stt", name: "Azure Speech", cost: "$0.006/min", wer: "9.1% (US EN), 12.3% (Hindi)", firstPartial: "~280ms P95", target: "≤300ms" },
+    { id: "google-stt", name: "Google Speech-to-Text", cost: "$0.004/min", wer: "9.5% (US EN), 13.1% (Hindi)", firstPartial: "~310ms P95", target: "≤350ms" },
+    { id: "aws-transcribe", name: "AWS Transcribe", cost: "$0.024/min", wer: "10.2% (US EN), 14.5% (Hindi)", firstPartial: "~420ms P95", target: "≤450ms" }
+  ];
+
+  const backgroundSounds = [
+    { id: "none", name: "None" },
+    { id: "coffee-shop", name: "Coffee Shop" },
+    { id: "convention-hall", name: "Convention Hall" },
+    { id: "summer-outdoor", name: "Summer Outdoor" },
+    { id: "mountain-outdoor", name: "Mountain Outdoor" },
+    { id: "static-noise", name: "Static Noise" },
+    { id: "call-center", name: "Call Center" }
   ];
 
   const templates = [
@@ -232,7 +261,7 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
       </div>
 
       <Tabs defaultValue="persona" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="persona" className="flex items-center space-x-2">
             <Bot className="w-4 h-4" />
             <span>Persona</span>
@@ -248,6 +277,10 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
           <TabsTrigger value="language" className="flex items-center space-x-2">
             <Globe className="w-4 h-4" />
             <span>Language</span>
+          </TabsTrigger>
+          <TabsTrigger value="speech" className="flex items-center space-x-2">
+            <Mic className="w-4 h-4" />
+            <span>Speech</span>
           </TabsTrigger>
           <TabsTrigger value="models" className="flex items-center space-x-2">
             <Settings className="w-4 h-4" />
@@ -1018,6 +1051,179 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="speech" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="bg-gradient-card border-border/50 shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Mic className="w-5 h-5 text-primary" />
+                  <span>Speech-to-Text Model</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-3">
+                  {sttModels.map((model) => (
+                    <div 
+                      key={model.id} 
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                        selectedSTTModel === model.id 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                      onClick={() => setSelectedSTTModel(model.id)}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="font-medium text-foreground">{model.name}</div>
+                        <div className="flex items-center space-x-1">
+                          {selectedSTTModel === model.id && (
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <div>Cost: {model.cost}</div>
+                        <div>WER: {model.wer}</div>
+                        <div>First Partial: {model.firstPartial}</div>
+                        <div>Target: {model.target}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-card border-border/50 shadow-card">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Settings className="w-5 h-5 text-primary" />
+                  <span>Speech Settings</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-2">
+                  <Label>Background Sound</Label>
+                  <Select value={backgroundSound} onValueChange={setBackgroundSound}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {backgroundSounds.map((sound) => (
+                        <SelectItem key={sound.id} value={sound.id}>
+                          {sound.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {backgroundSound !== "none" && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label>Background Sound Volume</Label>
+                      <span className="text-sm text-muted-foreground">{backgroundVolume[0]}</span>
+                    </div>
+                    <Slider
+                      value={backgroundVolume}
+                      onValueChange={setBackgroundVolume}
+                      max={1}
+                      min={0}
+                      step={0.1}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Responsiveness</Label>
+                    <span className="text-sm text-muted-foreground">{responsiveness[0]}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Control how fast the agent responds after users finish speaking.
+                  </p>
+                  <Slider
+                    value={responsiveness}
+                    onValueChange={setResponsiveness}
+                    max={2}
+                    min={0}
+                    step={0.1}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label>Interruption Sensitivity</Label>
+                    <span className="text-sm text-muted-foreground">{interruptionSensitivity[0]}</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Control how sensitively AI can be interrupted by human speech.
+                  </p>
+                  <Slider
+                    value={interruptionSensitivity}
+                    onValueChange={setInterruptionSensitivity}
+                    max={1}
+                    min={0}
+                    step={0.1}
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Enable Backchanneling</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Enables the agent to use affirmations like 'yeah' or 'uh-huh' during conversations, indicating active listening and engagement.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={enableBackchanneling}
+                    onCheckedChange={setEnableBackchanneling}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Enable Speech Normalization</Label>
+                    <p className="text-xs text-muted-foreground">
+                      It converts text elements like numbers, currency, and dates into human-like spoken forms.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={enableSpeechNormalization}
+                    onCheckedChange={setEnableSpeechNormalization}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Reminder Message Frequency</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Control how often AI will send a reminder message.
+                  </p>
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="number"
+                      value={reminderSeconds}
+                      onChange={(e) => setReminderSeconds(e.target.value)}
+                      className="w-20"
+                      min="1"
+                    />
+                    <span className="text-sm text-muted-foreground">seconds</span>
+                    <Input
+                      type="number"
+                      value={reminderTimes}
+                      onChange={(e) => setReminderTimes(e.target.value)}
+                      className="w-20"
+                      min="1"
+                    />
+                    <span className="text-sm text-muted-foreground">times</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="models" className="space-y-6">
