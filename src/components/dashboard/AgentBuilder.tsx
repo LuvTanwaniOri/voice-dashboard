@@ -530,42 +530,44 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                         ))}
                       </SelectContent>
                     </Select>
+                    
+                    {/* Categories directly below model selection */}
+                    {(() => {
+                      const currentModel = providers
+                        .find(p => p.id === selectedProvider)
+                        ?.models.find(m => m.id === selectedModel);
+                      return currentModel ? (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {currentModel.markers.map((marker, idx) => (
+                            <Badge 
+                              key={idx} 
+                              variant="outline" 
+                              className="text-xs font-medium bg-primary/10 text-primary border-primary/20"
+                            >
+                              {marker}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
                 
-                {/* Model Info */}
+                {/* Cost and Latency Info */}
                 {(() => {
                   const currentModel = providers
                     .find(p => p.id === selectedProvider)
                     ?.models.find(m => m.id === selectedModel);
                   return currentModel ? (
-                    <div className="mt-4 p-4 bg-muted/30 rounded-md border border-border/20">
-                      <div className="flex flex-col space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-6">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-muted-foreground text-sm">Cost:</span>
-                              <span className="font-semibold text-foreground">{currentModel.cost}/1k tokens</span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-muted-foreground text-sm">Latency:</span>
-                              <span className="font-semibold text-foreground">~{currentModel.latency} P95</span>
-                            </div>
-                          </div>
+                    <div className="mt-4 p-3 bg-muted/20 rounded-md border border-border/10">
+                      <div className="flex items-center space-x-6">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-muted-foreground text-sm">Cost:</span>
+                          <span className="font-semibold text-foreground">{currentModel.cost}/1k tokens</span>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <span className="text-muted-foreground text-sm">Categories:</span>
-                          <div className="flex flex-wrap gap-2">
-                            {currentModel.markers.map((marker, idx) => (
-                              <Badge 
-                                key={idx} 
-                                variant="outline" 
-                                className="text-xs font-medium bg-primary/10 text-primary border-primary/20 hover:bg-primary/20"
-                              >
-                                {marker}
-                              </Badge>
-                            ))}
-                          </div>
+                          <span className="text-muted-foreground text-sm">Latency:</span>
+                          <span className="font-semibold text-foreground">~{currentModel.latency} P95</span>
                         </div>
                       </div>
                     </div>
