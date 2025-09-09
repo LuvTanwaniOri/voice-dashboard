@@ -220,7 +220,7 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
       </div>
 
       <Tabs defaultValue="persona" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-10">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="persona" className="flex items-center space-x-2">
             <Bot className="w-4 h-4" />
             <span>Persona</span>
@@ -236,10 +236,6 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
           <TabsTrigger value="language" className="flex items-center space-x-2">
             <Globe className="w-4 h-4" />
             <span>Language</span>
-          </TabsTrigger>
-          <TabsTrigger value="speech" className="flex items-center space-x-2">
-            <Mic className="w-4 h-4" />
-            <span>Speech</span>
           </TabsTrigger>
           <TabsTrigger value="models" className="flex items-center space-x-2">
             <Settings className="w-4 h-4" />
@@ -1012,111 +1008,6 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
           </Card>
         </TabsContent>
 
-        <TabsContent value="speech" className="space-y-6">
-          <Card className="bg-gradient-card border-border/50 shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Mic className="w-5 h-5 text-primary" />
-                <span>Speech-to-Text Configuration</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Provider Policy</Label>
-                  <Select defaultValue="quality-first">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="quality-first">Quality First</SelectItem>
-                      <SelectItem value="cost-first">Cost First</SelectItem>
-                      <SelectItem value="latency-first">Latency First</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-4">
-                  <Label>Available STT Models</Label>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[
-                      {
-                        id: "deepgram-nova-2",
-                        name: "Deepgram Nova-2",
-                        cost: "$0.0043/min",
-                        wer: "8.7% (US EN), 11.2% (Hindi)",
-                        firstPartial: "~235ms P95",
-                        target: "≤250ms",
-                        selected: true
-                      },
-                      {
-                        id: "azure-stt",
-                        name: "Azure Speech",
-                        cost: "$0.006/min",
-                        wer: "9.2% (US EN), 12.8% (Hindi)",
-                        firstPartial: "~280ms P95",
-                        target: "≤300ms",
-                        selected: false
-                      },
-                      {
-                        id: "google-stt",
-                        name: "Google Speech-to-Text",
-                        cost: "$0.004/min",
-                        wer: "8.9% (US EN), 11.5% (Hindi)",
-                        firstPartial: "~250ms P95",
-                        target: "≤270ms",
-                        selected: false
-                      },
-                      {
-                        id: "aws-transcribe",
-                        name: "AWS Transcribe",
-                        cost: "$0.0048/min",
-                        wer: "9.1% (US EN), 12.1% (Hindi)",
-                        firstPartial: "~290ms P95",
-                        target: "≤320ms",
-                        selected: false
-                      }
-                    ].map((model) => (
-                      <div 
-                        key={model.id}
-                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                          model.selected 
-                            ? "border-primary bg-primary/10" 
-                            : "border-border hover:bg-muted/30"
-                        }`}
-                      >
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium text-foreground">{model.name}</h4>
-                            {model.selected && (
-                              <Badge className="bg-primary/20 text-primary border-primary/30">
-                                Selected
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="text-sm text-muted-foreground space-y-1">
-                            <div>Cost: {model.cost}</div>
-                            <div>WER: {model.wer}</div>
-                            <div>First Partial: {model.firstPartial}</div>
-                            <div>Target: {model.target}</div>
-                          </div>
-                          <Button 
-                            variant={model.selected ? "outline" : "default"}
-                            size="sm"
-                            className="w-full"
-                          >
-                            {model.selected ? "Selected" : "Select"}
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="models" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="bg-gradient-card border-border/50 shadow-card">
@@ -1310,6 +1201,39 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                   <span>Available Tools</span>
                 </CardTitle>
               </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {tools.map((tool) => (
+                    <div key={tool.id} className="flex items-center justify-between p-4 bg-accent/30 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <Switch defaultChecked={tool.enabled} />
+                        <div>
+                          <div className="font-medium text-foreground">{tool.name}</div>
+                          <div className="text-sm text-muted-foreground">{tool.description}</div>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <Settings className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                
+                <Separator className="my-6" />
+                
+                <div className="space-y-4">
+                  <h4 className="font-medium text-foreground">Custom Webhooks</h4>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between p-3 bg-accent/20 rounded border-2 border-dashed border-border">
+                      <span className="text-sm text-muted-foreground">No custom webhooks configured</span>
+                      <Button variant="outline" size="sm">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Webhook
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
             </Card>
           </div>
 
@@ -1989,84 +1913,63 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <FileText className="w-5 h-5 text-primary" />
-                  <span>Knowledge Base</span>
+                  <span>Knowledge Base Packs</span>
                 </div>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Select Knowledge Bases</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 max-h-96 overflow-y-auto">
-                      <p className="text-sm text-muted-foreground">
-                        Add knowledge base to provide context to the agent.
-                      </p>
-                      
-                      <div className="space-y-3">
-                        {[
-                          { id: 1, name: "Product Catalog", description: "Complete product information and specifications", status: "HOT", size: "18.4 MB" },
-                          { id: 2, name: "Pricing Guidelines", description: "Current pricing structure and discount policies", status: "HOT", size: "2.1 MB" },
-                          { id: 3, name: "Competitor Analysis", description: "Market research and competitive positioning", status: "COLD", size: "24.8 MB" },
-                          { id: 4, name: "Objection Handling", description: "Common objections and response strategies", status: "WARMING", size: "5.3 MB" },
-                          { id: 5, name: "Technical Documentation", description: "API documentation and integration guides", status: "HOT", size: "12.7 MB" },
-                          { id: 6, name: "Customer Success Stories", description: "Case studies and testimonials", status: "COLD", size: "8.2 MB" }
-                        ].map((kb) => (
-                          <div key={kb.id} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                            <input type="checkbox" className="rounded" />
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-2">
-                                <h4 className="font-medium text-foreground">{kb.name}</h4>
-                                <Badge 
-                                  variant={kb.status === "HOT" ? "default" : kb.status === "WARMING" ? "secondary" : "outline"}
-                                  className={
-                                    kb.status === "HOT" ? "bg-success/20 text-success" :
-                                    kb.status === "WARMING" ? "bg-warning/20 text-warning" :
-                                    "bg-muted/20 text-muted-foreground"
-                                  }
-                                >
-                                  {kb.status}
-                                </Badge>
-                              </div>
-                              <p className="text-sm text-muted-foreground">{kb.description}</p>
-                              <div className="text-xs text-muted-foreground mt-1">{kb.size}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <Separator />
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full justify-start"
-                        onClick={() => {
-                          // TODO: Navigate to knowledge base section
-                          console.log("Navigate to knowledge base section");
-                        }}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create Knowledge Base
-                      </Button>
-                    </div>
-                    
-                    <div className="flex justify-end space-x-2 pt-4">
-                      <Button variant="outline">Cancel</Button>
-                      <Button>Add Selected</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Upload Pack
+                </Button>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No knowledge bases added yet.</p>
-                <p className="text-sm">Click "Add" to select knowledge bases for your agent.</p>
+              <div className="space-y-4">
+                {knowledgePacks.map((pack) => (
+                  <div key={pack.id} className="flex items-center justify-between p-4 bg-accent/30 rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium text-foreground">{pack.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {pack.size} • Updated {pack.updated}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Badge 
+                        variant={pack.status === "HOT" ? "default" : pack.status === "WARMING" ? "secondary" : "outline"}
+                        className={
+                          pack.status === "HOT" ? "bg-success/20 text-success" :
+                          pack.status === "WARMING" ? "bg-warning/20 text-warning" :
+                          "bg-muted/20 text-muted-foreground"
+                        }
+                      >
+                        {pack.status}
+                      </Badge>
+                      <div className="flex space-x-1">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 rounded-full bg-primary mt-2"></div>
+                  <div className="text-sm">
+                    <div className="font-medium text-foreground">Knowledge Pack Status</div>
+                    <div className="text-muted-foreground mt-1">
+                      <strong>HOT:</strong> Ready for use • <strong>WARMING:</strong> Loading into memory • <strong>COLD:</strong> Inactive (15+ days)
+                    </div>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
