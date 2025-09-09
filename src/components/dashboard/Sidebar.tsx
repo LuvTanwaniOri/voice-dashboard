@@ -86,14 +86,56 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         })}
       </nav>
 
-      {/* AI Status */}
+      {/* Credits Wallet */}
       <div className="p-4 border-t border-border-glass/50">
-        <div className="neural-status flex items-center space-x-3 p-4 rounded-xl bg-success/10 border border-success/30 backdrop-blur-sm relative overflow-hidden">
-          <div className="w-2.5 h-2.5 bg-success rounded-full neural-pulse" />
-          <div className="flex-1">
-            <span className="text-sm font-semibold text-success">AI Systems Online</span>
-            <div className="text-xs text-text-muted mt-0.5">Neural networks active • 99.9% uptime</div>
+        <div 
+          className="neural-status p-4 rounded-xl bg-gradient-to-br from-primary/10 to-accent-blue/10 border border-primary/30 backdrop-blur-sm relative overflow-hidden cursor-pointer hover:from-primary/15 hover:to-accent-blue/15 transition-all duration-300 group"
+          onClick={() => {
+            // TODO: Open billing page
+            console.log('Opening billing page...');
+          }}
+        >
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs font-bold">$</span>
+              </div>
+              <div>
+                <span className="text-sm font-semibold text-text-primary">Credits Wallet</span>
+                <div className="text-xs text-text-muted">Click to manage</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-lg font-bold text-primary">$24.50</div>
+              <div className="text-xs text-text-muted">Remaining</div>
+            </div>
           </div>
+          
+          {/* Progress Bar */}
+          <div className="mb-3">
+            <div className="flex justify-between text-xs text-text-muted mb-1">
+              <span>Usage</span>
+              <span>75% used</span>
+            </div>
+            <div className="w-full bg-surface-glass/50 rounded-full h-2 overflow-hidden">
+              <div className="bg-gradient-primary h-full rounded-full transition-all duration-500" style={{ width: '75%' }} />
+            </div>
+          </div>
+          
+          {/* Recent Activity */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-text-muted">Last recharge:</span>
+              <span className="text-accent-blue font-medium">Dec 15, $50.00</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-text-muted">Credits used:</span>
+              <span className="text-warning font-medium">$25.50 this month</span>
+            </div>
+          </div>
+          
+          {/* Hover effect */}
+          <div className="absolute inset-0 bg-gradient-neural opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
         </div>
       </div>
     </div>
