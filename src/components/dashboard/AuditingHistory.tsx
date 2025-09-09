@@ -41,6 +41,7 @@ import {
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { ClientCallAudit } from "./ClientCallAuditDialog";
+import { CallDebugModal } from "./CallDebugModal";
 
 // Mock data for demonstration
 const mockAudits: (ClientCallAudit & { 
@@ -283,6 +284,8 @@ export function AuditingHistory() {
   const [recordsPerPage, setRecordsPerPage] = useState(10);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [debugModalOpen, setDebugModalOpen] = useState(false);
+  const [debugCallId, setDebugCallId] = useState<string>('');
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -483,7 +486,10 @@ export function AuditingHistory() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => window.open(`/debug/call/${audit.sessionId}`, '_blank')}
+                        onClick={() => {
+                          setDebugCallId(audit.sessionId);
+                          setDebugModalOpen(true);
+                        }}
                         className="flex items-center space-x-1"
                       >
                         <Activity className="w-4 h-4" />
@@ -1082,6 +1088,12 @@ export function AuditingHistory() {
           </div>
         </CardContent>
       </Card>
+      
+      <CallDebugModal 
+        isOpen={debugModalOpen} 
+        onClose={() => setDebugModalOpen(false)} 
+        callId={debugCallId} 
+      />
     </div>
   );
 }
