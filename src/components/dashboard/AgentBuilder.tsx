@@ -461,18 +461,6 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
             </Card>
           </div>
 
-          <Card className="bg-gradient-card border-border/50 shadow-card">
-            <CardHeader>
-              <CardTitle>System Prompt</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea 
-                placeholder="Enter your agent's system prompt and instructions..."
-                className="min-h-[200px]"
-                defaultValue="You are Sarah, a professional lead qualification agent for a SaaS company. Your goal is to identify qualified prospects by understanding their budget, authority, need, and timeline. Be conversational, helpful, and respectful. Always ask for permission before asking qualifying questions."
-              />
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="brain" className="space-y-6">
