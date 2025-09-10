@@ -127,7 +127,7 @@ export function Telephony() {
                 Add Phone Number
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
               <DialogHeader className="flex-shrink-0">
                 <DialogTitle>Add Phone Number</DialogTitle>
                 <DialogDescription>
@@ -135,7 +135,7 @@ export function Telephony() {
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-hidden">
                 <Tabs value={createMethod} onValueChange={(value) => setCreateMethod(value as 'sip' | 'buy' | 'import')} className="h-full flex flex-col">
                   <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
                     <TabsTrigger value="buy" className="flex items-center gap-2">
@@ -152,76 +152,78 @@ export function Telephony() {
                     </TabsTrigger>
                   </TabsList>
 
-                <TabsContent value="buy" className="space-y-6 mt-6">
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="country">Country</Label>
-                        <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="US">🇺🇸 United States</SelectItem>
-                            <SelectItem value="CA">🇨🇦 Canada</SelectItem>
-                            <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                            <SelectItem value="IN">🇮🇳 India</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="area-code">Area Code (Optional)</Label>
-                        <Input id="area-code" placeholder="e.g., 555" />
-                      </div>
-                    </div>
+                  <TabsContent value="buy" className="flex-1 mt-6 overflow-hidden">
+                    <ScrollArea className="h-full">
+                      <div className="space-y-6 pr-4 pb-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="country">Country</Label>
+                            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select country" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="US">🇺🇸 United States</SelectItem>
+                                <SelectItem value="CA">🇨🇦 Canada</SelectItem>
+                                <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
+                                <SelectItem value="IN">🇮🇳 India</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="area-code">Area Code (Optional)</Label>
+                            <Input id="area-code" placeholder="e.g., 555" />
+                          </div>
+                        </div>
 
-                    <div className="space-y-4">
-                      <Label>Choose Provider</Label>
-                      <div className="grid gap-4">
-                        {providers.map((provider) => (
-                          <Card 
-                            key={provider.id} 
-                            className={cn(
-                              "cursor-pointer transition-all duration-200 hover:shadow-md",
-                              selectedProvider === provider.id && "ring-2 ring-primary"
-                            )}
-                            onClick={() => setSelectedProvider(provider.id)}
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                  <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                                    <Phone className="w-5 h-5 text-white" />
+                        <div className="space-y-4">
+                          <Label>Choose Provider</Label>
+                          <div className="grid gap-4">
+                            {providers.map((provider) => (
+                              <Card 
+                                key={provider.id} 
+                                className={cn(
+                                  "cursor-pointer transition-all duration-200 hover:shadow-md",
+                                  selectedProvider === provider.id && "ring-2 ring-primary"
+                                )}
+                                onClick={() => setSelectedProvider(provider.id)}
+                              >
+                                <CardContent className="p-4">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-3">
+                                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
+                                        <Phone className="w-5 h-5 text-white" />
+                                      </div>
+                                      <div>
+                                        <h3 className="font-semibold text-text-primary">{provider.name}</h3>
+                                        <p className="text-sm text-text-muted">{provider.description}</p>
+                                      </div>
+                                    </div>
+                                    <div className="text-right space-y-1">
+                                      <div className="text-sm">
+                                        <span className="text-text-muted">Setup: </span>
+                                        <span className="font-medium text-text-primary">{provider.setupFee}</span>
+                                      </div>
+                                      <div className="text-sm">
+                                        <span className="text-text-muted">Monthly: </span>
+                                        <span className="font-medium text-text-primary">{provider.monthlyRate}</span>
+                                      </div>
+                                      <div className="text-sm">
+                                        <span className="text-text-muted">Per min: </span>
+                                        <span className="font-medium text-text-primary">{provider.perMinute}</span>
+                                      </div>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <h3 className="font-semibold text-text-primary">{provider.name}</h3>
-                                    <p className="text-sm text-text-muted">{provider.description}</p>
-                                  </div>
-                                </div>
-                                <div className="text-right space-y-1">
-                                  <div className="text-sm">
-                                    <span className="text-text-muted">Setup: </span>
-                                    <span className="font-medium text-text-primary">{provider.setupFee}</span>
-                                  </div>
-                                  <div className="text-sm">
-                                    <span className="text-text-muted">Monthly: </span>
-                                    <span className="font-medium text-text-primary">{provider.monthlyRate}</span>
-                                  </div>
-                                  <div className="text-sm">
-                                    <span className="text-text-muted">Per min: </span>
-                                    <span className="font-medium text-text-primary">{provider.perMinute}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
+                                </CardContent>
+                              </Card>
+                            ))}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </TabsContent>
+                    </ScrollArea>
+                  </TabsContent>
 
-                  <TabsContent value="import" className="flex-1 overflow-hidden">
+                  <TabsContent value="import" className="flex-1 mt-6 overflow-hidden">
                     <ScrollArea className="h-full">
                       <div className="space-y-6 pr-4 pb-4">
                         <div className="bg-surface-2 p-4 rounded-lg border border-border">
@@ -469,7 +471,7 @@ export function Telephony() {
                     </ScrollArea>
                   </TabsContent>
 
-                  <TabsContent value="sip" className="flex-1 overflow-hidden">
+                  <TabsContent value="sip" className="flex-1 mt-6 overflow-hidden">
                     <ScrollArea className="h-full">
                       <div className="space-y-6 pr-4 pb-4">
                         <div className="bg-surface-2 p-4 rounded-lg border border-border">
