@@ -127,399 +127,408 @@ export function Telephony() {
                 Add Phone Number
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[85vh] overflow-hidden flex flex-col">
-              <DialogHeader className="flex-shrink-0">
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-auto">
+              <DialogHeader className="pb-4">
                 <DialogTitle>Add Phone Number</DialogTitle>
                 <DialogDescription>
                   Choose how you'd like to add a phone number to your account
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="flex-1 min-h-0 overflow-hidden">
-                <Tabs value={createMethod} onValueChange={(value) => setCreateMethod(value as 'sip' | 'buy' | 'import')} className="h-full flex flex-col">
-                  <TabsList className="grid w-full grid-cols-3 flex-shrink-0">
-                    <TabsTrigger value="buy" className="flex items-center gap-2">
-                      <CreditCard className="w-4 h-4" />
-                      Buy Phone Number
-                    </TabsTrigger>
-                    <TabsTrigger value="import" className="flex items-center gap-2">
-                      <Globe className="w-4 h-4" />
-                      Import Phone Number
-                    </TabsTrigger>
-                    <TabsTrigger value="sip" className="flex items-center gap-2">
-                      <Settings className="w-4 h-4" />
-                      SIP Trunking
-                    </TabsTrigger>
-                  </TabsList>
+              <Tabs value={createMethod} onValueChange={(value) => setCreateMethod(value as 'sip' | 'buy' | 'import')} className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-6">
+                  <TabsTrigger value="buy" className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4" />
+                    Buy Phone Number
+                  </TabsTrigger>
+                  <TabsTrigger value="import" className="flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    Import Phone Number
+                  </TabsTrigger>
+                  <TabsTrigger value="sip" className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    SIP Trunking
+                  </TabsTrigger>
+                </TabsList>
 
-                  <TabsContent value="buy" className="flex-1 mt-6 overflow-hidden">
-                    <ScrollArea className="h-full">
-                      <div className="space-y-6 pr-4 pb-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="country">Country</Label>
-                            <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select country" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="US">🇺🇸 United States</SelectItem>
-                                <SelectItem value="CA">🇨🇦 Canada</SelectItem>
-                                <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                                <SelectItem value="IN">🇮🇳 India</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="area-code">Area Code (Optional)</Label>
-                            <Input id="area-code" placeholder="e.g., 555" />
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <Label>Choose Provider</Label>
-                          <div className="grid gap-4">
-                            {providers.map((provider) => (
-                              <Card 
-                                key={provider.id} 
-                                className={cn(
-                                  "cursor-pointer transition-all duration-200 hover:shadow-md",
-                                  selectedProvider === provider.id && "ring-2 ring-primary"
-                                )}
-                                onClick={() => setSelectedProvider(provider.id)}
-                              >
-                                <CardContent className="p-4">
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-3">
-                                      <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                                        <Phone className="w-5 h-5 text-white" />
-                                      </div>
-                                      <div>
-                                        <h3 className="font-semibold text-text-primary">{provider.name}</h3>
-                                        <p className="text-sm text-text-muted">{provider.description}</p>
-                                      </div>
-                                    </div>
-                                    <div className="text-right space-y-1">
-                                      <div className="text-sm">
-                                        <span className="text-text-muted">Setup: </span>
-                                        <span className="font-medium text-text-primary">{provider.setupFee}</span>
-                                      </div>
-                                      <div className="text-sm">
-                                        <span className="text-text-muted">Monthly: </span>
-                                        <span className="font-medium text-text-primary">{provider.monthlyRate}</span>
-                                      </div>
-                                      <div className="text-sm">
-                                        <span className="text-text-muted">Per min: </span>
-                                        <span className="font-medium text-text-primary">{provider.perMinute}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-
-                  <TabsContent value="import" className="flex-1 mt-6 overflow-hidden">
-                    <ScrollArea className="h-full">
-                      <div className="space-y-6 pr-4 pb-4">
-                        <div className="bg-surface-2 p-4 rounded-lg border border-border">
-                          <div className="flex items-start gap-3">
-                            <HelpCircle className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
-                            <div>
-                              <h4 className="font-medium text-text-primary">Import Existing Numbers</h4>
-                              <p className="text-sm text-text-muted mt-1">
-                                Import phone numbers from your existing provider accounts. Your credentials will be securely stored and encrypted.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-4">
-                          <Label>Choose Provider to Import From</Label>
-                          <div className="grid grid-cols-3 gap-4">
-                            {[
-                              { id: 'twilio', name: 'Twilio', description: 'Import from Twilio', icon: '🔷' },
-                              { id: 'telnyx', name: 'Telnyx', description: 'Import from Telnyx', icon: '🟢' },
-                              { id: 'sarvam', name: 'Sarvam', description: 'Import from Sarvam', icon: '🔵' }
-                            ].map((provider) => (
-                              <Card 
-                                key={provider.id} 
-                                className={cn(
-                                  "cursor-pointer transition-all duration-200 hover:shadow-md",
-                                  importProvider === provider.id && "ring-2 ring-accent-blue"
-                                )}
-                                onClick={() => setImportProvider(provider.id)}
-                              >
-                                <CardContent className="p-4 text-center">
-                                  <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center mx-auto mb-3">
-                                    <span className="text-xl">{provider.icon}</span>
-                                  </div>
-                                  <h3 className="font-semibold text-text-primary text-sm">{provider.name}</h3>
-                                  <p className="text-xs text-text-muted mt-1">{provider.description}</p>
-                                </CardContent>
-                              </Card>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Provider-specific import forms */}
-                        {importProvider === 'twilio' && (
-                          <div className="space-y-4 pt-4 border-t">
-                            <h4 className="font-semibold text-text-primary flex items-center gap-2">
-                              🔷 Twilio Import Configuration
-                            </h4>
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="twilio-country">Country</Label>
-                                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select country" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="US">🇺🇸 United States</SelectItem>
-                                    <SelectItem value="CA">🇨🇦 Canada</SelectItem>
-                                    <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                                    <SelectItem value="IN">🇮🇳 India</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="twilio-phone">Phone Number</Label>
-                                <Input id="twilio-phone" placeholder="+14156021922" />
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="twilio-sid">
-                                Twilio Account SID
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <HelpCircle className="w-4 h-4 ml-1 text-accent-blue inline cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-surface border-border text-text-primary">
-                                    <p>Found in your Twilio Console dashboard</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </Label>
-                              <Input id="twilio-sid" placeholder="Twilio Account SID" />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="twilio-token">
-                                Twilio Auth Token
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <HelpCircle className="w-4 h-4 ml-1 text-accent-blue inline cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-surface border-border text-text-primary">
-                                    <p>Your secret auth token from Twilio Console</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </Label>
-                              <Input id="twilio-token" type="password" placeholder="Twilio Auth Token" />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="twilio-label">Label</Label>
-                              <Input id="twilio-label" placeholder="Label for Phone Number" />
-                            </div>
-
-                            <div className="flex items-center justify-between p-4 bg-surface-2 rounded-lg">
-                              <div className="space-y-1">
-                                <Label className="text-sm font-medium">SMS Enabled</Label>
-                                <p className="text-xs text-text-muted">Enable SMS messaging for this phone number</p>
-                              </div>
-                              <input type="checkbox" className="w-4 h-4" defaultChecked />
-                            </div>
-                          </div>
-                        )}
-
-                        {importProvider === 'telnyx' && (
-                          <div className="space-y-4 pt-4 border-t">
-                            <h4 className="font-semibold text-text-primary flex items-center gap-2">
-                              🟢 Telnyx Import Configuration
-                            </h4>
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="telnyx-country">Country</Label>
-                                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select country" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="US">🇺🇸 United States</SelectItem>
-                                    <SelectItem value="CA">🇨🇦 Canada</SelectItem>
-                                    <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                                    <SelectItem value="IN">🇮🇳 India</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="telnyx-phone">Phone Number</Label>
-                                <Input id="telnyx-phone" placeholder="+14156021922" />
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="telnyx-api-key">
-                                API Key
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <HelpCircle className="w-4 h-4 ml-1 text-accent-blue inline cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-surface border-border text-text-primary">
-                                    <p>Your Telnyx API key from the developer portal</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </Label>
-                              <Input id="telnyx-api-key" type="password" placeholder="Enter API Key" />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="telnyx-label">Label</Label>
-                              <Input id="telnyx-label" placeholder="Label for Phone Number" />
-                            </div>
-
-                            <div className="flex items-center justify-between p-4 bg-surface-2 rounded-lg">
-                              <div className="space-y-1">
-                                <Label className="text-sm font-medium">SMS Enabled</Label>
-                                <p className="text-xs text-text-muted">Enable SMS messaging for this phone number</p>
-                              </div>
-                              <input type="checkbox" className="w-4 h-4" defaultChecked />
-                            </div>
-                          </div>
-                        )}
-
-                        {importProvider === 'sarvam' && (
-                          <div className="space-y-4 pt-4 border-t">
-                            <h4 className="font-semibold text-text-primary flex items-center gap-2">
-                              🔵 Sarvam Import Configuration
-                            </h4>
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="sarvam-country">Country</Label>
-                                <Select value={selectedCountry} onValueChange={setSelectedCountry}>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select country" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="US">🇺🇸 United States</SelectItem>
-                                    <SelectItem value="CA">🇨🇦 Canada</SelectItem>
-                                    <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
-                                    <SelectItem value="IN">🇮🇳 India</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="sarvam-phone">Phone Number</Label>
-                                <Input id="sarvam-phone" placeholder="+14156021922" />
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="sarvam-sid">
-                                Sarvam Account SID
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <HelpCircle className="w-4 h-4 ml-1 text-accent-blue inline cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-surface border-border text-text-primary">
-                                    <p>Found in your Sarvam Console dashboard</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </Label>
-                              <Input id="sarvam-sid" placeholder="Sarvam Account SID" />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="sarvam-token">
-                                Sarvam Auth Token
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <HelpCircle className="w-4 h-4 ml-1 text-accent-blue inline cursor-help" />
-                                  </TooltipTrigger>
-                                  <TooltipContent className="bg-surface border-border text-text-primary">
-                                    <p>Your secret auth token from Sarvam Console</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </Label>
-                              <Input id="sarvam-token" type="password" placeholder="Sarvam Auth Token" />
-                            </div>
-
-                            <div className="space-y-2">
-                              <Label htmlFor="sarvam-label">Label</Label>
-                              <Input id="sarvam-label" placeholder="Label for Phone Number" />
-                            </div>
-
-                            <div className="flex items-center justify-between p-4 bg-surface-2 rounded-lg">
-                              <div className="space-y-1">
-                                <Label className="text-sm font-medium">SMS Enabled</Label>
-                                <p className="text-xs text-text-muted">Enable SMS messaging for this phone number</p>
-                              </div>
-                              <input type="checkbox" className="w-4 h-4" defaultChecked />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-
-                  <TabsContent value="sip" className="flex-1 mt-6 overflow-hidden">
-                    <ScrollArea className="h-full">
-                      <div className="space-y-6 pr-4 pb-4">
-                        <div className="bg-surface-2 p-4 rounded-lg border border-border">
-                          <div className="flex items-start gap-3">
-                            <HelpCircle className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
-                            <div>
-                              <h4 className="font-medium text-text-primary">SIP Trunking Setup</h4>
-                              <p className="text-sm text-text-muted mt-1">
-                                Connect your existing phone number through your SIP provider. You'll need SIP credentials from your provider.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="sip-domain">SIP Domain</Label>
-                            <Input id="sip-domain" placeholder="sip.yourprovider.com" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="sip-port">Port</Label>
-                            <Input id="sip-port" placeholder="5060" />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="sip-username">Username</Label>
-                            <Input id="sip-username" placeholder="Your SIP username" />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="sip-password">Password</Label>
-                            <Input id="sip-password" type="password" placeholder="Your SIP password" />
-                          </div>
-                        </div>
-
+                <TabsContent value="buy" className="space-y-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="phone-number">Phone Number</Label>
-                          <Input id="phone-number" placeholder="+1 (555) 123-4567" />
-                          <p className="text-xs text-text-muted">The phone number associated with this SIP trunk</p>
+                          <Label htmlFor="country" className="text-sm">Country</Label>
+                          <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                            <SelectTrigger className="h-9">
+                              <SelectValue placeholder="Select country" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="US">🇺🇸 United States</SelectItem>
+                              <SelectItem value="CA">🇨🇦 Canada</SelectItem>
+                              <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
+                              <SelectItem value="IN">🇮🇳 India</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="area-code" className="text-sm">Area Code (Optional)</Label>
+                          <Input id="area-code" className="h-9" placeholder="e.g., 555" />
                         </div>
                       </div>
-                    </ScrollArea>
-                  </TabsContent>
-                </Tabs>
-              </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Label className="text-sm">Choose Provider</Label>
+                      <div className="space-y-2">
+                        {providers.map((provider) => (
+                          <Card 
+                            key={provider.id} 
+                            className={cn(
+                              "cursor-pointer transition-all duration-200 hover:shadow-sm",
+                              selectedProvider === provider.id && "ring-2 ring-primary"
+                            )}
+                            onClick={() => setSelectedProvider(provider.id)}
+                          >
+                            <CardContent className="p-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
+                                    <Phone className="w-4 h-4 text-white" />
+                                  </div>
+                                  <div>
+                                    <h3 className="font-medium text-text-primary text-sm">{provider.name}</h3>
+                                    <p className="text-xs text-text-muted">{provider.description}</p>
+                                  </div>
+                                </div>
+                                <div className="text-right space-y-0.5">
+                                  <div className="text-xs">
+                                    <span className="text-text-muted">Setup: </span>
+                                    <span className="font-medium text-text-primary">{provider.setupFee}</span>
+                                  </div>
+                                  <div className="text-xs">
+                                    <span className="text-text-muted">Monthly: </span>
+                                    <span className="font-medium text-text-primary">{provider.monthlyRate}</span>
+                                  </div>
+                                  <div className="text-xs">
+                                    <span className="text-text-muted">Per min: </span>
+                                    <span className="font-medium text-text-primary">{provider.perMinute}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
 
-              <div className="flex justify-end gap-3 pt-4 border-t flex-shrink-0">
+                <TabsContent value="import" className="space-y-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Left Column - Provider Selection & Instructions */}
+                    <div className="space-y-4">
+                      <div className="bg-surface-2 p-3 rounded-lg border border-border">
+                        <div className="flex items-start gap-2">
+                          <HelpCircle className="w-4 h-4 text-accent-blue mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h4 className="font-medium text-text-primary text-sm">Import Existing Numbers</h4>
+                            <p className="text-xs text-text-muted mt-1">
+                              Import phone numbers from your existing provider accounts.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label className="text-sm">Choose Provider to Import From</Label>
+                        <div className="space-y-2">
+                          {[
+                            { id: 'twilio', name: 'Twilio', description: 'Import from Twilio', icon: '🔷' },
+                            { id: 'telnyx', name: 'Telnyx', description: 'Import from Telnyx', icon: '🟢' },
+                            { id: 'sarvam', name: 'Sarvam', description: 'Import from Sarvam', icon: '🔵' }
+                          ].map((provider) => (
+                            <Card 
+                              key={provider.id} 
+                              className={cn(
+                                "cursor-pointer transition-all duration-200 hover:shadow-sm",
+                                importProvider === provider.id && "ring-2 ring-accent-blue"
+                              )}
+                              onClick={() => setImportProvider(provider.id)}
+                            >
+                              <CardContent className="p-3">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-8 h-8 bg-gradient-primary rounded-md flex items-center justify-center">
+                                    <span className="text-sm">{provider.icon}</span>
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <h3 className="font-medium text-text-primary text-sm">{provider.name}</h3>
+                                    <p className="text-xs text-text-muted truncate">{provider.description}</p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column - Configuration Forms */}
+                    <div className="space-y-4">
+                      {importProvider === 'twilio' && (
+                        <div className="space-y-4">
+                          <h4 className="font-medium text-text-primary text-sm flex items-center gap-2">
+                            🔷 Twilio Import Configuration
+                          </h4>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <Label htmlFor="twilio-country" className="text-xs">Country</Label>
+                              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                                <SelectTrigger className="h-8">
+                                  <SelectValue placeholder="Select country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="US">🇺🇸 United States</SelectItem>
+                                  <SelectItem value="CA">🇨🇦 Canada</SelectItem>
+                                  <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
+                                  <SelectItem value="IN">🇮🇳 India</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-1">
+                              <Label htmlFor="twilio-phone" className="text-xs">Phone Number</Label>
+                              <Input id="twilio-phone" className="h-8 text-sm" placeholder="+14156021922" />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="twilio-sid" className="text-xs">
+                              Twilio Account SID
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="w-3 h-3 ml-1 text-accent-blue inline cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-surface border-border text-text-primary">
+                                  <p className="text-xs">Found in your Twilio Console dashboard</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </Label>
+                            <Input id="twilio-sid" className="h-8 text-sm" placeholder="Twilio Account SID" />
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="twilio-token" className="text-xs">
+                              Twilio Auth Token
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="w-3 h-3 ml-1 text-accent-blue inline cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-surface border-border text-text-primary">
+                                  <p className="text-xs">Your secret auth token from Twilio Console</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </Label>
+                            <Input id="twilio-token" className="h-8 text-sm" type="password" placeholder="Twilio Auth Token" />
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="twilio-label" className="text-xs">Label</Label>
+                            <Input id="twilio-label" className="h-8 text-sm" placeholder="Label for Phone Number" />
+                          </div>
+
+                          <div className="flex items-center justify-between p-2 bg-surface-2 rounded-md">
+                            <div className="space-y-0">
+                              <Label className="text-xs font-medium">SMS Enabled</Label>
+                              <p className="text-xs text-text-muted">Enable SMS messaging</p>
+                            </div>
+                            <input type="checkbox" className="w-3 h-3" defaultChecked />
+                          </div>
+                        </div>
+                      )}
+
+                      {importProvider === 'telnyx' && (
+                        <div className="space-y-4">
+                          <h4 className="font-medium text-text-primary text-sm flex items-center gap-2">
+                            🟢 Telnyx Import Configuration
+                          </h4>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <Label htmlFor="telnyx-country" className="text-xs">Country</Label>
+                              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                                <SelectTrigger className="h-8">
+                                  <SelectValue placeholder="Select country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="US">🇺🇸 United States</SelectItem>
+                                  <SelectItem value="CA">🇨🇦 Canada</SelectItem>
+                                  <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
+                                  <SelectItem value="IN">🇮🇳 India</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-1">
+                              <Label htmlFor="telnyx-phone" className="text-xs">Phone Number</Label>
+                              <Input id="telnyx-phone" className="h-8 text-sm" placeholder="+14156021922" />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="telnyx-api-key" className="text-xs">
+                              API Key
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="w-3 h-3 ml-1 text-accent-blue inline cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-surface border-border text-text-primary">
+                                  <p className="text-xs">Your Telnyx API key from the developer portal</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </Label>
+                            <Input id="telnyx-api-key" className="h-8 text-sm" type="password" placeholder="Enter API Key" />
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="telnyx-label" className="text-xs">Label</Label>
+                            <Input id="telnyx-label" className="h-8 text-sm" placeholder="Label for Phone Number" />
+                          </div>
+
+                          <div className="flex items-center justify-between p-2 bg-surface-2 rounded-md">
+                            <div className="space-y-0">
+                              <Label className="text-xs font-medium">SMS Enabled</Label>
+                              <p className="text-xs text-text-muted">Enable SMS messaging</p>
+                            </div>
+                            <input type="checkbox" className="w-3 h-3" defaultChecked />
+                          </div>
+                        </div>
+                      )}
+
+                      {importProvider === 'sarvam' && (
+                        <div className="space-y-4">
+                          <h4 className="font-medium text-text-primary text-sm flex items-center gap-2">
+                            🔵 Sarvam Import Configuration
+                          </h4>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1">
+                              <Label htmlFor="sarvam-country" className="text-xs">Country</Label>
+                              <Select value={selectedCountry} onValueChange={setSelectedCountry}>
+                                <SelectTrigger className="h-8">
+                                  <SelectValue placeholder="Select country" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="US">🇺🇸 United States</SelectItem>
+                                  <SelectItem value="CA">🇨🇦 Canada</SelectItem>
+                                  <SelectItem value="GB">🇬🇧 United Kingdom</SelectItem>
+                                  <SelectItem value="IN">🇮🇳 India</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-1">
+                              <Label htmlFor="sarvam-phone" className="text-xs">Phone Number</Label>
+                              <Input id="sarvam-phone" className="h-8 text-sm" placeholder="+14156021922" />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="sarvam-sid" className="text-xs">
+                              Sarvam Account SID
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="w-3 h-3 ml-1 text-accent-blue inline cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-surface border-border text-text-primary">
+                                  <p className="text-xs">Found in your Sarvam Console dashboard</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </Label>
+                            <Input id="sarvam-sid" className="h-8 text-sm" placeholder="Sarvam Account SID" />
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="sarvam-token" className="text-xs">
+                              Sarvam Auth Token
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="w-3 h-3 ml-1 text-accent-blue inline cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-surface border-border text-text-primary">
+                                  <p className="text-xs">Your secret auth token from Sarvam Console</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </Label>
+                            <Input id="sarvam-token" className="h-8 text-sm" type="password" placeholder="Sarvam Auth Token" />
+                          </div>
+
+                          <div className="space-y-1">
+                            <Label htmlFor="sarvam-label" className="text-xs">Label</Label>
+                            <Input id="sarvam-label" className="h-8 text-sm" placeholder="Label for Phone Number" />
+                          </div>
+
+                          <div className="flex items-center justify-between p-2 bg-surface-2 rounded-md">
+                            <div className="space-y-0">
+                              <Label className="text-xs font-medium">SMS Enabled</Label>
+                              <p className="text-xs text-text-muted">Enable SMS messaging</p>
+                            </div>
+                            <input type="checkbox" className="w-3 h-3" defaultChecked />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="sip" className="space-y-6">
+                  <div className="grid grid-cols-2 gap-6">
+                    {/* Left Column - Instructions */}
+                    <div className="space-y-4">
+                      <div className="bg-surface-2 p-4 rounded-lg border border-border">
+                        <div className="flex items-start gap-3">
+                          <HelpCircle className="w-5 h-5 text-accent-blue mt-0.5 flex-shrink-0" />
+                          <div>
+                            <h4 className="font-medium text-text-primary">SIP Trunking Setup</h4>
+                            <p className="text-sm text-text-muted mt-1">
+                              Connect your existing phone number through your SIP provider. You'll need SIP credentials from your provider.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Column - Configuration Form */}
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="sip-domain" className="text-sm">SIP Domain</Label>
+                          <Input id="sip-domain" className="h-9" placeholder="sip.yourprovider.com" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="sip-port" className="text-sm">Port</Label>
+                          <Input id="sip-port" className="h-9" placeholder="5060" />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="sip-username" className="text-sm">Username</Label>
+                          <Input id="sip-username" className="h-9" placeholder="Your SIP username" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="sip-password" className="text-sm">Password</Label>
+                          <Input id="sip-password" className="h-9" type="password" placeholder="Your SIP password" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="phone-number" className="text-sm">Phone Number</Label>
+                        <Input id="phone-number" className="h-9" placeholder="+1 (555) 123-4567" />
+                        <p className="text-xs text-text-muted">The phone number associated with this SIP trunk</p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <div className="flex justify-end gap-3 pt-6 border-t">
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancel
                 </Button>
