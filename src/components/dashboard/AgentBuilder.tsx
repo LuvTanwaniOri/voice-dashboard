@@ -1,5 +1,13 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+// Add Web Speech API types
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,6 +41,7 @@ import {
   Mic,
   MicOff,
   HelpCircle,
+  Square,
   Sparkles,
   Eye
 } from "lucide-react";
@@ -52,6 +61,8 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
   const [selectedModel, setSelectedModel] = useState("gpt-4-turbo");
   const [selectedTemplate, setSelectedTemplate] = useState("lead-collection");
   const [isRecording, setIsRecording] = useState<string | null>(null);
+  const [recognition, setRecognition] = useState<any>(null);
+  const [isListening, setIsListening] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   
   // Function dialogs state
@@ -202,16 +213,85 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
     { id: "api", name: "API Request", enabled: true, description: "Custom webhook calls" },
   ];
 
-  const handleSpeechInput = (sectionKey: string, mode: 'replace' | 'append' | 'edit') => {
-    setIsRecording(sectionKey);
-    // TODO: Implement speech recognition
-    console.log(`Starting speech input for ${sectionKey} in ${mode} mode`);
-    
-    // Simulate speech recognition (replace with actual implementation)
-    setTimeout(() => {
+  const handleSpeechInput = async (sectionKey: string, mode: 'replace' | 'append' | 'edit') => {
+    if (isRecording === sectionKey) {
+      // Stop recording
+      if (recognition) {
+        recognition.stop();
+        setRecognition(null);
+      }
       setIsRecording(null);
-      console.log("Speech recognition completed");
-    }, 3000);
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      // Request microphone permission
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Check if speech recognition is available
+      const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        console.error('Speech recognition not supported');
+        return;
+      }
+
+      const speechRecognition = new SpeechRecognition();
+      speechRecognition.continuous = true;
+      speechRecognition.interimResults = true;
+      speechRecognition.lang = 'en-US';
+
+      let finalTranscript = '';
+
+      speechRecognition.onstart = () => {
+        setIsRecording(sectionKey);
+        setIsListening(true);
+      };
+
+      speechRecognition.onresult = (event: any) => {
+        let interimTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+
+        // Update the text field with both final and interim results
+        const currentText = brainSections[sectionKey as keyof typeof brainSections];
+        const newText = mode === 'replace' 
+          ? finalTranscript + interimTranscript
+          : currentText + ' ' + finalTranscript + interimTranscript;
+          
+        setBrainSections(prev => ({
+          ...prev,
+          [sectionKey]: newText
+        }));
+      };
+
+      speechRecognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsRecording(null);
+        setIsListening(false);
+        setRecognition(null);
+      };
+
+      speechRecognition.onend = () => {
+        setIsRecording(null);
+        setIsListening(false);
+        setRecognition(null);
+      };
+
+      setRecognition(speechRecognition);
+      speechRecognition.start();
+
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+    }
   };
 
   const applyTemplate = (templateId: string) => {
@@ -616,58 +696,21 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
               </CardContent>
             </Card>
 
-            {/* AI Agent Configuration Sections */}
-            <div className="space-y-8">
-              {[
-                {
-                  key: "identity",
-                  title: "Identity & Persona", 
-                  tooltip: "Define your AI agent's professional background, personality, and role. Be specific about experience level, communication style, and industry expertise. Include details like years of experience, industry knowledge, and personality traits.",
-                  icon: <Bot className="w-5 h-5 text-primary" />,
-                  placeholder: "Example: You are Sarah, a professional and friendly lead qualification agent representing our SaaS company. You have 5+ years of experience in B2B sales and understand the importance of building rapport while efficiently qualifying prospects..."
-                },
-                {
-                  key: "conversation", 
-                  title: "Conversation Instructions",
-                  tooltip: "Outline how your agent should structure conversations, handle greetings, build rapport, and guide the flow of dialogue. Include opening lines, question sequences, and conversation pacing.",
-                  icon: <Volume2 className="w-5 h-5 text-primary" />,
-                  placeholder: "Example: Start each conversation with a warm greeting and introduce yourself. Ask for the prospect's name and use it throughout the conversation. Listen actively and ask follow-up questions to understand their business needs deeply..."
-                },
-                {
-                  key: "rebuttal",
-                  title: "Comprehensive Rebuttal Handling", 
-                  tooltip: "Provide strategies for handling objections and concerns. Include specific phrases and techniques for overcoming common sales barriers. Use proven frameworks like Feel-Felt-Found method.",
-                  icon: <Shield className="w-5 h-5 text-primary" />,
-                  placeholder: "Example: When handling objections, acknowledge the prospect's concerns first. Use the 'Feel, Felt, Found' method: 'I understand how you feel, many of our clients felt the same way, but they found that...' Always provide specific examples and social proof..."
-                },
-                {
-                  key: "closing",
-                  title: "Call Closing",
-                  tooltip: "Define how your agent should wrap up conversations, summarize key points, and secure next steps or commitments. Include techniques for creating urgency and clear call-to-actions.",
-                  icon: <TestTube className="w-5 h-5 text-primary" />,
-                  placeholder: "Example: Summarize the key pain points discussed and how our solution addresses them. Ask for a clear next step: either a demo, a meeting with decision makers, or a trial. Create urgency by mentioning limited-time offers or competitor risks..."
-                },
-                {
-                  key: "compliance",
-                  title: "Compliance Rules", 
-                  tooltip: "Set legal and regulatory guidelines your agent must follow, including disclosure requirements and consent protocols. Specify TCPA, TRAI, or other regional compliance needs.",
-                  icon: <FileText className="w-5 h-5 text-primary" />,
-                  placeholder: "Example: Always identify yourself and your company at the beginning of the call. Respect opt-out requests immediately. Follow TCPA guidelines for US prospects and TRAI guidelines for Indian prospects. Record consent when required..."
-                },
-                {
-                  key: "guardrail",
-                  title: "Guardrail",
-                  tooltip: "Establish boundaries and limitations for your agent. Define what it should never do or promise to maintain trust and accuracy. Include escalation triggers and safety measures.",
-                  icon: <Settings className="w-5 h-5 text-primary" />,
-                  placeholder: "Example: Never make false claims about pricing or features. Don't commit to delivery timelines without checking with the team. If asked about technical details you're unsure about, admit you'll need to follow up with an expert..."
-                }
-              ].map((section) => (
-                <Card key={section.key} className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-200">
+            {/* AI Agent Configuration Sections - Reorganized Grid Layout */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              {/* Core Identity Section */}
+              <div className="space-y-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Bot className="w-6 h-6 text-primary" />
+                  <h3 className="text-xl font-bold text-foreground">Core Identity</h3>
+                </div>
+                
+                {/* Identity & Persona */}
+                <Card className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-200">
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        {section.icon}
-                        <span className="text-lg font-semibold">{section.title}</span>
+                        <span className="text-lg font-semibold">Identity & Persona</span>
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button variant="ghost" size="sm" className="p-0 h-6 w-6 hover:bg-muted">
@@ -675,21 +718,21 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent className="max-w-sm p-4">
-                            <p className="text-sm leading-relaxed">{section.tooltip}</p>
+                            <p className="text-sm leading-relaxed">Define your AI agent's professional background, personality, and role. Be specific about experience level, communication style, and industry expertise.</p>
                           </TooltipContent>
                         </Tooltip>
                       </div>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleSpeechInput(section.key, 'replace')}
-                        disabled={isRecording === section.key}
+                        onClick={() => handleSpeechInput('identity', 'replace')}
+                        disabled={isRecording === 'identity'}
                         className="flex items-center space-x-2 bg-background hover:bg-muted"
                       >
-                        {isRecording === section.key ? (
+                        {isRecording === 'identity' ? (
                           <>
-                            <MicOff className="w-4 h-4 text-destructive animate-pulse" />
-                            <span className="text-xs text-destructive">Recording...</span>
+                            <Square className="w-4 h-4 text-destructive" />
+                            <span className="text-xs text-destructive">Stop</span>
                           </>
                         ) : (
                           <>
@@ -702,21 +745,280 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
                   </CardHeader>
                   <CardContent>
                     <Textarea
-                      placeholder={section.placeholder}
-                      className="min-h-[140px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background"
-                      value={brainSections[section.key as keyof typeof brainSections]}
+                      placeholder="Example: You are Sarah, a professional and friendly lead qualification agent representing our SaaS company. You have 5+ years of experience in B2B sales..."
+                      className="min-h-[120px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background"
+                      value={brainSections.identity}
                       onChange={(e) => setBrainSections(prev => ({
                         ...prev,
-                        [section.key]: e.target.value
+                        identity: e.target.value
                       }))}
-                      style={{
-                        minHeight: '140px',
-                        lineHeight: '1.6'
-                      }}
                     />
                   </CardContent>
                 </Card>
-              ))}
+
+                {/* Conversation Instructions */}
+                <Card className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-200">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg font-semibold">Conversation Flow</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-6 w-6 hover:bg-muted">
+                              <HelpCircle className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm p-4">
+                            <p className="text-sm leading-relaxed">Outline how your agent should structure conversations, handle greetings, and guide dialogue flow.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSpeechInput('conversation', 'replace')}
+                        disabled={isRecording === 'conversation'}
+                        className="flex items-center space-x-2 bg-background hover:bg-muted"
+                      >
+                        {isRecording === 'conversation' ? (
+                          <>
+                            <Square className="w-4 h-4 text-destructive" />
+                            <span className="text-xs text-destructive">Stop</span>
+                          </>
+                        ) : (
+                          <>
+                            <Mic className="w-4 h-4 text-primary" />
+                            <span className="text-xs">Speak</span>
+                          </>
+                        )}
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      placeholder="Example: Start each conversation with a warm greeting and introduce yourself. Ask for the prospect's name and use it throughout..."
+                      className="min-h-[120px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background"
+                      value={brainSections.conversation}
+                      onChange={(e) => setBrainSections(prev => ({
+                        ...prev,
+                        conversation: e.target.value
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Call Closing */}
+                <Card className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-200">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg font-semibold">Call Closing</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-6 w-6 hover:bg-muted">
+                              <HelpCircle className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm p-4">
+                            <p className="text-sm leading-relaxed">Define how your agent should wrap up conversations, summarize key points, and secure next steps.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSpeechInput('closing', 'replace')}
+                        disabled={isRecording === 'closing'}
+                        className="flex items-center space-x-2 bg-background hover:bg-muted"
+                      >
+                        {isRecording === 'closing' ? (
+                          <>
+                            <Square className="w-4 h-4 text-destructive" />
+                            <span className="text-xs text-destructive">Stop</span>
+                          </>
+                        ) : (
+                          <>
+                            <Mic className="w-4 h-4 text-primary" />
+                            <span className="text-xs">Speak</span>
+                          </>
+                        )}
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      placeholder="Example: Summarize the key pain points discussed and how our solution addresses them. Ask for a clear next step..."
+                      className="min-h-[120px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background"
+                      value={brainSections.closing}
+                      onChange={(e) => setBrainSections(prev => ({
+                        ...prev,
+                        closing: e.target.value
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Safety & Compliance Section */}
+              <div className="space-y-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <Shield className="w-6 h-6 text-primary" />
+                  <h3 className="text-xl font-bold text-foreground">Safety & Guidelines</h3>
+                </div>
+
+                {/* Rebuttal Handling */}
+                <Card className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-200">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg font-semibold">Objection Handling</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-6 w-6 hover:bg-muted">
+                              <HelpCircle className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm p-4">
+                            <p className="text-sm leading-relaxed">Provide strategies for handling objections and concerns using proven frameworks like Feel-Felt-Found.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSpeechInput('rebuttal', 'replace')}
+                        disabled={isRecording === 'rebuttal'}
+                        className="flex items-center space-x-2 bg-background hover:bg-muted"
+                      >
+                        {isRecording === 'rebuttal' ? (
+                          <>
+                            <Square className="w-4 h-4 text-destructive" />
+                            <span className="text-xs text-destructive">Stop</span>
+                          </>
+                        ) : (
+                          <>
+                            <Mic className="w-4 h-4 text-primary" />
+                            <span className="text-xs">Speak</span>
+                          </>
+                        )}
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      placeholder="Example: When handling objections, acknowledge the prospect's concerns first. Use the 'Feel, Felt, Found' method..."
+                      className="min-h-[120px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background"
+                      value={brainSections.rebuttal}
+                      onChange={(e) => setBrainSections(prev => ({
+                        ...prev,
+                        rebuttal: e.target.value
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Compliance Rules */}
+                <Card className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-200">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg font-semibold">Compliance Rules</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-6 w-6 hover:bg-muted">
+                              <HelpCircle className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm p-4">
+                            <p className="text-sm leading-relaxed">Set legal and regulatory guidelines your agent must follow, including disclosure requirements.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSpeechInput('compliance', 'replace')}
+                        disabled={isRecording === 'compliance'}
+                        className="flex items-center space-x-2 bg-background hover:bg-muted"
+                      >
+                        {isRecording === 'compliance' ? (
+                          <>
+                            <Square className="w-4 h-4 text-destructive" />
+                            <span className="text-xs text-destructive">Stop</span>
+                          </>
+                        ) : (
+                          <>
+                            <Mic className="w-4 h-4 text-primary" />
+                            <span className="text-xs">Speak</span>
+                          </>
+                        )}
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      placeholder="Example: Always identify yourself and your company at the beginning of the call. Respect opt-out requests immediately..."
+                      className="min-h-[120px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background"
+                      value={brainSections.compliance}
+                      onChange={(e) => setBrainSections(prev => ({
+                        ...prev,
+                        compliance: e.target.value
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Guardrails */}
+                <Card className="bg-gradient-card border-border/50 shadow-card hover:shadow-lg transition-all duration-200">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg font-semibold">Safety Guardrails</span>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="sm" className="p-0 h-6 w-6 hover:bg-muted">
+                              <HelpCircle className="w-4 h-4 text-muted-foreground hover:text-foreground" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-sm p-4">
+                            <p className="text-sm leading-relaxed">Establish boundaries and limitations for your agent. Define what it should never do to maintain trust.</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleSpeechInput('guardrail', 'replace')}
+                        disabled={isRecording === 'guardrail'}
+                        className="flex items-center space-x-2 bg-background hover:bg-muted"
+                      >
+                        {isRecording === 'guardrail' ? (
+                          <>
+                            <Square className="w-4 h-4 text-destructive" />
+                            <span className="text-xs text-destructive">Stop</span>
+                          </>
+                        ) : (
+                          <>
+                            <Mic className="w-4 h-4 text-primary" />
+                            <span className="text-xs">Speak</span>
+                          </>
+                        )}
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      placeholder="Example: Never make false claims about pricing or features. Don't commit to delivery timelines without checking with the team..."
+                      className="min-h-[120px] resize-y text-sm leading-relaxed bg-background/50 border-border/60 focus:border-primary/60 focus:bg-background"
+                      value={brainSections.guardrail}
+                      onChange={(e) => setBrainSections(prev => ({
+                        ...prev,
+                        guardrail: e.target.value
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TooltipProvider>
         </TabsContent>
