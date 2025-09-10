@@ -22,6 +22,7 @@ const navigation = [
   { id: 'conversations', name: 'Conversations', icon: MessageSquare },
   { id: 'campaigns', name: 'Campaigns', icon: Target },
   { id: 'agents', name: 'AI Agents', icon: Bot },
+  { id: 'telephony', name: 'Telephony', icon: Phone },
   { id: 'analytics', name: 'Analytics', icon: Activity },
   { id: 'knowledge', name: 'Knowledge Base', icon: Database },
   { id: 'operations', name: 'Live Monitoring', icon: Zap },

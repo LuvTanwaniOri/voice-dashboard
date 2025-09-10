@@ -14,6 +14,7 @@ import { OperationsWallboard } from "@/components/dashboard/OperationsWallboard"
 import { VoiceLexicon } from "@/components/dashboard/VoiceLexicon";
 import { Conversations } from "@/components/dashboard/Conversations";
 import { AuditingHistory } from "@/components/dashboard/AuditingHistory";
+import { Telephony } from "@/components/dashboard/Telephony";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -101,6 +102,8 @@ const Index = () => {
             onCreateAgent={handleCreateAgent}
           />
         );
+      case 'telephony':
+        return <Telephony />;
       case 'analytics':
         return <Analytics />;
       case 'knowledge':
