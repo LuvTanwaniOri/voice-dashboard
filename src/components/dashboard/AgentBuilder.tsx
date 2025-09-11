@@ -46,6 +46,7 @@ import {
   Eye
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { WorkflowBuilder } from "./WorkflowBuilder";
 
 interface AgentBuilderProps {
   agentId?: string | null;
@@ -341,10 +342,14 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
       </div>
 
       <Tabs defaultValue="persona" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="persona" className="flex items-center space-x-2">
             <Bot className="w-4 h-4" />
             <span>Persona</span>
+          </TabsTrigger>
+          <TabsTrigger value="workflow" className="flex items-center space-x-2">
+            <FileText className="w-4 h-4" />
+            <span>Workflow</span>
           </TabsTrigger>
           <TabsTrigger value="brain" className="flex items-center space-x-2">
             <Brain className="w-4 h-4" />
@@ -541,6 +546,23 @@ export function AgentBuilder({ agentId, onBack, isCreating }: AgentBuilderProps)
             </Card>
           </div>
 
+        </TabsContent>
+
+        <TabsContent value="workflow" className="space-y-6">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Agent Workflow</h2>
+                <p className="text-muted-foreground mt-1">Design conversation flows and decision trees for your AI agent</p>
+              </div>
+            </div>
+            
+            <Card className="bg-gradient-card border-border/50 shadow-card">
+              <CardContent className="p-0">
+                <WorkflowBuilder />
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
 
         <TabsContent value="brain" className="space-y-6">
