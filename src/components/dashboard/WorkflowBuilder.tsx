@@ -22,7 +22,10 @@ import {
   Square,
   Users,
   FileCode,
-  Webhook
+  Webhook,
+  Search,
+  Download,
+  RotateCcw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -190,6 +193,32 @@ export function WorkflowBuilder({ workflowData, onSave }: WorkflowBuilderProps) 
     };
   });
 
+  const getNodeIcon = (type: string) => {
+    switch (type) {
+      case 'start': return <Play className="w-4 h-4" />;
+      case 'subagent': return <Bot className="w-4 h-4" />;
+      case 'condition': return <Settings className="w-4 h-4" />;
+      case 'tool': return <Wrench className="w-4 h-4" />;
+      case 'transfer': return <Users className="w-4 h-4" />;
+      case 'phone_transfer': return <PhoneCall className="w-4 h-4" />;
+      case 'end': return <Square className="w-4 h-4" />;
+      default: return <Settings className="w-4 h-4" />;
+    }
+  };
+
+  const getNodeColor = (type: string) => {
+    switch (type) {
+      case 'start': return 'text-primary';
+      case 'subagent': return 'text-blue-500';
+      case 'condition': return 'text-orange-500';
+      case 'tool': return 'text-green-500';
+      case 'transfer': return 'text-purple-500';
+      case 'phone_transfer': return 'text-indigo-500';
+      case 'end': return 'text-red-500';
+      default: return 'text-muted-foreground';
+    }
+  };
+
   const renderNode = (node: WorkflowNode) => {
     const isSelected = selectedNode === node.id;
     const isHovered = hoveredNode === node.id;
@@ -199,9 +228,10 @@ export function WorkflowBuilder({ workflowData, onSave }: WorkflowBuilderProps) 
       <div
         key={node.id}
         className={cn(
-          "absolute bg-background border rounded-lg p-3 cursor-pointer transition-all duration-200 min-w-[160px]",
-          isSelected && "border-primary shadow-lg ring-2 ring-primary/20",
-          !isSelected && "border-border hover:border-primary/50 hover:shadow-md"
+          "absolute bg-background border-2 rounded-xl p-4 cursor-pointer transition-all duration-200 min-w-[180px] group shadow-sm",
+          isSelected && "border-primary shadow-lg ring-2 ring-primary/20 bg-primary/5",
+          !isSelected && "border-border hover:border-primary/50 hover:shadow-md hover:bg-accent/50",
+          node.type === 'start' && "border-primary/70 bg-primary/10"
         )}
         style={{ left: node.x, top: node.y }}
         onMouseDown={(e) => handleMouseDown(e, node.id)}
@@ -209,19 +239,30 @@ export function WorkflowBuilder({ workflowData, onSave }: WorkflowBuilderProps) 
         onMouseEnter={() => setHoveredNode(node.id)}
         onMouseLeave={() => setHoveredNode(null)}
       >
-        <div className="flex items-center space-x-2 mb-2">
-          {node.type === 'start' && <Play className="w-4 h-4 text-primary" />}
-          {node.type === 'subagent' && <Bot className="w-4 h-4 text-blue-500" />}
-          {node.type === 'condition' && <Settings className="w-4 h-4 text-orange-500" />}
-          {node.type === 'tool' && <Wrench className="w-4 h-4 text-green-500" />}
-          {node.type === 'transfer' && <Users className="w-4 h-4 text-purple-500" />}
-          {node.type === 'phone_transfer' && <PhoneCall className="w-4 h-4 text-indigo-500" />}
-          {node.type === 'end' && <Square className="w-4 h-4 text-red-500" />}
-          <span className="text-sm font-medium">{node.data.label}</span>
+        <div className="flex items-center space-x-3 mb-3">
+          <div className={cn("p-1.5 rounded-lg bg-background border", getNodeColor(node.type))}>
+            {getNodeIcon(node.type)}
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="text-sm font-semibold text-foreground block truncate">
+              {node.data.label}
+            </span>
+            {node.data.selectedAgent && (
+              <span className="text-xs text-muted-foreground block truncate">
+                {node.data.selectedAgent}
+              </span>
+            )}
+            {node.data.phoneNumber && (
+              <span className="text-xs text-muted-foreground block truncate">
+                {node.data.countryCode || '+1'} {node.data.phoneNumber}
+              </span>
+            )}
+          </div>
         </div>
-        
+
+        {/* Action buttons */}
         {node.type !== 'start' && (
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="flex items-center justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2">
             <Button
               size="sm"
               variant="ghost"
@@ -229,7 +270,7 @@ export function WorkflowBuilder({ workflowData, onSave }: WorkflowBuilderProps) 
                 e.stopPropagation();
                 duplicateNode(node.id);
               }}
-              className="h-6 w-6 p-0"
+              className="h-7 w-7 p-0 hover:bg-background/80"
             >
               <Copy className="w-3 h-3" />
             </Button>
@@ -240,7 +281,7 @@ export function WorkflowBuilder({ workflowData, onSave }: WorkflowBuilderProps) 
                 e.stopPropagation();
                 deleteNode(node.id);
               }}
-              className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+              className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
             >
               <X className="w-3 h-3" />
             </Button>
@@ -252,18 +293,27 @@ export function WorkflowBuilder({ workflowData, onSave }: WorkflowBuilderProps) 
           <Button
             size="sm"
             variant="outline"
-            className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 h-6 w-6 p-0 rounded-full bg-background"
+            className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 h-7 w-7 p-0 rounded-full bg-background border-2 hover:bg-primary hover:text-primary-foreground hover:border-primary"
             onClick={(e) => {
               e.stopPropagation();
               setShowAddMenu({ 
                 nodeId: node.id, 
-                x: node.x + 80, 
-                y: node.y + 80 
+                x: node.x + 90, 
+                y: node.y + 100 
               });
             }}
           >
-            <Plus className="w-3 h-3" />
+            <Plus className="w-4 h-4" />
           </Button>
+        )}
+
+        {/* Condition badges for branches */}
+        {node.type === 'condition' && node.connections.length > 0 && (
+          <div className="absolute -bottom-1 right-2">
+            <Badge variant="secondary" className="text-xs px-2 py-1">
+              Configure condition
+            </Badge>
+          </div>
         )}
       </div>
     );
@@ -366,25 +416,158 @@ export function WorkflowBuilder({ workflowData, onSave }: WorkflowBuilderProps) 
           {node.type === 'transfer' && (
             <div className="space-y-4">
               <div>
-                <Label>Transfer type</Label>
+                <Label>Transfer to</Label>
                 <Select
-                  value={node.data.transferType || 'agent'}
-                  onValueChange={(value) => updateNodeData(node.id, { transferType: value })}
+                  value={node.data.selectedAgent || ''}
+                  onValueChange={(value) => updateNodeData(node.id, { selectedAgent: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select an agent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="zomato-agent">Zomato Agent</SelectItem>
+                    <SelectItem value="medicare-test">Medicare Test</SelectItem>
+                    <SelectItem value="test-agent">Test agent</SelectItem>
+                    <SelectItem value="new-agent">New agent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Delay before transfer (milliseconds)</Label>
+                <Input
+                  type="number"
+                  value={node.data.delay || '0'}
+                  onChange={(e) => updateNodeData(node.id, { delay: e.target.value })}
+                  placeholder="0"
+                />
+              </div>
+              <div>
+                <Label>Transfer Message</Label>
+                <Textarea
+                  value={node.data.transferMessage || ''}
+                  onChange={(e) => updateNodeData(node.id, { transferMessage: e.target.value })}
+                  placeholder="Enter message to say during transfer (optional)."
+                  rows={2}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="enable-first-message"
+                  checked={node.data.enableFirstMessage || false}
+                  onCheckedChange={(checked) => updateNodeData(node.id, { enableFirstMessage: checked })}
+                />
+                <Label htmlFor="enable-first-message">Enable First Message</Label>
+              </div>
+            </div>
+          )}
+
+          {node.type === 'phone_transfer' && (
+            <div className="space-y-4">
+              <div>
+                <Label>Transfer type</Label>
+                <div className="flex space-x-2">
+                  <Button
+                    size="sm"
+                    variant={node.data.transferType === 'conference' ? 'default' : 'outline'}
+                    onClick={() => updateNodeData(node.id, { transferType: 'conference' })}
+                    className="flex-1"
+                  >
+                    Conference
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={node.data.transferType === 'sip_refer' ? 'default' : 'outline'}
+                    onClick={() => updateNodeData(node.id, { transferType: 'sip_refer' })}
+                    className="flex-1"
+                  >
+                    SIP REFER
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label>Number type</Label>
+                <Select
+                  value={node.data.numberType || 'phone'}
+                  onValueChange={(value) => updateNodeData(node.id, { numberType: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="agent">Conference</SelectItem>
-                    <SelectItem value="phone">SIP REFER</SelectItem>
+                    <SelectItem value="phone">Phone</SelectItem>
+                    <SelectItem value="sip_uri">SIP URI</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div>
                 <Label>Phone Number</Label>
+                <div className="flex">
+                  <Select
+                    value={node.data.countryCode || '+1'}
+                    onValueChange={(value) => updateNodeData(node.id, { countryCode: value })}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                      <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                      <SelectItem value="+91">🇮🇳 +91</SelectItem>
+                      <SelectItem value="+216">🇹🇳 +216</SelectItem>
+                      <SelectItem value="+90">🇹🇷 +90</SelectItem>
+                      <SelectItem value="+993">🇹🇲 +993</SelectItem>
+                      <SelectItem value="+1649">🇹🇨 +1</SelectItem>
+                      <SelectItem value="+688">🇹🇻 +688</SelectItem>
+                      <SelectItem value="+256">🇺🇬 +256</SelectItem>
+                      <SelectItem value="+380">🇺🇦 +380</SelectItem>
+                      <SelectItem value="+971">🇦🇪 +971</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    className="flex-1 ml-2"
+                    value={node.data.phoneNumber || ''}
+                    onChange={(e) => updateNodeData(node.id, { phoneNumber: e.target.value })}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {node.type === 'subagent' && (
+            <div className="space-y-4">
+              <div>
+                <Label>Label</Label>
                 <Input
-                  value={node.data.phoneNumber || '+1'}
-                  onChange={(e) => updateNodeData(node.id, { phoneNumber: e.target.value })}
+                  value={node.data.label}
+                  onChange={(e) => updateNodeData(node.id, { label: e.target.value })}
+                  placeholder="New subagent"
+                />
+              </div>
+              <div>
+                <Label>Agent</Label>
+                <Select
+                  value={node.data.selectedAgent || ''}
+                  onValueChange={(value) => updateNodeData(node.id, { selectedAgent: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select agent" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="zomato-agent">Zomato Agent</SelectItem>
+                    <SelectItem value="medicare-test">Medicare Test</SelectItem>
+                    <SelectItem value="test-agent">Test agent</SelectItem>
+                    <SelectItem value="new-agent">New agent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Condition</Label>
+                <Textarea
+                  value={node.data.condition || ''}
+                  onChange={(e) => updateNodeData(node.id, { condition: e.target.value })}
+                  placeholder="e.g. The user wants to place an order"
+                  rows={3}
                 />
               </div>
             </div>
@@ -510,24 +693,70 @@ export function WorkflowBuilder({ workflowData, onSave }: WorkflowBuilderProps) 
   };
 
   return (
-    <div className="flex h-[600px] border rounded-lg">
+    <div className="flex h-[700px] border rounded-xl bg-background shadow-sm">
       {/* Canvas */}
       <div 
         ref={canvasRef}
-        className="flex-1 relative bg-muted/5 overflow-hidden"
+        className="flex-1 relative bg-dot-pattern overflow-hidden rounded-l-xl"
+        style={{
+          backgroundImage: 'radial-gradient(circle, hsl(var(--muted-foreground) / 0.15) 1px, transparent 1px)',
+          backgroundSize: '20px 20px'
+        }}
         onClick={() => {
           setSelectedNode(null);
           setShowAddMenu(null);
         }}
       >
+        {/* Canvas header */}
+        <div className="absolute top-4 left-4 z-10">
+          <div className="flex items-center space-x-2">
+            <Badge variant="outline" className="bg-background/80 backdrop-blur-sm">
+              Workflow Builder
+            </Badge>
+            <div className="flex items-center space-x-1 bg-background/80 backdrop-blur-sm rounded-md px-2 py-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-xs text-muted-foreground">Ready</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Canvas toolbar */}
+        <div className="absolute top-4 right-4 z-10">
+          <div className="flex items-center space-x-2 bg-background/80 backdrop-blur-sm rounded-lg p-2 border">
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+              <Search className="w-4 h-4" />
+            </Button>
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+              <Download className="w-4 h-4" />
+            </Button>
+            <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
         {renderConnections()}
         {nodes.map(renderNode)}
         {renderAddMenu()}
+
+        {/* Unsaved changes notification */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="flex items-center space-x-2 bg-orange-100 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg px-3 py-2">
+            <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+            <span className="text-sm text-orange-700 dark:text-orange-300">You have unsaved changes</span>
+            <Button size="sm" variant="ghost" className="h-6 text-orange-700 dark:text-orange-300">
+              Clear
+            </Button>
+            <Button size="sm" className="h-6 bg-orange-600 hover:bg-orange-700 text-white">
+              Save
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Configuration Panel */}
       {selectedNode && (
-        <div className="w-80 border-l">
+        <div className="w-96 border-l bg-muted/30">
           {renderConfigPanel()}
         </div>
       )}
